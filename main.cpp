@@ -9,18 +9,18 @@
 using namespace std;
 
 // key pada keyboard
-const int UP = 72;
-const int DOWN = 80;
-const int LEFT = 75;
-const int RIGHT = 77;
+#define UP 72
+#define DOWN 80
+#define LEFT 75
+#define RIGHT 77
 
 // menu yang dipilih
-const int SELECT = 11;
-const int UNSELECT = 7;
-const int ENTER = 13;
+#define SELECT 11
+#define UNSELECT 7
+#define ENTER 13
 
 // penyimpanan data
-const int STORAGE = 1000;
+#define STORAGE 1000
 
 // pilihan utk isi formulir
 const string GENDER[] = {"Laki-Laki", "Perempuan"};
@@ -48,7 +48,7 @@ Penduduk dataPenduduk[STORAGE];
 void color(unsigned short kodeWarna);
 tm *timeNow();
 int random();
-void cleanBuffer();
+void clearBuffer();
 bool logInBerhasil(string nik, string password);
 
 // sorting & searching
@@ -67,9 +67,11 @@ void logInPemerintah();
 void menuPemerintah();
 
 // write & read txt
-void saveToTxt(Penduduk penduduk);
-int banyakDataTersimpan();
-void konfigurasiData();
+int banyakDataTxt();
+void importFromTxt();
+void appendToTxt(Penduduk penduduk);
+void updateToTxt(Penduduk penduduk);
+void deleteFromTxt(Penduduk penduduk);
 
 /*----------------------------------- MAIN PROGRAM -----------------------------------*/
 
@@ -85,7 +87,7 @@ int main(){
         cout << endl << endl;
 
         // ambil data dari txt
-        konfigurasiData();
+        importFromTxt();
 
         cout << "\t            Selamat Datang!            \n";
         
@@ -101,30 +103,38 @@ int main(){
         char mode, pilih;
         mode = getch();
 
-        // mode pemerintah
-        if (mode == ENTER && opsi1 == SELECT) {
-            logInPemerintah();
-            goto skip;
-        // mode penduduk
-        } else if (mode == ENTER && opsi2 == SELECT) {
-            menuMasukPenduduk();
-            goto skip;
-        }
-
-        // pilihan lainnya
+        // opsi yg tersedia
         switch (mode) {
+
+            // tekan ENTER
+            case ENTER:
+                
+                // mode pemerintah
+                if (opsi1 == SELECT) {
+                    logInPemerintah();
+                
+                // mode penduduk
+                } else if (opsi2 = SELECT) {
+                    menuMasukPenduduk();
+                }
+
+                break;
             
-            // pilih opsi 
+            // tekan RIGHT || LEFT
             case -32:
                 pilih = getch();
-                if (pilih == RIGHT){
-                    opsi1 = UNSELECT;
-                    opsi2 = SELECT;
-                    
-                } else if (pilih == LEFT){
+
+                // pilih opsi 1
+                if (pilih == LEFT){
                     opsi1 = SELECT;
                     opsi2 = UNSELECT;
+                    
+                // pilih opsi 2  
+                } else if (pilih == RIGHT){
+                    opsi1 = UNSELECT;
+                    opsi2 = SELECT;
                 }
+
                 break;
 
             // opsi tidak ada
@@ -133,8 +143,6 @@ int main(){
                 continue;
                 break;
         }
-    
-        skip:
         warning = "";
     }
 
@@ -163,14 +171,14 @@ int random(){
     return rand()%9;
 }
 
-void cleanBuffer(){
+void clearBuffer(){
     cin.clear(); 
     cin.ignore(); 
     fflush(stdin);
 }
 
 bool logInBerhasil(string nik, string password) {
-    for (int i=0; i<banyakDataTersimpan(); i++){
+    for (int i=0; i<banyakDataTxt(); i++){
         if (
             dataPenduduk[i].nik == nik
             && dataPenduduk[i].password == password
@@ -182,13 +190,45 @@ bool logInBerhasil(string nik, string password) {
     return false;
 }
 
+bool isNIK(string str) {
+    int length = str.length();
+
+    char strChar[length];
+    strcpy(strChar, str.c_str());
+
+    int isInteger = 0;
+    for (int i=0; i<length; i++) {
+        int cek = (int)strChar[i] - 48;
+
+        if (0 <= cek && cek <= 9) {
+            isInteger += 1;
+        }
+    }
+
+    if (isInteger == length) {
+        return true;
+    } else {
+        return false;
+    }
+
+}
+
+int banyakData(){
+    for (int i=0; i<STORAGE; i++) {
+        if (dataPenduduk[i].nik == "") {
+            return i;
+        }
+    }
+    return STORAGE;
+}
+
 
 /* ----------------------------------- SORT & SEARCH ----------------------------------- */
 
 void insertionSortNIK(){
     Penduduk key;
     int i, j,
-        length = banyakDataTersimpan();
+        length = banyakDataTxt();
 
     for (i = 1; i < length; i++) {
 
@@ -209,7 +249,7 @@ int binarySearchNIK(string nik) {
 
     int index = -1,
         beg = 0,
-        end = banyakDataTersimpan()-1;
+        end = banyakDataTxt()-1;
 
     while (beg <= end){
         int mid = (end + beg)/2; 
@@ -258,40 +298,53 @@ void menuMasukPenduduk() {
         char menu, pilih;
         menu = getch();
 
-        if (menu == ENTER && opsi0 == SELECT) {
-            openPage = false;
-            break;
-
-        } else if (menu == ENTER && opsi1 == SELECT) {
-            logInPenduduk();
-            goto skip;
-
-        } else if (menu == ENTER && opsi2 == SELECT) {
-            signUpPenduduk();
-            goto skip;
-        }
-
+        // opsi yg tersedia
         switch (menu) {
+
+            // tekan ENTER
+            case ENTER:
+
+                // kembali
+                if (opsi0 == SELECT) {
+                    openPage = false;
+
+                // log in
+                } else if (opsi1 == SELECT) {
+                    logInPenduduk();
+
+                // sign up
+                } else if (opsi2 == SELECT) {
+                    signUpPenduduk();
+                }
+
+                break;
+
+            // tekan RIGHT || LEFT
             case -32:
                 pilih = getch();
+
+                // pilih opsi 0
                 if (
-                    pilih == LEFT && opsi0 == UNSELECT && opsi1 == SELECT
+                    pilih == LEFT && opsi1 == SELECT
                     || pilih == LEFT && opsi0 == SELECT
                 ) {
                     opsi0 = SELECT;
                     opsi1 = UNSELECT;
                     opsi2 = UNSELECT;
                 } 
+                
+                // pilih opsi 1
                 else if (
-                    pilih == RIGHT && opsi1 == UNSELECT && opsi2 == UNSELECT 
-                    || pilih == LEFT && opsi1 == UNSELECT && opsi2 == SELECT
+                    pilih == RIGHT && opsi0 == SELECT 
+                    || pilih == LEFT && opsi2 == SELECT
                 ) {
                     opsi0 = UNSELECT;
                     opsi1 = SELECT;
                     opsi2 = UNSELECT;
 
+                // pilih opsi 2
                 } else if (
-                    pilih == RIGHT && opsi2 == UNSELECT 
+                    pilih == RIGHT && opsi1 == SELECT 
                     || pilih == RIGHT && opsi2 == SELECT
                 ) {
                     opsi0 = UNSELECT;
@@ -307,33 +360,48 @@ void menuMasukPenduduk() {
                 break;
         }
 
-        skip:
         warning = "";
 
     }
 }
 
 void signUpPenduduk() {
-    cout << "\n\t#######################################\n" << endl;
+    color(14);
+    cout << "\n\t#######################################\n" << endl; color(7);
     Penduduk pendudukBaru;
 
     cout << "\tNama Lengkap : "; getline(cin, pendudukBaru.namaLengkap); fflush(stdin);
     cout << "\tNIK          : "; cin >> pendudukBaru.nik;                fflush(stdin);
     cout << "\tPassword     : "; getline(cin, pendudukBaru.password);    fflush(stdin);
     
-    saveToTxt(pendudukBaru);
+    // gagal sign up - nik sudah ada
+    if (binarySearchNIK(pendudukBaru.nik) != -1) {
 
-    color(10);
-    cout << "\n\t   Akun telah berhasil didaftarkan!  " << endl;
-    color(7);
+        color(12);
+        cout << "\n\t         NIK telah terdaftar!  " << endl; color(7);
+    
+    // gagal sign up - nik salah
+    } else if (!isNIK(pendudukBaru.nik)) {
+
+        color(12);
+        cout << "\n\t    NIK yang dimasukkan tidak valid!  " << endl; color(7);
+
+    // berhasil sign up
+    } else {
+
+        appendToTxt(pendudukBaru);
+
+        color(10);
+        cout << "\n\t    Akun telah berhasil didaftarkan!  " << endl; color(7);
+    }
 
     getch();
 
 }
 
 void logInPenduduk() {
-    cout << "\n\t#######################################\n" << endl;
-
+    color(14);
+    cout << "\n\t#######################################\n" << endl; color(7);
     string nik, password;
 
     cout << "\tNIK      : "; cin >> nik;             fflush(stdin);
@@ -387,26 +455,33 @@ void menuPenduduk(Penduduk penduduk){
         char menu, pilih;
         menu = getch();
 
-        if (menu == ENTER && opsi0 == SELECT) {
-            openPage = false;
-            break;
-
-        } else if (menu == ENTER && opsi1 == SELECT) {
-            isiFormulirData(penduduk);
-            goto skip;
-
-        } else if (menu == ENTER && opsi2 == SELECT) {
-            // tampilkan data diri
-            goto skip;
-        
-        } else if (menu == ENTER && opsi3 == SELECT) {
-            // ubah data diri
-            goto skip;
-        }
-
         switch (menu) {
+
+            // tekan ENTER
+            case ENTER:
+                // kembali
+                if (opsi0 == SELECT) {
+                    openPage = false;
+
+                // isi formulir
+                } else if (opsi1 == SELECT) {
+                    isiFormulirData(penduduk);
+
+                // tampilkan data diri
+                } else if (opsi2 == SELECT) {
+                    // tampilkan data diri
+
+                // ubah data diri
+                } else if (opsi3 == SELECT) {
+                    // ubah data diri
+                }
+                break;
+
+            // tekan UP || DOWN
             case -32:
                 pilih = getch();
+
+                // pilih opsi 0
                 if (
                     pilih == UP && opsi0 == SELECT
                     || pilih == UP && opsi1 == SELECT
@@ -416,6 +491,7 @@ void menuPenduduk(Penduduk penduduk){
                     opsi2 = UNSELECT; 
                     opsi3 = UNSELECT;
                 
+                // pilih opsi 1
                 } else if (
                     pilih == DOWN && opsi0 == SELECT
                     || pilih == UP && opsi2 == SELECT
@@ -425,6 +501,7 @@ void menuPenduduk(Penduduk penduduk){
                     opsi2 = UNSELECT; 
                     opsi3 = UNSELECT;
                 
+                // pilih opsi 2
                 } else if (
                     pilih == DOWN && opsi1 == SELECT
                     || pilih == UP && opsi3 == SELECT
@@ -434,6 +511,7 @@ void menuPenduduk(Penduduk penduduk){
                     opsi2 = SELECT; 
                     opsi3 = UNSELECT;
                 
+                // pilih opsi 3
                 } else if (
                     pilih == DOWN && opsi2 == SELECT
                     || pilih == DOWN && opsi3 == SELECT
@@ -452,7 +530,6 @@ void menuPenduduk(Penduduk penduduk){
             break;
         }
 
-        skip:
         warning = "";
     }
 
@@ -460,12 +537,10 @@ void menuPenduduk(Penduduk penduduk){
 
 void isiFormulirData(Penduduk penduduk){
     system("cls");
+    cout << endl << endl;
     
-    // nama lengkap
-    cout << "\tNama Lengkap \t: " << penduduk.namaLengkap << endl;
-
-    // NIK
-    cout << "\tNIK \t\t: " << penduduk.nik << endl;
+    cout << "\tNama Lengkap \t: " << penduduk.namaLengkap << endl;  // nama lengkap
+    cout << "\tNIK \t\t: " << penduduk.nik << endl;                 // NIK
 
     // TTL
     string tempat;
@@ -473,11 +548,11 @@ void isiFormulirData(Penduduk penduduk){
         thnNow = timeNow()->tm_year + 1900;
 
     cout << "\n\tTempat/Tanggal Lahir" << endl;
-    cout << "\t     Tempat\t: "; getline(cin, tempat); fflush(stdin); color(8); 
-    cout << "\t     -- isi di bawah ini dengan angka" << endl;        color(7);
-    cout << "\t     Tanggal\t: "; cin >> tanggal; cleanBuffer();
-    cout << "\t     Bulan\t: "; cin >> bulan;     cleanBuffer();
-    cout << "\t     Tahun\t: "; cin >> tahun;     cleanBuffer();
+    cout << "\t     Tempat\t: "; getline(cin, tempat)  ; fflush(stdin); color(8); 
+    cout << "\t     -- isi di bawah ini dengan angka\n";              color(7);
+    cout << "\t     Tanggal\t: "; cin >> tanggal; clearBuffer();
+    cout << "\t     Bulan\t: ";   cin >> bulan;   clearBuffer();
+    cout << "\t     Tahun\t: ";   cin >> tahun;   clearBuffer();
 
     // usia
     penduduk.usia = timeNow()->tm_year + 1900 - tahun;
@@ -518,6 +593,12 @@ void isiFormulirData(Penduduk penduduk){
     penduduk.agama = getche();
     cout << endl;
 
+    updateToTxt(penduduk);
+
+    color(10);
+    cout << "\n\t    Formulir telah berhasil diisi!  " << endl; color(7);
+
+    getch();
 }
 
 // pemerintah ::::::::::::::::::::
@@ -574,26 +655,34 @@ void menuPemerintah(){
         char menu, pilih;
         menu = getch();
 
-        if (menu == ENTER && opsi0 == SELECT) {
-            openPage = false;
-            break;
-
-        } else if (menu == ENTER && opsi1 == SELECT) {
-            // tampilkan data penduduk
-            goto skip;
-
-        } else if (menu == ENTER && opsi2 == SELECT) {
-            // ubah data penduduk
-            goto skip;
-        
-        } else if (menu == ENTER && opsi3 == SELECT) {
-            // tampilkan diagram
-            goto skip;
-        }
 
         switch (menu) {
+            // tekan ENTER
+            case ENTER:
+                // kembali
+                if (opsi0 == SELECT) {
+                    openPage = false;
+
+                // tampilkan data penduduk
+                } else if (opsi1 == SELECT) {
+                    // tampilkan data penduduk
+
+                // ubah data penduduk
+                } else if (opsi2 == SELECT) {
+                    // ubah data penduduk
+                
+                // tampilkan diagram
+                } else if (opsi3 == SELECT) {
+                    // tampilkan diagram
+                }
+
+                break;
+
+            // tekan UP || DOWN
             case -32:
                 pilih = getch();
+
+                // pilih opsi 0
                 if (
                     pilih == UP && opsi0 == SELECT
                     || pilih == UP && opsi1 == SELECT
@@ -603,6 +692,7 @@ void menuPemerintah(){
                     opsi2 = UNSELECT; 
                     opsi3 = UNSELECT;
                 
+                // pilih opsi 1
                 } else if (
                     pilih == DOWN && opsi0 == SELECT
                     || pilih == UP && opsi2 == SELECT
@@ -612,6 +702,7 @@ void menuPemerintah(){
                     opsi2 = UNSELECT; 
                     opsi3 = UNSELECT;
                 
+                // pilih opsi 2
                 } else if (
                     pilih == DOWN && opsi1 == SELECT
                     || pilih == UP && opsi3 == SELECT
@@ -621,6 +712,7 @@ void menuPemerintah(){
                     opsi2 = SELECT; 
                     opsi3 = UNSELECT;
                 
+                // pilih opsi 3
                 } else if (
                     pilih == DOWN && opsi2 == SELECT
                     || pilih == DOWN && opsi3 == SELECT
@@ -639,7 +731,6 @@ void menuPemerintah(){
             break;
         }
 
-        skip:
         warning = "";
     }
 
@@ -647,7 +738,7 @@ void menuPemerintah(){
 
 /* ----------------------------------- FILE TXT ----------------------------------- */
 
-int banyakDataTersimpan() {
+int banyakDataTxt() {
     ifstream file;
 
     file.open("data.txt");
@@ -666,24 +757,7 @@ int banyakDataTersimpan() {
 
 }
 
-void saveToTxt(Penduduk penduduk) {
-    ofstream file;
-
-    file.open("data.txt", std::ios::app);
-    file << penduduk.namaLengkap << "|"
-         << penduduk.nik << "|"
-         << penduduk.password << "|"
-         << penduduk.ttl << "|"
-         << penduduk.usia << "|"
-         << penduduk.gender << "|"
-         << penduduk.agama << "|"
-         << penduduk.golDar << "|"
-         << penduduk.status << "\n";
-
-    konfigurasiData();
-}
-
-void konfigurasiData() {
+void importFromTxt() {
     ifstream file;
 
     file.open("data.txt");
@@ -756,5 +830,61 @@ void konfigurasiData() {
 
     file.close();
 
+}
+
+void appendToTxt(Penduduk penduduk) {
+    ofstream file;
+
+    file.open("data.txt", ios::app);
+
+    file << penduduk.namaLengkap << "|"
+         << penduduk.nik << "|"
+         << penduduk.password << "|"
+         << penduduk.ttl << "|"
+         << penduduk.usia << "|"
+         << penduduk.gender << "|"
+         << penduduk.agama << "|"
+         << penduduk.golDar << "|"
+         << penduduk.status << "\n";
+
+    file.close();
+
+    importFromTxt();
+}
+
+void updateToTxt(Penduduk penduduk) {
+    deleteFromTxt(penduduk);
+    appendToTxt(penduduk);
+}
+
+void deleteFromTxt(Penduduk penduduk) {
+    fstream file;
+
+    file.open("data.txt", ios::out | ios::in | ios::app);
+
+    int length = banyakDataTxt(), 
+        index = 0;
+
+    string dataTersimpan[length], 
+           baris;
+
+    while (!file.eof()){
+        getline(file, baris);
+        dataTersimpan[index] = baris;
+    }
+
+    index = binarySearchNIK(penduduk.nik);
+
+    for (int i=0; i<length; i++) {
+        if (i == index) {
+            continue;
+        }
+
+        file << dataTersimpan[i];
+    }
+
+    file.close();
+
+    importFromTxt();
 }
 
