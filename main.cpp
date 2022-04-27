@@ -2,13 +2,14 @@
 #include <string>
 #include <windows.h>
 #include <ctime>
+#include <conio.h>
 
 using namespace std;
 
-enum Gender {lakiLaki, perempuan};
-enum Agama {islam, kristen, katolik, hindu, buddha, konghuchu};
-enum GolDar {A, B, AB, O};
-enum Status {belumKawin, kawin, ceraiHidup, ceraiMati};
+const string GENDER[] = {"Laki-Laki", "Perempuan"};
+const string AGAMA[] = {"Islam", "Kristen", "Katolik", "Hindu", "Buddha", "Konghuchu"};
+const string GOLDAR[] = {"A", "B", "AB", "O"};
+const string STATUS[] = {"Belum kawin", "Kawin", "Cerai hidup", "Cerai mati"};
 
 struct Penduduk{
     char id[6];
@@ -18,69 +19,37 @@ struct Penduduk{
     int nik;
     string ttl;
     int usia;
-    Gender gender;
-    Agama agama;
-    GolDar golDar;
-    Status status;
+    int gender;
+    int agama;
+    int golDar;
+    int status;
 };
 
-Penduduk buatDataPenduduk();
-
 int main(){
-    system("cls");
-    Penduduk satu = buatDataPenduduk();
+    bool running = true;
 
-    cout << satu.namaLengkap << endl;
-    cout << satu.nik << endl;
-    cout << satu.usia << endl;
+    while (true) {
+
+        char mode = getch();
+
+        switch (mode) {
+
+            case 'A':
+            case 'a':
+                // login ke pemerintah
+                break;
+
+            case 'B':
+            case 'b':
+                // login ke akun penduduk
+        }
+
+    }
+
+    cout << "Program dihentikan" << endl;
+
     return 0;
-}
-
-tm *timeNow(){
-    time_t now = time(0);
-    tm *ltm = localtime(&now);
-
-    return ltm;
-}
-
-void errorStrToInt(){
-    cin.clear(); 
-    cin.ignore(); 
-    fflush(stdin);
-}
-
-Penduduk buatDataPenduduk(){
-    Penduduk data;
-    
-    // nama lengkap
-    cout << "\t Nama Lengkap \t: ";
-    getline(cin, data.namaLengkap); 
-
-    // NIK
-    cout << "\t NIK \t\t: ";
-    cin >> data.nik; 
-    errorStrToInt();
-
-    // TTL
-    string tempat;
-    int tanggal, bulan, tahun, 
-        thnNow = timeNow()->tm_year + 1900;
-
-    cout << "Tempat/Tanggal Lahir" << endl;
-    
-    cout << "\tTempat\t: "; 
-    getline(cin, tempat); fflush(stdin);
-
-    cout << "\tTanggal\t: "; 
-    cin >> tanggal; errorStrToInt();
-    cout << "\tBulan\t: "; 
-    cin >> bulan; errorStrToInt();
-    cout << "\tTahun\t: "; 
-    cin >> tahun; errorStrToInt();
-
-    data.usia = timeNow()->tm_year + 1900 - tahun;
-
-
-    return data;
 
 }
+
+
