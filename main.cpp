@@ -8,7 +8,16 @@
 
 using namespace std;
 
+const int UP = 72;
+const int DOWN = 80;
+const int LEFT = 75;
+const int RIGHT = 77;
+const int SELECT = 11;
+const int UNSELECT = 7;
+const int ENTER = 13;
+
 const int STORAGE = 1000;
+
 const string GENDER[] = {"Laki-Laki", "Perempuan"};
 const string AGAMA[] = {"Islam", "Kristen", "Katolik", "Hindu", "Buddha", "Konghuchu"};
 const string GOLDAR[] = {"A", "B", "AB", "O"};
@@ -26,6 +35,7 @@ struct Penduduk{
     short int status;
 };
 
+
 Penduduk dataPenduduk[STORAGE];
 
 void color(unsigned short kodeWarna);
@@ -37,6 +47,9 @@ void signUpPenduduk();
 void menuPenduduk(Penduduk penduduk);
 void isiFormulirData(Penduduk penduduk);
 
+void logInPemerintah();
+void menuPemerintah();
+
 void saveToTxt(Penduduk penduduk);
 int savedDataTxt();
 void konfigurasiData();
@@ -47,8 +60,8 @@ int main(){
     bool running = true;
     string warning = "";
 
-    int opsi1 = 7, 
-        opsi2 = 11;
+    int opsi1 = SELECT, 
+        opsi2 = UNSELECT;
 
     while (true) {
         system("cls");
@@ -58,31 +71,36 @@ int main(){
 
         cout << "\t            Selamat Datang!            \n";
         
+        cout << endl;
         color(12); cout << setw(37) << warning << endl; color(7);
+        cout << endl;
         
         cout << "\t       Jalankan program sebagai :      \n\n";
-        color(opsi1); cout << "\t   [1] Pemerintah   ";
-        color(opsi2); cout << "    [2] Penduduk    \n\n"; color(7);
+        color(opsi1); cout << "\t   [1] Pemerintah  ";
+        color(opsi2); cout << "     [2] Penduduk\n\n"; color(7);
 
         char mode, pilih;
         mode = getch();
 
-        if (mode == 13 && opsi1 == 11) {
-            // login ke pemerintah
-        } else if (mode == 13 && opsi2 == 11) {
+        if (mode == ENTER && opsi1 == SELECT) {
+            logInPemerintah();
+            goto skip;
+        
+        } else if (mode == ENTER && opsi2 == SELECT) {
             menuMasukPenduduk();
+            goto skip;
         }
 
         switch (mode) {
             case -32:
                 pilih = getch();
-                if (pilih == 77){
-                    opsi1 = 7;
-                    opsi2 = 11;
+                if (pilih == RIGHT){
+                    opsi1 = UNSELECT;
+                    opsi2 = SELECT;
                     
-                } else if (pilih == 75){
-                    opsi1 = 11;
-                    opsi2 = 7;
+                } else if (pilih == LEFT){
+                    opsi1 = SELECT;
+                    opsi2 = UNSELECT;
                 }
                 break;
 
@@ -92,7 +110,7 @@ int main(){
                 break;
         }
 
-
+        skip:
         warning = "";
     }
 
@@ -194,36 +212,69 @@ int binarySearchNIK(string nik) {
 void menuMasukPenduduk() {
     bool openPage = true;
     string warning = "";
+    int opsi0 = SELECT,
+        opsi1 = UNSELECT,
+        opsi2 = UNSELECT;
 
     while (openPage) {
         system("cls");
         cout << endl << endl;
 
-        cout << "\t           Pilih opsi :           \n";
+        cout << "\t              Pilih opsi :           \n";
 
+        cout << endl;
         color(12); cout << setw(37) << warning << endl; color(7);
+        cout << endl;
 
-        cout << "\t   [1] Log In       [2] Sign Up \n\n"
-             << "\t   <= Kembali \n";
+        color(opsi0); cout << "\t[0] Kembali ";
+        color(opsi1); cout << "  [1] Log In ";
+        color(opsi2); cout << "  [2] Sign Up\n"; color(7);
 
-        char opsi, opsi2;
-        opsi = getch();
+        char menu, pilih;
+        menu = getch();
 
-        switch (opsi) {
-            case '1':
-                logInPenduduk();
-                break;
+        if (menu == ENTER && opsi0 == SELECT) {
+            openPage = false;
+            break;
 
-            case '2':
-                signUpPenduduk();
-                break;
+        } else if (menu == ENTER && opsi1 == SELECT) {
+            logInPenduduk();
+            goto skip;
 
+        } else if (menu == ENTER && opsi2 == SELECT) {
+            signUpPenduduk();
+            goto skip;
+        }
+
+        switch (menu) {
             case -32:
-                opsi2 = getch();
-                if (opsi2 == 75) {
-                    openPage = false;
-                    break;
+                pilih = getch();
+                if (
+                    pilih == LEFT && opsi0 == UNSELECT && opsi1 == SELECT
+                    || pilih == LEFT && opsi0 == SELECT
+                ) {
+                    opsi0 = SELECT;
+                    opsi1 = UNSELECT;
+                    opsi2 = UNSELECT;
+                } 
+                else if (
+                    pilih == RIGHT && opsi1 == UNSELECT && opsi2 == UNSELECT 
+                    || pilih == LEFT && opsi1 == UNSELECT && opsi2 == SELECT
+                ) {
+                    opsi0 = UNSELECT;
+                    opsi1 = SELECT;
+                    opsi2 = UNSELECT;
+
+                } else if (
+                    pilih == RIGHT && opsi2 == UNSELECT 
+                    || pilih == RIGHT && opsi2 == SELECT
+                ) {
+                    opsi0 = UNSELECT;
+                    opsi1 = UNSELECT;
+                    opsi2 = SELECT;
                 }
+                
+                break;
 
             default:
                 warning = "Opsi tidak tersedia!";
@@ -231,36 +282,56 @@ void menuMasukPenduduk() {
                 break;
         }
 
+        skip:
         warning = "";
 
     }
 }
 
 void signUpPenduduk() {
+    cout << "\n\t#######################################\n" << endl;
     Penduduk pendudukBaru;
 
-    cout << "Nama Lengkap : "; getline(cin, pendudukBaru.namaLengkap); fflush(stdin);
-    cout << "NIK          : "; cin >> pendudukBaru.nik;                fflush(stdin);
-    cout << "Password     : "; getline(cin, pendudukBaru.password);    fflush(stdin);
+    cout << "\tNama Lengkap : "; getline(cin, pendudukBaru.namaLengkap); fflush(stdin);
+    cout << "\tNIK          : "; cin >> pendudukBaru.nik;                fflush(stdin);
+    cout << "\tPassword     : "; getline(cin, pendudukBaru.password);    fflush(stdin);
     
     saveToTxt(pendudukBaru);
 
-    cout << "Akun telah berhasil didaftarkan!" << endl;
+    color(10);
+    cout << "\n\t   Akun telah berhasil didaftarkan!  " << endl;
+    color(7);
 
     getch();
 
 }
 
 void logInPenduduk() {
+    cout << "\n\t#######################################\n" << endl;
+
     string nik, password;
 
-    cout << "NIK      : "; cin >> nik;             fflush(stdin);
-    cout << "Password : "; getline(cin, password); fflush(stdin);
+    cout << "\tNIK      : "; cin >> nik;             fflush(stdin);
+    cout << "\tPassword : "; getline(cin, password); fflush(stdin);
 
 
     if (logInBerhasil(nik, password)){
+
+        color(10);
+        cout << "\n\t            Log in berhasil!  " << endl;
+        color(7);
+
+        getch();
+
         int index = binarySearchNIK(nik);
         menuPenduduk(dataPenduduk[index]);
+    
+    } else {
+        color(12);
+        cout << "\n\t              Log in gagal!  " << endl;
+        color(7);
+
+        getch();
     }
 
 }
@@ -268,34 +339,87 @@ void logInPenduduk() {
 void menuPenduduk(Penduduk penduduk){
     bool openPage = true;
     string warning = "";
+    int opsi0 = SELECT,
+        opsi1 = UNSELECT,
+        opsi2 = UNSELECT,
+        opsi3 = UNSELECT;
 
     while(openPage) {
         system("cls");
+        cout << endl << endl;
 
-        cout << "Selamat datang, " << penduduk.namaLengkap << "!" << endl;
+        cout << "\t     Selamat datang, " << penduduk.namaLengkap << "!" << endl;
 
-        color(12); cout << warning << endl; color(7);
+        cout << endl;
+        color(12); cout << setw(33) << warning << endl; color(7);
+        cout << endl;
 
-        char menu, kembali;
-        cout << "[1] Isi formulir data diri\n"
-             << "[2] Tampilkan data diri   \n"
-             << "[3] Ubah data diri        \n"
-             << "<= Keluar                 \n";
+        color(opsi0); cout << "\t     [0] Keluar                \n\n";
+        color(opsi1); cout << "\t     [1] Isi data diri         \n\n";
+        color(opsi2); cout << "\t     [2] Tampilkan data diri   \n\n";
+        color(opsi3); cout << "\t     [3] Ubah data diri        \n\n"; color(7);
+        
+        char menu, pilih;
         menu = getch();
 
+        if (menu == ENTER && opsi0 == SELECT) {
+            openPage = false;
+            break;
+
+        } else if (menu == ENTER && opsi1 == SELECT) {
+            isiFormulirData(penduduk);
+            goto skip;
+
+        } else if (menu == ENTER && opsi2 == SELECT) {
+            // tampilkan data diri
+            goto skip;
+        
+        } else if (menu == ENTER && opsi3 == SELECT) {
+            // ubah data diri
+            goto skip;
+        }
+
         switch (menu) {
-            case '1':
-                isiFormulirData(penduduk);
-            case '2':
-                // tampilkan data 
-            case '3':
-                // ubah data
             case -32:
-                kembali = getch();
-                if (kembali == 75) {
-                    break;
-                    break;
+                pilih = getch();
+                if (
+                    pilih == UP && opsi0 == SELECT
+                    || pilih == UP && opsi1 == SELECT
+                ) {
+                    opsi0 = SELECT; 
+                    opsi1 = UNSELECT; 
+                    opsi2 = UNSELECT; 
+                    opsi3 = UNSELECT;
+                
+                } else if (
+                    pilih == DOWN && opsi0 == SELECT
+                    || pilih == UP && opsi2 == SELECT
+                ) {
+                    opsi0 = UNSELECT; 
+                    opsi1 = SELECT; 
+                    opsi2 = UNSELECT; 
+                    opsi3 = UNSELECT;
+                
+                } else if (
+                    pilih == DOWN && opsi1 == SELECT
+                    || pilih == UP && opsi3 == SELECT
+                ) {
+                    opsi0 = UNSELECT; 
+                    opsi1 = UNSELECT; 
+                    opsi2 = SELECT; 
+                    opsi3 = UNSELECT;
+                
+                } else if (
+                    pilih == DOWN && opsi2 == SELECT
+                    || pilih == DOWN && opsi3 == SELECT
+                ) {
+                    opsi0 = UNSELECT; 
+                    opsi1 = UNSELECT; 
+                    opsi2 = UNSELECT; 
+                    opsi3 = SELECT;
                 }
+
+                break;
 
             default:
             warning = "Menu tidak tersedia!";
@@ -303,6 +427,7 @@ void menuPenduduk(Penduduk penduduk){
             break;
         }
 
+        skip:
         warning = "";
     }
 
@@ -370,6 +495,130 @@ void isiFormulirData(Penduduk penduduk){
 
 }
 
+
+void logInPemerintah() {
+    system("cls");
+    cout << endl << endl << endl;
+
+    cout << "\tLOGIN PEMERINTAH -*-\n" << endl;
+
+    string username, password;
+    cout << "\t    Username   : "; cin >> username; fflush(stdin);
+    cout << "\t    Password   : "; cin >> password; fflush(stdin);
+
+    if (username == "pemerintah" && password == "123") {
+        color(10);
+        cout << "\n\t    Log in berhasil!  " << endl;
+        color(7);
+        getch();
+
+        menuPemerintah();
+    } else {
+        color(12);
+        cout << "\n\t    Log in gagal!  " << endl;
+        color(7);
+        getch();
+    }
+
+    
+}
+
+void menuPemerintah(){
+    bool openPage = true;
+    string warning = "";
+    int opsi0 = SELECT,
+        opsi1 = UNSELECT,
+        opsi2 = UNSELECT,
+        opsi3 = UNSELECT;
+
+    while(openPage) {
+        system("cls");
+        cout << endl << endl;
+
+        cout << "\t     Selamat datang, Pmerintah!" << endl;
+
+        cout << endl;
+        color(12); cout << setw(33) << warning << endl; color(7);
+        cout << endl;
+
+        color(opsi0); cout << "\t     [0] Keluar                   \n\n";
+        color(opsi1); cout << "\t     [1] Tampilkan data penduduk  \n\n";
+        color(opsi2); cout << "\t     [2] Ubah data penduduk       \n\n";
+        color(opsi3); cout << "\t     [3] Tampilkan hasil pendataan\n\n"; color(7);
+        
+        char menu, pilih;
+        menu = getch();
+
+        if (menu == ENTER && opsi0 == SELECT) {
+            openPage = false;
+            break;
+
+        } else if (menu == ENTER && opsi1 == SELECT) {
+            // tampilkan data penduduk
+            goto skip;
+
+        } else if (menu == ENTER && opsi2 == SELECT) {
+            // ubah data penduduk
+            goto skip;
+        
+        } else if (menu == ENTER && opsi3 == SELECT) {
+            // tampilkan diagram
+            goto skip;
+        }
+
+        switch (menu) {
+            case -32:
+                pilih = getch();
+                if (
+                    pilih == UP && opsi0 == SELECT
+                    || pilih == UP && opsi1 == SELECT
+                ) {
+                    opsi0 = SELECT; 
+                    opsi1 = UNSELECT; 
+                    opsi2 = UNSELECT; 
+                    opsi3 = UNSELECT;
+                
+                } else if (
+                    pilih == DOWN && opsi0 == SELECT
+                    || pilih == UP && opsi2 == SELECT
+                ) {
+                    opsi0 = UNSELECT; 
+                    opsi1 = SELECT; 
+                    opsi2 = UNSELECT; 
+                    opsi3 = UNSELECT;
+                
+                } else if (
+                    pilih == DOWN && opsi1 == SELECT
+                    || pilih == UP && opsi3 == SELECT
+                ) {
+                    opsi0 = UNSELECT; 
+                    opsi1 = UNSELECT; 
+                    opsi2 = SELECT; 
+                    opsi3 = UNSELECT;
+                
+                } else if (
+                    pilih == DOWN && opsi2 == SELECT
+                    || pilih == DOWN && opsi3 == SELECT
+                ) {
+                    opsi0 = UNSELECT; 
+                    opsi1 = UNSELECT; 
+                    opsi2 = UNSELECT; 
+                    opsi3 = SELECT;
+                }
+
+                break;
+
+            default:
+            warning = "Menu tidak tersedia!";
+            continue;
+            break;
+        }
+
+        skip:
+        warning = "";
+    }
+
+}
 
 /* ----------------------------------- FILE TXT ----------------------------------- */
 
