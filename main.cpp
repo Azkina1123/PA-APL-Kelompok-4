@@ -8,66 +8,84 @@
 
 using namespace std;
 
+// key pada keyboard
 const int UP = 72;
 const int DOWN = 80;
 const int LEFT = 75;
 const int RIGHT = 77;
+
+// menu yang dipilih
 const int SELECT = 11;
 const int UNSELECT = 7;
 const int ENTER = 13;
 
+// penyimpanan data
 const int STORAGE = 1000;
 
+// pilihan utk isi formulir
 const string GENDER[] = {"Laki-Laki", "Perempuan"};
 const string AGAMA[] = {"Islam", "Kristen", "Katolik", "Hindu", "Buddha", "Konghuchu"};
 const string GOLDAR[] = {"A", "B", "AB", "O"};
 const string STATUS[] = {"Belum kawin", "Kawin", "Cerai hidup", "Cerai mati"};
 
+// struct penduduk
 struct Penduduk{
     string namaLengkap;
     string nik;
     string password;
     string ttl;
     int usia;
-    short int gender;
-    short int agama;
-    short int golDar;
-    short int status;
+    short int gender;       // index GENDER
+    short int agama;        // index AGAMA
+    short int golDar;       // index GOLDAR
+    short int status;       // index STATUS
 };
 
-
+// data tersimpan
 Penduduk dataPenduduk[STORAGE];
 
+// fungsi yg digunakan
 void color(unsigned short kodeWarna);
+tm *timeNow();
+int random();
+void cleanBuffer();
+bool logInBerhasil(string nik, string password);
+
+// sorting & searching
+void insertionSortNIK();
 int binarySearch(string nik);
 
+// tampilan mode penduduk
 void menuMasukPenduduk();
 void logInPenduduk();
 void signUpPenduduk();
 void menuPenduduk(Penduduk penduduk);
 void isiFormulirData(Penduduk penduduk);
 
+// tampilan mode pemerintah
 void logInPemerintah();
 void menuPemerintah();
 
+// write & read txt
 void saveToTxt(Penduduk penduduk);
-int savedDataTxt();
+int banyakDataTersimpan();
 void konfigurasiData();
 
-void buatDataPenduduk();
+/*----------------------------------- MAIN PROGRAM -----------------------------------*/
 
 int main(){
+    // default
     bool running = true;
     string warning = "";
-
     int opsi1 = SELECT, 
         opsi2 = UNSELECT;
 
     while (true) {
         system("cls");
-        konfigurasiData();
-
         cout << endl << endl;
+
+        // ambil data dari txt
+        konfigurasiData();
 
         cout << "\t            Selamat Datang!            \n";
         
@@ -79,19 +97,24 @@ int main(){
         color(opsi1); cout << "\t   [1] Pemerintah  ";
         color(opsi2); cout << "     [2] Penduduk\n\n"; color(7);
 
+        // pilih mode
         char mode, pilih;
         mode = getch();
 
+        // mode pemerintah
         if (mode == ENTER && opsi1 == SELECT) {
             logInPemerintah();
             goto skip;
-        
+        // mode penduduk
         } else if (mode == ENTER && opsi2 == SELECT) {
             menuMasukPenduduk();
             goto skip;
         }
 
+        // pilihan lainnya
         switch (mode) {
+            
+            // pilih opsi 
             case -32:
                 pilih = getch();
                 if (pilih == RIGHT){
@@ -104,12 +127,13 @@ int main(){
                 }
                 break;
 
+            // opsi tidak ada
             default:
                 warning = "Opsi tidak tersedia!";
                 continue;
                 break;
         }
-
+    
         skip:
         warning = "";
     }
@@ -122,6 +146,7 @@ int main(){
 
 
 /* ----------------------------------- FUNGSI ----------------------------------- */
+
 void color(unsigned short kodeWarna) {
     HANDLE hCon = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleTextAttribute(hCon, kodeWarna);
@@ -138,10 +163,23 @@ int random(){
     return rand()%9;
 }
 
-void errorStrToInt(){
+void cleanBuffer(){
     cin.clear(); 
     cin.ignore(); 
     fflush(stdin);
+}
+
+bool logInBerhasil(string nik, string password) {
+    for (int i=0; i<banyakDataTersimpan(); i++){
+        if (
+            dataPenduduk[i].nik == nik
+            && dataPenduduk[i].password == password
+        ){
+            return true;
+        }
+    }
+    
+    return false;
 }
 
 
@@ -150,7 +188,7 @@ void errorStrToInt(){
 void insertionSortNIK(){
     Penduduk key;
     int i, j,
-        length = savedDataTxt();
+        length = banyakDataTersimpan();
 
     for (i = 1; i < length; i++) {
 
@@ -166,25 +204,12 @@ void insertionSortNIK(){
     }
 }
 
-bool logInBerhasil(string nik, string password) {
-    for (int i=0; i<savedDataTxt(); i++){
-        if (
-            dataPenduduk[i].nik == nik
-            && dataPenduduk[i].password == password
-        ){
-            return true;
-        }
-    }
-    
-    return false;
-}
-
 int binarySearchNIK(string nik) {
     insertionSortNIK();
 
     int index = -1,
         beg = 0,
-        end = savedDataTxt()-1;
+        end = banyakDataTersimpan()-1;
 
     while (beg <= end){
         int mid = (end + beg)/2; 
@@ -208,7 +233,7 @@ int binarySearchNIK(string nik) {
 
 
 /* ----------------------------------- TAMPILAN ----------------------------------- */
-
+// penduduk ::::::::::::::::::::::
 void menuMasukPenduduk() {
     bool openPage = true;
     string warning = "";
@@ -450,9 +475,9 @@ void isiFormulirData(Penduduk penduduk){
     cout << "\n\tTempat/Tanggal Lahir" << endl;
     cout << "\t     Tempat\t: "; getline(cin, tempat); fflush(stdin); color(8); 
     cout << "\t     -- isi di bawah ini dengan angka" << endl;        color(7);
-    cout << "\t     Tanggal\t: "; cin >> tanggal; errorStrToInt();
-    cout << "\t     Bulan\t: "; cin >> bulan;     errorStrToInt();
-    cout << "\t     Tahun\t: "; cin >> tahun;     errorStrToInt();
+    cout << "\t     Tanggal\t: "; cin >> tanggal; cleanBuffer();
+    cout << "\t     Bulan\t: "; cin >> bulan;     cleanBuffer();
+    cout << "\t     Tahun\t: "; cin >> tahun;     cleanBuffer();
 
     // usia
     penduduk.usia = timeNow()->tm_year + 1900 - tahun;
@@ -495,7 +520,7 @@ void isiFormulirData(Penduduk penduduk){
 
 }
 
-
+// pemerintah ::::::::::::::::::::
 void logInPemerintah() {
     system("cls");
     cout << endl << endl << endl;
@@ -622,7 +647,7 @@ void menuPemerintah(){
 
 /* ----------------------------------- FILE TXT ----------------------------------- */
 
-int savedDataTxt() {
+int banyakDataTersimpan() {
     ifstream file;
 
     file.open("data.txt");
