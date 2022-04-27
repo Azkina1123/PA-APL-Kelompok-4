@@ -25,15 +25,19 @@ struct Penduduk{
     string status;
 };
 
-
 void color(unsigned short kodeWarna);
-void menuMasukPenduduk(string warning="");
+int binarySearch(string nik);
+
+void menuMasukPenduduk();
 void logInPenduduk();
 void signUpPenduduk();
-int savedDataTxt();
-void konfigurasiData();
+void menuPenduduk(Penduduk penduduk);
+void isiFormulirData(Penduduk penduduk);
+
 
 void saveToTxt(Penduduk penduduk);
+int savedDataTxt();
+void konfigurasiData();
 
 void buatDataPenduduk();
 
@@ -49,23 +53,19 @@ int main(){
 
         cout << "Selamat Datang!" << endl;
 
-        cout << dataPenduduk[0].namaLengkap << dataPenduduk[0].nik << dataPenduduk[0].password << endl;
-
         color(12); cout << warning << endl; color(7);
 
-        cout << "Masuk sebagai : [A] Pemerintah    [B] Penduduk\n"
-             << ">> ";
+        cout << "Masuk sebagai :                \n"
+             << "[1] Pemerintah    [2] Penduduk \n\n";
         char mode = getche();
 
         switch (mode) {
 
-            case 'A':
-            case 'a':
+            case '1':
                 // login ke pemerintah
                 break;
 
-            case 'B':
-            case 'b':
+            case '2':
                 menuMasukPenduduk();
                 break;
 
@@ -107,18 +107,30 @@ void errorStrToInt(){
     fflush(stdin);
 }
 
-int banyakData() {
-    for (int i=0; i<STORAGE; i++){
-        if (dataPenduduk[i].namaLengkap == ""){
-            return i;
-        }
-    }
 
-    return STORAGE;
+/* ----------------------------------- SORT & SEARCH ----------------------------------- */
+
+void insertionSortNIK(){
+    Penduduk key;
+    int i, j,
+        length = savedDataTxt();
+
+    for (i = 1; i < length; i++) {
+
+        key = dataPenduduk[i];
+        j = i-1;
+
+        while (j >= 0 && dataPenduduk[j].nik.compare(key.nik) > 0){
+            dataPenduduk[j+1] = dataPenduduk[j];
+            j = j-1;
+        }
+
+        dataPenduduk[j+1] = key;
+    }
 }
 
 bool logInBerhasil(string nik, string password) {
-    for (int i=0; i<banyakData(); i++){
+    for (int i=0; i<savedDataTxt(); i++){
         if (
             dataPenduduk[i].nik == nik
             && dataPenduduk[i].password == password
@@ -126,51 +138,86 @@ bool logInBerhasil(string nik, string password) {
             return true;
         }
     }
-
+    
     return false;
+}
+
+int binarySearchNIK(string nik) {
+    insertionSortNIK();
+
+    int index = -1,
+        beg = 0,
+        end = savedDataTxt()-1;
+
+    while (beg <= end){
+        int mid = (end + beg)/2; 
+        
+        if (dataPenduduk[mid].nik == nik) { 
+            index = mid;
+            break;
+        
+        } else{
+            if (nik.compare(dataPenduduk[mid].nik) > 0) { 
+                beg = mid + 1;
+           
+            } else {
+                end = mid - 1;
+            }
+        }
+    }
+
+    return index;
 }
 
 
 /* ----------------------------------- TAMPILAN ----------------------------------- */
 
-void menuMasukPenduduk(string warning) {
-    system("cls");
+void menuMasukPenduduk() {
+    bool openPage = true;
+    string warning = "";
 
-    color(14);
-    cout << "Tekan angka pada menu di bawah ini" << endl;
-    color(12);
-    cout << warning << endl;
-    color(7);
+    while (openPage) {
+        system("cls");
 
-    cout << "[1] Log In        [2] Sign Up \n\n"
-         << "<= Kembali \n";
+        color(14);
+        cout << "Tekan angka pada menu di bawah ini" << endl;
+        color(12);
+        cout << warning << endl;
+        color(7);
 
-    char opsi, opsi2;
-    opsi = getch();
+        cout << "[1] Log In        [2] Sign Up \n\n"
+            << "<= Kembali \n";
 
-    switch (opsi) {
-        case '1':
-            logInPenduduk();
-            break;
+        char opsi, opsi2;
+        opsi = getch();
 
-        case '2':
-            signUpPenduduk();
-            break;
-
-        case -32:
-            opsi2 = getch();
-            if (opsi2 == 75) {
+        switch (opsi) {
+            case '1':
+                logInPenduduk();
                 break;
-            }
 
-        default:
-            menuMasukPenduduk("Opsi tidak tersedia!");
-            break;
+            case '2':
+                signUpPenduduk();
+                break;
+
+            case -32:
+                opsi2 = getch();
+                if (opsi2 == 75) {
+                    break;
+                }
+
+            default:
+                warning = "Opsi tidak tersedia!";
+                continue;
+                break;
+        }
+
+        warning = "";
+
     }
 }
 
 void signUpPenduduk() {
-    system("cls");
     Penduduk pendudukBaru;
 
     cout << "Nama Lengkap : "; getline(cin, pendudukBaru.namaLengkap); fflush(stdin);
@@ -186,28 +233,70 @@ void signUpPenduduk() {
 }
 
 void logInPenduduk() {
-    system("cls");
     string nik, password;
 
     cout << "NIK      : "; cin >> nik;             fflush(stdin);
     cout << "Password : "; getline(cin, password); fflush(stdin);
 
+
     if (logInBerhasil(nik, password)){
-        cout << "YESS";
+        int index = binarySearchNIK(nik);
+        menuPenduduk(dataPenduduk[index]);
     }
+
 }
 
-void buatDataPenduduk(){
-    Penduduk data;
+void menuPenduduk(Penduduk penduduk){
+    bool openPage = true;
+    string warning = "";
+
+    while(openPage) {
+        system("cls");
+
+        cout << "Selamat datang, " << penduduk.namaLengkap << "!" << endl;
+
+        color(12); cout << warning << endl; color(7);
+
+        char menu, kembali;
+        cout << "[1] Isi formulir data diri\n"
+             << "[2] Tampilkan data diri   \n"
+             << "[3] Ubah data diri        \n"
+             << "<= Keluar                 \n";
+        menu = getch();
+
+        switch (menu) {
+            case '1':
+                isiFormulirData(penduduk);
+            case '2':
+                // tampilkan data 
+            case '3':
+                // ubah data
+            case -32:
+                kembali = getch();
+                if (kembali == 75) {
+                    break;
+                    break;
+                }
+
+            default:
+            warning = "Menu tidak tersedia!";
+            continue;
+            break;
+        }
+
+        warning = "";
+    }
+
+}
+
+void isiFormulirData(Penduduk penduduk){
+    system("cls");
     
     // nama lengkap
-    cout << "\tNama Lengkap \t: ";
-    getline(cin, data.namaLengkap); 
+    cout << "\tNama Lengkap \t: " << penduduk.namaLengkap << endl;
 
     // NIK
-    cout << "\tNIK \t\t: ";
-    cin >> data.nik; 
-    errorStrToInt();
+    cout << "\tNIK \t\t: " << penduduk.nik << endl;
 
     // TTL
     string tempat;
@@ -222,7 +311,7 @@ void buatDataPenduduk(){
     cout << "\t     Tahun\t: "; cin >> tahun;     errorStrToInt();
 
     // usia
-    data.usia = timeNow()->tm_year + 1900 - tahun;
+    penduduk.usia = timeNow()->tm_year + 1900 - tahun;
 
     color(8);
     cout << "\n\t-- mulai dari sini, isi dengan menekan angka\n"
@@ -233,7 +322,7 @@ void buatDataPenduduk(){
     cout << "\n\tJenis Kelamin \n"       
          << "\t     [1] Laki-laki     [2] Perempuan \n"   
          << "\t     : ";
-    data.gender = getche();
+    penduduk.gender = getche();
     cout << endl;
 
     // agama
@@ -241,7 +330,7 @@ void buatDataPenduduk(){
          << "\t     [1] Islam     [3] Katolik   [5] Buddha   \n"
          << "\t     [2] Kristen   [4] Hindu     [6] Konghuchu\n"
          << "\t     : ";
-    data.agama = getche();
+    penduduk.agama = getche();
     cout << endl;
 
     // golongan darah
@@ -249,7 +338,7 @@ void buatDataPenduduk(){
          << "\t     [1] A       [3] AB \n"
          << "\t     [2] B       [4] O  \n"
          << "\t     : ";
-    data.agama = getche();
+    penduduk.agama = getche();
     cout << endl;
 
     // status
@@ -257,14 +346,11 @@ void buatDataPenduduk(){
          << "\t     [1] Belum kawin    [3] Cerai hidup \n"
          << "\t     [2] Kawin          [4] Cerai mati  \n"
          << "\t     : ";
-    data.agama = getche();
+    penduduk.agama = getche();
     cout << endl;
 
 }
 
-void menuMasukPenduduk(){
-
-}
 
 /* ----------------------------------- FILE TXT ----------------------------------- */
 
@@ -274,7 +360,7 @@ int savedDataTxt() {
     file.open("data.txt");
 
     string baris;
-    int jumlah = -1;
+    int jumlah = 0;
 
     while (!file.eof()) {
         getline(file, baris);
@@ -282,7 +368,7 @@ int savedDataTxt() {
     }
 
     file.close();
-    return jumlah;
+    return jumlah-1;
 
 
 }
@@ -304,68 +390,67 @@ void saveToTxt(Penduduk penduduk) {
     konfigurasiData();
 }
 
-void inputFromTxt(int index) {
+void konfigurasiData() {
     ifstream file;
 
     file.open("data.txt");
 
     string baris;
-    getline(file, baris);
+    int index = 0;
+    while (!file.eof()){
+        getline(file, baris);
 
-    int lengthBaris = baris.length();
-    char barisToChar[lengthBaris+1];
+        int lengthBaris = baris.length();
+        char barisToChar[lengthBaris+1];
 
-    strcpy(barisToChar, baris.c_str());
+        strcpy(barisToChar, baris.c_str());
 
-    Penduduk data;
+        Penduduk data;
 
-    int kolom = 0;
-    string usia;
+        int kolom = 0;
+        string usia;
 
-    // per karaker
-    for (int i=0; i<lengthBaris; i++){
-        if (barisToChar[i] == '|') {
-            kolom++;
-            continue;
+        // per karaker
+        for (int i=0; i<lengthBaris; i++){
+            if (barisToChar[i] == '|') {
+                kolom++;
+                continue;
+            }
+
+            if (kolom == 0) {
+                data.namaLengkap += barisToChar[i];
+            
+            } else if (kolom == 1) {
+                data.nik += barisToChar[i];
+            
+            } else if (kolom == 2) {
+                data.password += barisToChar[i];
+            
+            } else if (kolom == 3) {
+                data.ttl += barisToChar[i];
+            
+            } else if (kolom == 4) {
+                usia += barisToChar[i]; 
+            
+            } else if (kolom == 5) {
+                data.gender += barisToChar[i];
+            
+            } else if (kolom == 6) {
+                data.agama += barisToChar[i];        
+            
+            } else if (kolom == 7) {
+                data.golDar += barisToChar[i];
+
+            } else if (kolom == 8) {
+                data.status += barisToChar[i];
+            }
         }
 
-        if (kolom == 0) {
-            data.namaLengkap += barisToChar[i];
-        
-        } else if (kolom == 1) {
-            data.nik += barisToChar[i];
-        
-        } else if (kolom == 2) {
-            data.password += barisToChar[i];
-        
-        } else if (kolom == 3) {
-            data.ttl += barisToChar[i];
-        
-        } else if (kolom == 4) {
-            usia += barisToChar[i]; 
-        
-        } else if (kolom == 5) {
-            data.gender += barisToChar[i];
-        
-        } else if (kolom == 6) {
-            data.agama += barisToChar[i];        
-        
-        } else if (kolom == 7) {
-            data.golDar += barisToChar[i];
-
-        } else if (kolom == 8) {
-            data.status += barisToChar[i];
-        }
+        data.usia = atoi(usia.c_str());
+        dataPenduduk[index] = data;  
+        index++;  
     }
-
-    data.usia = atoi(usia.c_str());
-    dataPenduduk[index] = data;    
 
 }
 
-void konfigurasiData(){
-    for (int i=0; i<savedDataTxt(); i++){
-        inputFromTxt(i);
-    }
-}
 
