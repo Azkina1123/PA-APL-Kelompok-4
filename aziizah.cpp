@@ -32,17 +32,15 @@ void color(unsigned short kodeWarna);
 void buatDataPenduduk();
 
 // data tersimpan
-
+Penduduk dataPenduduk[STORAGE];
 
 
 int main(){
-    Penduduk dataPenduduk[STORAGE];
     system("cls");
-    // buatDataPenduduk();
-    dataPenduduk[0].id = "HUHU";
-    dataPenduduk[1].id = "HIHI";
+
+    buatDataPenduduk();
     cout << banyakData() << endl;
-    cout << dataPenduduk[3].id << " <<--";
+    cout << dataPenduduk[0].agama;
 
     return 0;
 }
@@ -141,7 +139,6 @@ void buatDataPenduduk(){
          << "\t     : ";
     data.agama = getche();
     cout << endl;
-
 
 }
 
