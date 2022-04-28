@@ -52,6 +52,7 @@ int random();
 void clearBuffer();
 bool logInBerhasil(string nik, string password);
 void decor(int decor, int jumlah);
+int banyakData();
 
 // sorting & searching
 void insertionSortNIK(string mode="ASC");
@@ -69,11 +70,7 @@ void logInPemerintah();
 void menuPemerintah();
 
 // write & read txt
-int banyakDataTxt();
-void importFromTxt();
-void appendToTxt(Penduduk penduduk);
-void updateToTxt(Penduduk penduduk);
-void deleteFromTxt(Penduduk penduduk);
+
 
 /*----------------------------------- MAIN PROGRAM -----------------------------------*/
 
@@ -89,10 +86,9 @@ int main(){
         cout << endl << endl << endl;
 
         // ambil data dari txt
-        importFromTxt();
+
 
         decor(177, 41);
-        cout << dataPenduduk[0].golDar << endl;
         cout << "\t    PENDATAAN PENDUDUK KOTA SAMARINDA    \n";
         
         cout << endl;
@@ -189,7 +185,7 @@ void clearBuffer(){
 }
 
 bool logInBerhasil(string nik, string password) {
-    for (int i=0; i<banyakDataTxt(); i++){
+    for (int i=0; i<banyakData(); i++){
         if (
             dataPenduduk[i].nik == nik
             && dataPenduduk[i].password == password
@@ -242,13 +238,12 @@ void decor(int decor, int jumlah) {
 }
 
 
-
 /* ----------------------------------- SORT & SEARCH ----------------------------------- */
 
 void insertionSortNIK(string mode){
     Penduduk key;
     int i, j,
-        length = banyakDataTxt();
+        length = banyakData();
 
     for (i = 1; i < length; i++) {
 
@@ -279,7 +274,7 @@ int binarySearchNIK(string nik) {
 
     int index = -1,
         beg = 0,
-        end = banyakDataTxt()-1;
+        end = banyakData()-1;
 
     while (beg <= end){
         int mid = (end + beg)/2; 
@@ -304,7 +299,7 @@ int binarySearchNIK(string nik) {
 // sorting berdasarkan judul
 void bubbleSortTanggal(const char* mode){
     Penduduk temp;
-    int length = banyakDataTxt();
+    int length = banyakData();
     for (int i=0; i<length-1; i++){
         for (int j=0; j<length-1; j++){
             // ascending
@@ -453,7 +448,8 @@ void signUpPenduduk() {
 
     // berhasil sign up
     } else {
-        appendToTxt(pendudukBaru);
+
+        dataPenduduk[banyakData()] = pendudukBaru;
 
         color(10);
         cout << "\n\t    Akun telah berhasil didaftarkan! \n" << endl; color(7);
@@ -663,13 +659,13 @@ void isiFormulirData(Penduduk penduduk){
     penduduk.status = getche() -1;
     cout << endl;
 
-    updateToTxt(penduduk);
 
     color(10);
     cout << "\n\t    Formulir telah berhasil diisi!  " << endl; color(7);
 
     getch();
 }
+
 
 // pemerintah ::::::::::::::::::::
 void logInPemerintah() {
@@ -817,164 +813,4 @@ void menuPemerintah(){
 }
 
 /* ----------------------------------- FILE TXT ----------------------------------- */
-
-int banyakDataTxt() {
-    ifstream file;
-
-    file.open("data.txt");
-
-    string baris;
-    int jumlah = 0;
-
-    while (!file.eof()) {
-        getline(file, baris);
-        jumlah ++;
-    }
-
-    file.close();
-    return jumlah-1;
-
-
-}
-
-void importFromTxt() {
-    ifstream file;
-
-    file.open("data.txt");
-
-    string baris;
-    int index = 0;
-
-    while (!file.eof()){
-        getline(file, baris);               // ambil data per baris
-
-        int lengthBaris = baris.length();   // banyak char satu baris
-        char barisToChar[lengthBaris+1];    // tempat str dalam bentuk char
-
-        strcpy(barisToChar, baris.c_str()); // copy baris ke tempat char
-
-        Penduduk data;
-
-        int kolom = 0;      // kategori data           
-        string usia,        // tempat sementara tiap kategori
-               gender,
-               agama,
-               golDar,
-               status;       
-
-        // per karakter
-        for (int i=0; i<lengthBaris; i++){  // perulangan tiap 1 karakter
-
-            if (barisToChar[i] == '|' or barisToChar[i] == '\n') {
-                kolom++;
-                continue;
-            }
-
-            // tanggal update
-            if (kolom == 0){
-                data.tanggalPembaruan += barisToChar[i];
-            // nama lengkap
-            } else if (kolom == 1) {
-                data.namaLengkap += barisToChar[i];
-            // NIK
-            } else if (kolom == 2) {
-                data.nik += barisToChar[i];
-            // password
-            } else if (kolom == 3) {
-                data.password += barisToChar[i];
-            // tempat tanggal lahir
-            } else if (kolom == 4) {
-                data.ttl += barisToChar[i];
-            // usia
-            } else if (kolom == 5) {
-                usia += barisToChar[i]; 
-            // gender
-            } else if (kolom == 6) {
-                gender += barisToChar[i];
-            // agama
-            } else if (kolom == 7) {
-                agama += barisToChar[i];
-            // golongan darah
-            } else if (kolom == 8) {
-                golDar += barisToChar[i];
-            // status
-            } else if (kolom == 9) {
-                status += barisToChar[i];
-            }
-        }
-
-        data.usia   = atoi(usia.c_str());         // convert dari str ke int
-        data.gender = atoi(gender.c_str());
-        data.agama  = atoi(agama.c_str());
-        data.golDar = atoi(golDar.c_str());
-        data.status = atoi(status.c_str());
-
-        dataPenduduk[index] = data;     // masukkan ke array struct
-
-        index++;                        // ke data berikutnya
-    }
-
-    file.close();
-
-}
-
-void appendToTxt(Penduduk penduduk) {
-    ofstream file;
-
-    file.open("data.txt", ios::app);
-    penduduk.tanggalPembaruan = hariIni();
-
-    file << penduduk.tanggalPembaruan << "|"
-         << penduduk.namaLengkap << "|"
-         << penduduk.nik << "|"
-         << penduduk.password << "|"
-         << penduduk.ttl << "|"
-         << penduduk.usia << "|"
-         << penduduk.gender << "|"
-         << penduduk.agama << "|"
-         << penduduk.golDar << "|"
-         << penduduk.status << "\n";
-
-    file.close();
-
-    importFromTxt();
-}
-
-void updateToTxt(Penduduk penduduk) {
-    deleteFromTxt(penduduk);
-    appendToTxt(penduduk);
-}
-
-void deleteFromTxt(Penduduk penduduk) {
-    ifstream input;
-
-    input.open("data.txt");
-
-    int length = banyakDataTxt(), 
-        index = 0;
-
-    string dataTersimpan[length], 
-           baris;
-
-    while (!input.eof()){
-        getline(input, baris);
-        dataTersimpan[index] = baris;
-    }
-
-    input.close();
-
-
-    ofstream output;
-    output.open("data.txt");
-
-    index = binarySearchNIK(penduduk.nik);
-
-    for (int i=0; i<length; i++) {
-        appendToTxt(dataPenduduk[i]);
-    }
-
-    output.close();
-
-    importFromTxt();
-}
 
