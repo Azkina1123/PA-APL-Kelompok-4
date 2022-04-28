@@ -84,7 +84,7 @@ int main(){
     int opsi1 = SELECT, 
         opsi2 = UNSELECT;
 
-    while (true) {
+    while (running) {
         system("cls");
         cout << endl << endl << endl;
 
