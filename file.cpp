@@ -1,3 +1,49 @@
+#include <iostream>
+#include <string>
+#include <windows.h>
+#include <ctime>
+#include <conio.h>
+#include <iomanip>
+#include <fstream>
+
+using namespace std;
+
+// key pada keyboard
+#define UP 72
+#define DOWN 80
+#define LEFT 75
+#define RIGHT 77
+
+// menu yang dipilih
+#define SELECT 11
+#define UNSELECT 7
+#define ENTER 13
+
+// penyimpanan data
+#define STORAGE 1000
+
+// pilihan utk isi formulir
+const string GENDER[] = {"Laki-Laki", "Perempuan"};
+const string AGAMA[] = {"Islam", "Kristen", "Katolik", "Hindu", "Buddha", "Konghuchu"};
+const string GOLDAR[] = {"A", "B", "AB", "O"};
+const string STATUS[] = {"Belum kawin", "Kawin", "Cerai hidup", "Cerai mati"};
+
+// struct penduduk
+struct Penduduk{
+    string tanggalPembaruan;
+    string namaLengkap;
+    string nik;
+    string password;
+    string ttl;
+    int usia;
+    short int gender;       // index GENDER
+    short int agama;        // index AGAMA
+    short int golDar;       // index GOLDAR
+    short int status;       // index STATUS
+};
+
+// data tersimpan
+Penduduk dataPenduduk[STORAGE];
 
 void importFromTxt() {
     ifstream input;
@@ -57,6 +103,7 @@ void importFromTxt() {
             dataPenduduk[index] = penduduk;
 
             index++;
+            kolom = 1;
         }
 
         kolom++;
@@ -87,7 +134,7 @@ void appendToTxt(Penduduk penduduk) {
 
 void updateToTxt(Penduduk penduduk) {
     deleteFromTxt(penduduk);
-    // appendToTxt(penduduk);
+    appendToTxt(penduduk);
 }
 
 void deleteFromTxt(Penduduk penduduk) {
@@ -112,3 +159,16 @@ void deleteFromTxt(Penduduk penduduk) {
 
     importFromTxt();
 }
+
+int main() {
+    Penduduk satu = {
+        "1/1/2\n",
+        "Ayam Geprek",
+        "0987654321",
+        "enakKali",
+        "2/2/"
+    };
+
+    return 0;
+}
+
