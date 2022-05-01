@@ -53,7 +53,7 @@ tm *timeNow();
 int random();
 void clearBuffer();
 bool logInBerhasil(string nik, string password);
-void decor(int decor, int jumlah);
+void dekorasi(int ascii, int jumlah);
 int banyakData();
 void diagram(int jumlah, unsigned int kodeWarna=7);
 
@@ -76,6 +76,7 @@ void tampilkanDiagram();
 
 // diagram
 void diagramGender();
+void diagramUsia();
 
 // write & read txt
 void importFromTxt();
@@ -99,18 +100,20 @@ int main(){
         // ambil data dari txt
         importFromTxt();
 
-        decor(177, 41);
-        cout << "\t    PENDATAAN PENDUDUK KOTA SAMARINDA    \n";
+        dekorasi(177, 41);
+        cout << "\n\t    PENDATAAN PENDUDUK KOTA SAMARINDA  \n\n";
         
-        cout << endl;
-        color(12); cout << setw(38) << warning << endl; color(7);
-        cout << endl;
+        color(12); 
+        cout << setw(38) << warning << endl; 
+        color(7);
         
-        cout << "\t       Jalankan program sebagai :      \n\n";
+        cout << "\n\t       Jalankan program sebagai :      \n\n";
         color(opsi1); cout << "\t   [1] Pemerintah  ";
-        color(opsi2); cout << "     [2] Penduduk\n\n"; color(7);
+        color(opsi2); cout << "     [2] Penduduk\n\n"; 
+        
+        color(7); cout << endl;
 
-        decor(177, 41);
+        dekorasi(177, 41);
         // pilih mode
         char mode, pilih;
         mode = getch();
@@ -240,10 +243,10 @@ int banyakData(){
     return STORAGE;
 }
 
-void decor(int decor, int jumlah) {
+void dekorasi(int ascii, int jumlah) {
     cout << "\t";
     for (int i=0; i<jumlah; i++) {
-        cout << char(decor);
+        cout << char(ascii);
     }
     cout << endl << endl;
 }
@@ -357,20 +360,21 @@ void menuMasukPenduduk() {
         system("cls");
         cout << endl << endl << endl;
 
-        decor(177, 41);
-        cout << "\t                PENDUDUK             \n\n";
+        dekorasi(177, 41);
+        cout << "\n\t                PENDUDUK               \n";
 
-        cout << "\t              Pilih opsi :             \n";
+        cout << "\n\t              Pilih opsi :             \n";
 
         cout << endl;
         color(12); cout << setw(38) << warning << endl; color(7);
         cout << endl;
 
-        color(opsi0); cout << "\t [0] Kembali ";
-        color(opsi1); cout << "  [1] Log In ";
-        color(opsi2); cout << "  [2] Sign Up \n\n"; color(7);
+        color(opsi0); cout << "\t [0] Kembali";
+        color(opsi1); cout << "   [1] Log In";
+        color(opsi2); cout << "   [2] Sign Up \n\n"; 
+        color(7); cout << endl;
 
-        decor(177, 41);
+        dekorasi(177, 41);
 
         char menu, pilih;
         menu = getch();
@@ -445,11 +449,11 @@ void menuMasukPenduduk() {
 void signUpPenduduk() {
     system("cls");
     cout << endl << endl << endl;
-    decor(177, 41);
+    dekorasi(177, 41);
 
     Penduduk pendudukBaru;
 
-    cout << "\t                  -*- SIGN UP PENDUDUK\n\n";
+    cout << "\n\t                  -*- SIGN UP PENDUDUK\n\n";
 
     cout << "\t   Nama Lengkap : "; getline(cin, pendudukBaru.namaLengkap); fflush(stdin);
     cout << "\t   NIK          : "; cin >> pendudukBaru.nik;                fflush(stdin);
@@ -458,12 +462,12 @@ void signUpPenduduk() {
     // gagal sign up - nik sudah ada
     if (binarySearchNIK(pendudukBaru.nik) != -1) {
         color(12);
-        cout << "\n\t         NIK telah terdaftar!        \n" << endl; color(7);
+        cout << "\n\t         NIK telah terdaftar!        \n" << endl;
     
     // gagal sign up - nik salah
     } else if (!isDigit(pendudukBaru.nik)) {
         color(12);
-        cout << "\n\t    NIK yang dimasukkan tidak valid! \n" << endl; color(7);
+        cout << "\n\t    NIK yang dimasukkan tidak valid! \n" << endl;
 
     // berhasil sign up
     } else {
@@ -473,11 +477,12 @@ void signUpPenduduk() {
         appendToTxt(pendudukBaru);
 
         color(10);
-        cout << "\n\t    Akun telah berhasil didaftarkan! \n" << endl; color(7);
+        cout << "\n\t    Akun telah berhasil didaftarkan! \n" << endl;
     }
 
-    decor(177, 41);
+    color(7); cout << endl;
 
+    dekorasi(177, 41);
     getch();
 
 }
@@ -485,29 +490,34 @@ void signUpPenduduk() {
 void logInPenduduk() {
     system("cls");
     cout << endl << endl << endl;
-    decor(177, 41);
+    dekorasi(177, 41);
 
     string nik, password;
 
-    cout << "\t                  -*- LOGIN PENDUDUK\n\n";
+    cout << "\n\t                  -*- LOGIN PENDUDUK\n\n";
 
     cout << "\t   NIK      : "; cin >> nik;             fflush(stdin);
     cout << "\t   Password : "; getline(cin, password); fflush(stdin);
 
+    cout << endl << endl;
 
     if (logInBerhasil(nik, password)){
 
         color(10);
-        cout << "\n\t            Log in berhasil!             \n\n\n"; color(7);
-        decor(177, 41); getch();
+        cout << "\t            Log in berhasil!             \n\n" << endl; 
+        color(7); 
+
+        dekorasi(177, 41); getch();
 
         int index = binarySearchNIK(nik);
         menuPenduduk(dataPenduduk[index]);
     
     } else {
         color(12);
-        cout << "\n\t              Log in gagal!              \n\n\n"; color(7);
-        decor(177, 41); getch();
+        cout << "\t              Log in gagal!              \n\n" << endl; 
+        color(7); 
+
+        dekorasi(177, 41); getch();
     }
 
 }
@@ -524,7 +534,7 @@ void menuPenduduk(Penduduk penduduk){
         system("cls");
         cout << endl << endl << endl;
 
-        decor(240, 41);
+        dekorasi(240, 41);
 
         cout << "\t   Selamat datang, " << penduduk.namaLengkap << "! " << char(2) << endl;
 
@@ -535,9 +545,9 @@ void menuPenduduk(Penduduk penduduk){
         color(opsi0); cout << "\t       [0] Keluar                \n";
         color(opsi1); cout << "\t       [1] Isi data diri         \n";
         color(opsi2); cout << "\t       [2] Tampilkan data diri   \n";
-        color(opsi3); cout << "\t       [3] Ubah data diri        \n\n"; color(7);
+        color(opsi3); cout << "\t       [3] Ubah data diri        \n\n\n"; color(7);
         
-        decor(240, 41);
+        dekorasi(240, 41);
 
         char menu, pilih;
         menu = getch();
@@ -637,10 +647,10 @@ Penduduk isiFormulirBio(Penduduk penduduk){
 
             // halaman 1
             case 1:
-                cout << "\n\tNama Lengkap \t: " << penduduk.namaLengkap << endl;  // nama lengkap
-                cout << "\n\tNIK \t\t: "        << penduduk.nik         << endl;                 // NIK
+                cout << "\tNama Lengkap \t: " << penduduk.namaLengkap << endl;  // nama lengkap
+                cout << "\tNIK \t\t: "        << penduduk.nik         << endl;  // NIK
 
-                if (penduduk.ttl == "") {
+                if (penduduk.ttl == "") {   // ttl belum diisi
                     // TTL
                     string tempat;
                     int tanggal, bulan, tahun, 
@@ -648,13 +658,14 @@ Penduduk isiFormulirBio(Penduduk penduduk){
 
                     cout << "\n\tTempat/Tanggal Lahir" << endl;
                     cout << "  \t   Tempat    : "; 
-                    color(11); getline(cin, tempat); color(7); fflush(stdin); 
+                    color(11); getline(cin, tempat); fflush(stdin); 
                     
-                    color(8); cout << "\t     -- isi di bawah ini dengan angka\n"; color(7);
+                    color(8); 
+                    cout << "\n\t     -- isi di bawah ini dengan angka \n\n"; color(7);
 
-                    cout << "  \t   Tanggal   : "; color(11); cin >> tanggal;      color(7); clearBuffer();
-                    cout << "  \t   Bulan     : "; color(11); cin >> bulan;        color(7); clearBuffer();
-                    cout << "  \t   Tahun     : "; color(11); cin >> tahun;        color(7); clearBuffer();
+                    cout << "  \t   Tanggal   : "; color(11); cin >> tanggal; color(7); clearBuffer();
+                    cout << "  \t   Bulan     : "; color(11); cin >> bulan;   color(7); clearBuffer();
+                    cout << "  \t   Tahun     : "; color(11); cin >> tahun;   color(7); clearBuffer();
 
                     if (
                         tempat == "" 
@@ -668,40 +679,41 @@ Penduduk isiFormulirBio(Penduduk penduduk){
                         penduduk.usia = timeNow()->tm_year + 1900 - tahun; // usia
                     }
                     
-                } else {
+                } else {    // ttl sudah diisi
+                
                     cout << "\n\tTempat/Tanggal Lahir" << endl;
-                    cout << "  \t   Tempat    : "; color(14); cout << "sudah diisi."; color(7); cout << endl;
+                    cout << "  \t   Tempat    : "; color(14); cout << "sudah diisi." << endl; color(7);
                     
-                    color(8); cout << "\t   -- isi di bawah ini dengan angka       "; color(7);   cout << endl;
+                    color(8); cout << "\n\t   -- isi di bawah ini dengan angka   \n" << endl; color(7);
 
-                    cout << "  \t   Tanggal   : "; color(14); cout << "sudah diisi."; color(7); cout << endl;
-                    cout << "  \t   Bulan     : "; color(14); cout << "sudah diisi."; color(7); cout << endl;
-                    cout << "  \t   Tahun     : "; color(14); cout << "sudah diisi."; color(7); cout << endl;
+                    cout << "  \t   Tanggal   : "; color(14); cout << "sudah diisi." << endl; color(7);
+                    cout << "  \t   Bulan     : "; color(14); cout << "sudah diisi." << endl; color(7);
+                    cout << "  \t   Tahun     : "; color(14); cout << "sudah diisi." << endl; color(7);
                 }
 
-                cout << "\n\tAlamat Lengkap\t: ";
+                cout << endl;
+
+                break;
+
+            // halaman 2
+            case 2:
+                cout << "\tAlamat Lengkap\t: ";
                 if (penduduk.alamat == "") { 
                     color(11); getline(cin, penduduk.alamat); color(7); fflush(stdin); 
                 } else { 
                     color(14); cout << "sudah diisi" << endl; color(7); 
                 }
 
-                cout << "\n\tNo. Telepon\t: ";
+                cout << "\tNo. Telepon\t: ";
                 if (penduduk.telepon == "") { 
                     color(11); getline(cin, penduduk.telepon); color(7); fflush(stdin); 
                 } else { 
                     color(14); cout << "sudah diisi" << endl;; color(7); 
                 }
 
-                cout << endl << endl << endl << endl << endl;
-
-                break;
-
-            // halaman 2
-            case 2:
-                color(8);
+                color(8); 
                 cout << "\n\t-- isi dengan memilih angka pada opsi\n"; color(7);
-
+                
                 // gender
                 cout << "\n\tJenis Kelamin \n"       
                     << "\t     [1] Laki-laki     [2] Perempuan           \n"   
@@ -709,7 +721,13 @@ Penduduk isiFormulirBio(Penduduk penduduk){
                 
                 if (penduduk.gender == -1) { 
                     color(11); cin >> penduduk.gender; color(7);
-                    penduduk.gender -= 1;
+
+                    if (penduduk.gender < 1 || penduduk.gender > 2) {
+                        penduduk.gender = -1;
+                    } else {
+                        penduduk.gender -= 1;
+                    }
+
                 } else { 
                     color(14); cout << "sudah diisi"; color(7); 
                 }
@@ -724,22 +742,35 @@ Penduduk isiFormulirBio(Penduduk penduduk){
 
                 if (penduduk.agama == -1) { 
                     color(11); cin >> penduduk.agama; color(7);
-                    penduduk.agama -= 1;
+
+                    if (penduduk.agama < 1 || penduduk.agama > 4) {
+                        penduduk.agama = -1;
+                    } else {
+                        penduduk.agama -= 1;
+                    }
+
                 } else { 
                     color(14); cout << "sudah diisi"; color(7); 
                 }
 
-                cout << endl;
+                break;
 
+            case 3:
                 // golongan darah
-                cout << "\n\tGolongan Darah                              \n"
+                cout << "\tGolongan Darah                               \n"
                     << "\t     [1] A         [3] AB                     \n"
                     << "\t     [2] B         [4] O                      \n"
                     << "\t     : ";
 
                 if (penduduk.golDar == -1) { 
                     color(11); cin >> penduduk.golDar; color(7);
-                    penduduk.golDar -= 1;
+
+                    if (penduduk.golDar < 1 || penduduk.golDar > 4) {
+                        penduduk.golDar = -1;
+                    } else {
+                        penduduk.golDar -= 1;
+                    }
+
                 } else { 
                     color(14); cout << "sudah diisi"; color(7); 
                 }
@@ -754,10 +785,20 @@ Penduduk isiFormulirBio(Penduduk penduduk){
 
                 if (penduduk.status == -1) { 
                     color(11); cin >> penduduk.status; color(7);
-                    penduduk.status -= 1;
+
+                    if (penduduk.status < 1 || penduduk.status > 4) {
+                        penduduk.status = -1;
+                    } else {
+                        penduduk.status -= 1;
+                    }
+
                 } else { 
                     color(14); cout << "sudah diisi"; color(7); 
                 }
+
+                cout << endl << endl << endl << endl;
+
+                break;
 
         } 
 
@@ -766,10 +807,10 @@ Penduduk isiFormulirBio(Penduduk penduduk){
         updateToTxt(penduduk);
         
         cout << endl; 
-        color(10);    cout << "\n\t       Formulir telah berhasil diisi!    \n\n"; color(7);
+        color(10);    cout << "\n\t       Formulir telah berhasil diisi!    \n"; color(7);
         color(SELECT); cout << "\n\t<= Kembali                     "; 
         
-        if (page == 1) { cout << "Berikutnya =>"; }
+        if (page == 1 || page == 2) { cout << "Berikutnya =>"; }
 
         color(7); cout << endl << endl;
         
@@ -784,8 +825,10 @@ Penduduk isiFormulirBio(Penduduk penduduk){
                 break;
             } else if (pilih == LEFT && page == 2) {
                 page = 1;
-            } else if (pilih == RIGHT) {
+            } else if (pilih == RIGHT && page == 1 || pilih == LEFT && page == 3) {
                 page = 2;
+            } else if (pilih == RIGHT && page == 2) {
+                page = 3;
             }
         }   
 
@@ -809,9 +852,9 @@ void tampilkanData(Penduduk penduduk) {
 void logInPemerintah() {
     system("cls");
     cout << endl << endl << endl;
-    decor(177, 41);
+    dekorasi(177, 41);
 
-    cout << "\t  LOGIN PEMERINTAH -*-\n" << endl;
+    cout << "\n\t  LOGIN PEMERINTAH -*-\n" << endl;
 
     string username, password;
     cout << "\t      Username   : "; cin >> username; fflush(stdin);
@@ -820,8 +863,9 @@ void logInPemerintah() {
     // berhasil masuk
     if (username == "p" && password == "p") {
         color(10);
-        cout << "\n\t            Log in berhasil!             \n\n\n"; color(7);
-        decor(177, 41);
+        cout << "\n\t            Log in berhasil!             \n\n\n" << endl; color(7);
+        
+        dekorasi(177, 41);
         getch();
 
         menuPemerintah();
@@ -830,9 +874,9 @@ void logInPemerintah() {
     } else {
 
         color(12);
-        cout << "\n\t              Log in gagal!              \n\n\n"; color(7);
+        cout << "\n\t              Log in gagal!              \n\n\n" << endl; color(7);
 
-        decor(177, 41);
+        dekorasi(177, 41);
         getch();
     }
 
@@ -851,9 +895,9 @@ void menuPemerintah() {
         system("cls");
         cout << endl << endl << endl;
 
-        decor(240, 41);
+        dekorasi(240, 41);
 
-        cout << "\t   Selamat datang, Pemerintah! " << char(2) << endl;
+        cout << "\n\t   Selamat datang, Pemerintah! " << char(2) << endl;
 
         cout << endl;
         color(12); cout << setw(33) << warning << endl; color(7);
@@ -862,9 +906,9 @@ void menuPemerintah() {
         color(opsi0); cout << "\t       [0] Keluar                   \n";
         color(opsi1); cout << "\t       [1] Tampilkan data penduduk  \n";
         color(opsi2); cout << "\t       [2] Ubah data penduduk       \n";
-        color(opsi3); cout << "\t       [3] Tampilkan hasil pendataan\n\n"; color(7);
+        color(opsi3); cout << "\t       [3] Tampilkan hasil pendataan\n\n\n"; color(7);
         
-        decor(240, 41);
+        dekorasi(240, 41);
 
         char menu, pilih;
         menu = getch();
@@ -962,12 +1006,39 @@ void tampilkanDiagram() {
         cout << "\t      HASIL PENDATAAN PENDUDUK    \n\n";
         cout << "\t" << kategori << endl << endl;
 
-        if (kategori == "Jenis Kelamin") {
+        if (page == 1) {
             diagramGender();
+        } else if (page == 2) {
+            diagramUsia();
         }
+
+        cout << "\n\n\t  Data tersimpan : " << banyakData()
+             << endl << endl;
         
-        getch();
-        break;
+        color(SELECT); 
+        cout << "\n\t<= Kembali                     "; 
+        if (page == 1 || page == 2) { 
+            cout << "Berikutnya =>"; 
+        } color(7);
+
+        char opsi, pilih;
+        opsi = getch();
+
+        if (opsi == -32) {
+            pilih = getch();
+
+            if (pilih == LEFT && page == 1) {
+                openPage = false;
+                break;
+
+            } else if (pilih == LEFT && page == 2) {
+                page = 1; kategori = "Jenis Kelamin";
+
+            } else if (pilih == RIGHT && page == 1 || pilih == LEFT && page == 3) {
+                page = 2; kategori = "Usia";
+
+            }
+        }
     }
 
 }
@@ -975,36 +1046,102 @@ void tampilkanDiagram() {
 void diagramGender() {
     int diagramL,
         diagramP,
+        persentaseL,
+        persentaseP,
         totalL = 0,
-        totalP = 0;
+        totalP = 0,
+        total = banyakData();
 
-    for (int i=0; i<banyakData(); i++) {
-        if (dataPenduduk[i].gender == 1) {
+    // hitung jumlah data per gender
+    for (int i=0; i<total; i++) {
+        if (dataPenduduk[i].gender == 0) {
             totalL++;
-        } else if (dataPenduduk[i].gender == 2) {
+        } else if (dataPenduduk[i].gender == 1) {
             totalP++;
         }
     }
 
-    diagramL = (totalL*45)/banyakData();
-    diagramP = (totalP*45)/banyakData();
+    diagramL = (totalL*45)/total;
+    diagramP = (totalP*45)/total;
+
+    persentaseL = (totalL*100)/total;
+    persentaseP = (totalP*100)/total;
 
     cout << "\t  " << char(221) << endl; 
-    cout << "\t  " << char(221); diagram(diagramL, 9); cout << totalL << endl;
+    cout << "\t  " << char(221); 
+    
+    diagram(diagramL, 9); cout << " " << persentaseL << "%" << endl;
+    
     cout << "\t  " << char(221) << endl;
     cout << "\t  " << char(221) << endl;
     cout << "\t  " << char(221) << endl; 
-    cout << "\t  " << char(221); diagram(diagramP, 13); cout << totalP << endl;
+    cout << "\t  " << char(221); 
+    
+    diagram(diagramP, 13); cout << " " << persentaseP << "%" << endl;
+    
     cout << "\t  " << char(221) << endl;
 
     cout << endl << endl;
 
-    cout << "\t  " << char(254) << " Laki-laki";
-    cout << "\t  " << char(254) << " Perempuan";
-    cout << "   Data tersimpan : " << banyakData();
-    cout << endl << endl;
+    color(9);  cout << "\t  " << char(254); color(7); cout << " Laki-laki";
+    color(13); cout << "\t  " << char(254); color(7); cout << " Perempuan";
+
 }
 
+void diagramUsia() {
+    short int total1 = 0,
+              total2 = 0,
+              total3 = 0,
+              total4 = 0,
+              total5 = 0,
+              total6 = 0,
+              total = banyakData();
+
+    // hitung jumlah data per usia
+    for (int i=0; i<total; i++) {
+        if (dataPenduduk[i].usia <= 9) {
+            total1++;
+        } else if (dataPenduduk[i].usia >= 10 && dataPenduduk[i].usia <= 19) {
+            total2++;
+        } else if (dataPenduduk[i].usia >= 20 && dataPenduduk[i].usia <= 29) {
+            total3++;
+        } else if (dataPenduduk[i].usia >= 30 && dataPenduduk[i].usia <= 39) {
+            total4++;
+        } else if (dataPenduduk[i].usia >= 40 && dataPenduduk[i].usia <= 49) {
+            total5++;
+        } else if (dataPenduduk[i].usia >= 50) {
+            total6++;
+        } 
+    }
+
+    cout << "\t  " << char(221); diagram((total6*45)/total, 14); 
+    cout << " " << (total6*100)/total << "%" << endl;
+    
+    cout << "\t  " << char(221); diagram((total5*45)/total, 13); 
+    cout << " " << (total5*100)/total << "%" << endl;
+    
+    cout << "\t  " << char(221); diagram((total4*45)/total, 12); 
+    cout << " " << (total4*100)/total << "%" << endl;
+    
+    cout << "\t  " << char(221); diagram((total3*45)/total, 10); 
+    cout << " " << (total3*100)/total << "%" << endl;
+    
+    cout << "\t  " << char(221); diagram((total2*45)/total, 9); 
+    cout << " " << (total2*100)/total << "%" << endl;
+    
+    cout << "\t  " << char(221); diagram((total1*45)/total, 8); 
+    cout << " " << (total1*100)/total << "%" << endl;
+    
+    cout << endl << endl;
+
+    color(8);  cout << "\t  " << char(254); color(7); cout << " 0-9 tahun";
+    color(12); cout << "\t  " << char(254); color(7); cout << " 30-39 tahun\n";
+    color(9);  cout << "\t  " << char(254); color(7); cout << " 10-20 tahun";
+    color(13); cout << "\t  " << char(254); color(7); cout << " 40-49 tahun\n";
+    color(10);  cout << "\t  " << char(254); color(7); cout << " 20-29 tahun";
+    color(14); cout << "\t  " << char(254); color(7); cout << " 50+ tahun";
+
+}
 
 /* ----------------------------------- FILE TXT ----------------------------------- */
 

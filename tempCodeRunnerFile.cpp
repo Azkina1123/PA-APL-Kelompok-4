@@ -1,1 +1,1 @@
-cout << endl << endl << endl;
+totalP/total
