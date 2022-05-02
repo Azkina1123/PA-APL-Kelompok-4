@@ -77,6 +77,9 @@ void tampilkanDiagram();
 // diagram
 void diagramGender();
 void diagramUsia();
+void diagramAgama();
+void diagramGolDar();
+void diagramStatus();
 
 // write & read txt
 void importFromTxt();
@@ -91,7 +94,8 @@ int main(){
     bool running = true;
     string warning = "";
     int opsi1 = SELECT, 
-        opsi2 = UNSELECT;
+        opsi2 = UNSELECT,
+        opsi3 = UNSELECT;
 
     while (running) {
         system("cls");
@@ -109,11 +113,13 @@ int main(){
         
         cout << "\n\t       Jalankan program sebagai :      \n\n";
         color(opsi1); cout << "\t   [1] Pemerintah  ";
-        color(opsi2); cout << "     [2] Penduduk\n\n"; 
+        color(opsi2); cout << "     [2] Penduduk \n\n";
+        color(opsi3); cout << "\t\t\t[KELUAR] \n\n"; 
         
         color(7); cout << endl;
 
         dekorasi(177, 41);
+
         // pilih mode
         char mode, pilih;
         mode = getch();
@@ -127,10 +133,15 @@ int main(){
                 // mode pemerintah
                 if (opsi1 == SELECT) {
                     logInPemerintah();
-                
+                    
                 // mode penduduk
-                } else if (opsi2 = SELECT) {
+                } else if (opsi2 == SELECT) {
                     menuMasukPenduduk();
+                    
+                // keluar
+                } else if (opsi3 == SELECT) {
+                    running = false;
+
                 }
 
                 break;
@@ -140,14 +151,24 @@ int main(){
                 pilih = getch();
 
                 // pilih opsi 1
-                if (pilih == LEFT){
+                if (pilih == LEFT || pilih == UP && opsi3 == SELECT){
                     opsi1 = SELECT;
                     opsi2 = UNSELECT;
-                    
+                    opsi3 = UNSELECT;
+
                 // pilih opsi 2  
                 } else if (pilih == RIGHT){
                     opsi1 = UNSELECT;
                     opsi2 = SELECT;
+                    opsi3 = UNSELECT;
+                    
+                // pilih opsi 3  
+                } else if (pilih == DOWN){
+                    opsi1 = UNSELECT;
+                    opsi2 = UNSELECT;
+                    opsi3 = SELECT;
+
+
                 }
 
                 break;
@@ -156,8 +177,10 @@ int main(){
             default:
                 warning = "Opsi tidak tersedia!";
                 continue;
+
                 break;
         }
+
         warning = "";
     }
 
@@ -252,7 +275,8 @@ void dekorasi(int ascii, int jumlah) {
 }
 
 void diagram(int jumlah, unsigned int kodeWarna) {
-    color(kodeWarna); 
+    cout << "\t    " << char(221);
+    color(kodeWarna);
     for (int i=0; i<jumlah; i++) {
         cout << char(219);
     }
@@ -361,7 +385,7 @@ void menuMasukPenduduk() {
         cout << endl << endl << endl;
 
         dekorasi(177, 41);
-        cout << "\n\t                PENDUDUK               \n";
+        cout << "\n\t                PENDUDUK                 ";
 
         cout << "\n\t              Pilih opsi :             \n";
 
@@ -369,9 +393,9 @@ void menuMasukPenduduk() {
         color(12); cout << setw(38) << warning << endl; color(7);
         cout << endl;
 
-        color(opsi0); cout << "\t [0] Kembali";
-        color(opsi1); cout << "   [1] Log In";
-        color(opsi2); cout << "   [2] Sign Up \n\n"; 
+        color(opsi0); cout << "\t     [0] Kembali";
+        color(opsi2); cout << "\t[2] Sign Up"     << endl; 
+        color(opsi1); cout << "\t     [1] Log In" << endl << endl;
         color(7); cout << endl;
 
         dekorasi(177, 41);
@@ -1003,23 +1027,28 @@ void tampilkanDiagram() {
         system("cls");
         cout << endl << endl << endl;
 
-        cout << "\t      HASIL PENDATAAN PENDUDUK    \n\n";
+        cout << "\t         HASIL PENDATAAN PENDUDUK    \n\n";
         cout << "\t" << kategori << endl << endl;
 
         if (page == 1) {
             diagramGender();
         } else if (page == 2) {
             diagramUsia();
+        } else if (page == 3) {
+            diagramAgama();
+        } else if (page == 4) {
+            diagramGolDar();
+        } else if (page == 5) {
+            diagramStatus();
         }
-
-        cout << "\n\n\t  Data tersimpan : " << banyakData()
-             << endl << endl;
         
         color(SELECT); 
         cout << "\n\t<= Kembali                     "; 
-        if (page == 1 || page == 2) { 
+        if (page >= 1 && page < 5) { 
             cout << "Berikutnya =>"; 
         } color(7);
+
+        cout << endl << endl << endl;
 
         char opsi, pilih;
         opsi = getch();
@@ -1037,23 +1066,28 @@ void tampilkanDiagram() {
             } else if (pilih == RIGHT && page == 1 || pilih == LEFT && page == 3) {
                 page = 2; kategori = "Usia";
 
-            }
-        }
-    }
+            } else if (pilih == RIGHT && page == 2 || pilih == LEFT && page == 4) {
+                page = 3; kategori = "Agama";
+
+            } else if (pilih == RIGHT && page == 3 || pilih == LEFT && page == 5) {
+                page = 4; kategori = "Golongan Darah";
+        
+            } else if (pilih == RIGHT && page == 4) {
+                page = 5; kategori = "Status";
+
+            } // end if 
+        } // end if
+    } // end while
 
 }
 
+// diagram
 void diagramGender() {
-    int diagramL,
-        diagramP,
-        persentaseL,
-        persentaseP,
-        totalL = 0,
-        totalP = 0,
-        total = banyakData();
+    int totalL = 0,
+        totalP = 0;
 
     // hitung jumlah data per gender
-    for (int i=0; i<total; i++) {
+    for (int i=0; i<banyakData(); i++) {
         if (dataPenduduk[i].gender == 0) {
             totalL++;
         } else if (dataPenduduk[i].gender == 1) {
@@ -1061,31 +1095,24 @@ void diagramGender() {
         }
     }
 
-    diagramL = (totalL*45)/total;
-    diagramP = (totalP*45)/total;
+    diagram(0); cout << endl; 
+    diagram((totalL*45)/(totalL+totalP), 9); cout << " " << (totalL*100)/(totalL+totalP) << "%" << endl;
+    diagram(0); cout << endl;     
+    diagram(0); cout << endl;              
+    diagram(0); cout << endl;     
+    diagram((totalP*45)/(totalL+totalP), 13); cout << " " << (totalP*100)/(totalL+totalP) << "%" << endl;
+    diagram(0); cout << endl;     
 
-    persentaseL = (totalL*100)/total;
-    persentaseP = (totalP*100)/total;
+    cout << endl;
 
-    cout << "\t  " << char(221) << endl; 
-    cout << "\t  " << char(221); 
-    
-    diagram(diagramL, 9); cout << " " << persentaseL << "%" << endl;
-    
-    cout << "\t  " << char(221) << endl;
-    cout << "\t  " << char(221) << endl;
-    cout << "\t  " << char(221) << endl; 
-    cout << "\t  " << char(221); 
-    
-    diagram(diagramP, 13); cout << " " << persentaseP << "%" << endl;
-    
-    cout << "\t  " << char(221) << endl;
+    color(9);  cout << "\t    " << char(254); color(7); cout << " Laki-laki\n";
+    color(13); cout << "\t    " << char(254); color(7); cout << " Perempuan";
 
-    cout << endl << endl;
+    cout << endl << endl << endl;
 
-    color(9);  cout << "\t  " << char(254); color(7); cout << " Laki-laki";
-    color(13); cout << "\t  " << char(254); color(7); cout << " Perempuan";
-
+    cout << "\n\t    Terdapat " << totalL+totalP << " data terverifikasi"
+         << "\n\t    dari " << banyakData() << " penduduk terdaftar."
+         << endl << endl;
 }
 
 void diagramUsia() {
@@ -1095,10 +1122,11 @@ void diagramUsia() {
               total4 = 0,
               total5 = 0,
               total6 = 0,
-              total = banyakData();
+              total7 = 0,
+              total;
 
     // hitung jumlah data per usia
-    for (int i=0; i<total; i++) {
+    for (int i=0; i<banyakData(); i++) {
         if (dataPenduduk[i].usia <= 9) {
             total1++;
         } else if (dataPenduduk[i].usia >= 10 && dataPenduduk[i].usia <= 19) {
@@ -1109,38 +1137,203 @@ void diagramUsia() {
             total4++;
         } else if (dataPenduduk[i].usia >= 40 && dataPenduduk[i].usia <= 49) {
             total5++;
-        } else if (dataPenduduk[i].usia >= 50) {
+        } else if (dataPenduduk[i].usia >= 50 && dataPenduduk[i].usia <= 59) {
             total6++;
-        } 
+        } else if (dataPenduduk[i].usia >= 60) {
+            total7++;
+        }
     }
 
-    cout << "\t  " << char(221); diagram((total6*45)/total, 14); 
-    cout << " " << (total6*100)/total << "%" << endl;
-    
-    cout << "\t  " << char(221); diagram((total5*45)/total, 13); 
-    cout << " " << (total5*100)/total << "%" << endl;
-    
-    cout << "\t  " << char(221); diagram((total4*45)/total, 12); 
-    cout << " " << (total4*100)/total << "%" << endl;
-    
-    cout << "\t  " << char(221); diagram((total3*45)/total, 10); 
-    cout << " " << (total3*100)/total << "%" << endl;
-    
-    cout << "\t  " << char(221); diagram((total2*45)/total, 9); 
+    total = total1 + total2 + total3 + total4 + total5 + total6 + total7;
+
+    diagram((total1*45)/total, 8); 
+    cout << " " << (total1*100)/total << "%" << endl;
+
+    diagram((total2*45)/total, 9); 
     cout << " " << (total2*100)/total << "%" << endl;
     
-    cout << "\t  " << char(221); diagram((total1*45)/total, 8); 
+    diagram((total3*45)/total, 10); 
+    cout << " " << (total3*100)/total << "%" << endl;
+    
+    diagram((total4*45)/total, 14); 
+    cout << " " << (total4*100)/total << "%" << endl;
+    
+    diagram((total5*45)/total, 12); 
+    cout << " " << (total5*100)/total << "%" << endl;
+    
+    diagram((total6*45)/total, 13); 
+    cout << " " << (total6*100)/total << "%" << endl;
+    
+    diagram((total7*45)/total, 6); 
+    cout << " " << (total7*100)/total << "%" << endl;
+    
+    cout << endl;
+
+    color(8);  cout << "\t    " << char(254); color(7); cout << " 0-9 tahun";
+    color(12); cout << "\t    "    << char(254); color(7); cout << " 40-49 tahun\n";
+    color(9);  cout << "\t    " << char(254); color(7); cout << " 10-20 tahun";
+    color(13); cout << "   "    << char(254); color(7); cout << " 50-59 tahun\n";
+    color(10); cout << "\t    " << char(254); color(7); cout << " 20-29 tahun";
+    color(6);  cout << "   "    << char(254); color(7); cout << " 60+ tahun\n";
+    color(14); cout << "\t    " << char(254); color(7); cout << " 30-39 tahun";
+
+    cout << endl;
+    
+    cout << "\n\t    Terdapat " << total << " data terverifikasi"
+         << "\n\t    dari " << banyakData() << " penduduk terdaftar."
+         << endl << endl;
+}
+
+void diagramAgama() {
+    short int total1 = 0,
+              total2 = 0,
+              total3 = 0,
+              total4 = 0,
+              total5 = 0,
+              total6 = 0,
+              total;
+
+    // hitung jumlah data per agama
+    for (int i=0; i<banyakData(); i++) {
+        if (dataPenduduk[i].agama == 0) {
+            total1++;
+        } else if (dataPenduduk[i].agama == 1) {
+            total2++;
+        } else if (dataPenduduk[i].agama == 2) {
+            total3++;
+        } else if (dataPenduduk[i].agama == 3) {
+            total4++;
+        } else if (dataPenduduk[i].agama == 4) {
+            total5++;
+        } else if (dataPenduduk[i].agama == 5) {
+            total6++;
+        }
+    }
+
+    total = total1 + total2 + total3 + total4 + total5 + total6;
+
+    diagram((total1*45)/total, 10); 
     cout << " " << (total1*100)/total << "%" << endl;
+    
+    diagram((total2*45)/total, 13); 
+    cout << " " << (total2*100)/total << "%" << endl;
+    
+    diagram((total3*45)/total, 8); 
+    cout << " " << (total3*100)/total << "%" << endl;
+    
+    diagram((total4*45)/total, 14); 
+    cout << " " << (total4*100)/total << "%" << endl;
+    
+    diagram((total5*45)/total, 9); 
+    cout << " " << (total5*100)/total << "%" << endl;
+    
+    diagram((total6*45)/total, 12); 
+    cout << " " << (total6*100)/total << "%" << endl;
     
     cout << endl << endl;
 
-    color(8);  cout << "\t  " << char(254); color(7); cout << " 0-9 tahun";
-    color(12); cout << "\t  " << char(254); color(7); cout << " 30-39 tahun\n";
-    color(9);  cout << "\t  " << char(254); color(7); cout << " 10-20 tahun";
-    color(13); cout << "\t  " << char(254); color(7); cout << " 40-49 tahun\n";
-    color(10);  cout << "\t  " << char(254); color(7); cout << " 20-29 tahun";
-    color(14); cout << "\t  " << char(254); color(7); cout << " 50+ tahun";
+    color(10); cout << "\t    " << char(254); color(7); cout << " Islam";
+    color(14); cout << "\t    " << char(254); color(7); cout << " Hindu\n";
+    color(13); cout << "\t    " << char(254); color(7); cout << " Kristen";
+    color(9);  cout << "\t    " << char(254); color(7); cout << " Buddha\n";
+    color(8);  cout << "\t    " << char(254); color(7); cout << " Katolik";
+    color(12); cout << "\t    " << char(254); color(7); cout << " Konghuchu";
 
+    cout << endl << endl;
+    
+    cout << "\n\t    Terdapat " << total << " data terverifikasi"
+         << "\n\t    dari " << banyakData() << " penduduk terdaftar."
+         << endl << endl;    
+}
+
+void diagramGolDar() {
+    short int total0 = 0,
+              total1 = 0,
+              total2 = 0,
+              total3 = 0,
+              total;
+
+    // hitung jumlah data per agama
+    for (int i=0; i<banyakData(); i++) {
+        if (dataPenduduk[i].golDar == 0) {
+            total0++;
+        } else if (dataPenduduk[i].golDar == 1) {
+            total1++;
+        } else if (dataPenduduk[i].golDar == 2) {
+            total2++;
+        } else if (dataPenduduk[i].golDar == 3) {
+            total3++;
+        }
+    }
+
+    total = total0 + total1 + total2 + total3;
+
+
+    diagram((total0*45)/total, 12); cout << " " << (total0*100)/total << "%" << endl;
+    diagram(0); cout << endl;
+    diagram((total1*45)/total, 9);  cout << " " << (total1*100)/total << "%" << endl;
+    diagram(0); cout << endl;
+    diagram((total2*45)/total, 13); cout << " " << (total2*100)/total << "%" << endl;
+    diagram(0); cout << endl;
+    diagram((total3*45)/total, 8);  cout << " " << (total3*100)/total << "%" << endl;
+    
+    cout << endl;
+
+    color(12); cout << "\t    "   << char(254); color(7); cout << " A";
+    color(13); cout << "\t\t  " << char(254); color(7); cout << " AB\n";
+    color(9);  cout << "\t    "   << char(254); color(7); cout << " B";
+    color(8);  cout << "\t\t  " << char(254); color(7); cout << " O\n";
+
+    cout << endl << endl;
+    
+    cout << "\n\t    Terdapat " << total << " data terverifikasi"
+         << "\n\t    dari " << banyakData() << " penduduk terdaftar."
+         << endl << endl;    
+}
+
+void diagramStatus() {
+    short int total0 = 0,
+              total1 = 0,
+              total2 = 0,
+              total3 = 0,
+              total;
+
+    // hitung jumlah data per agama
+    for (int i=0; i<banyakData(); i++) {
+        if (dataPenduduk[i].status == 0) {
+            total0++;
+        } else if (dataPenduduk[i].status == 1) {
+            total1++;
+        } else if (dataPenduduk[i].status == 2) {
+            total2++;
+        } else if (dataPenduduk[i].status == 3) {
+            total3++;
+        }
+    }
+
+    total = total0 + total1 + total2 + total3;
+
+
+    diagram((total0*45)/total, 3); cout << " " << (total0*100)/total << "%" << endl;
+    diagram(0); cout << endl;
+    diagram((total1*45)/total, 10);  cout << " " << (total1*100)/total << "%" << endl;
+    diagram(0); cout << endl;
+    diagram((total2*45)/total, 6); cout << " " << (total2*100)/total << "%" << endl;
+    diagram(0); cout << endl;
+    diagram((total3*45)/total, 13);  cout << " " << (total3*100)/total << "%" << endl;
+    
+    cout << endl;
+
+    color(3);  cout << "\t    " << char(254); color(7); cout << " Belum kawin";
+    color(6);  cout << "   "    << char(254); color(7); cout << " Cerai hidup\n";
+    color(10); cout << "\t    " << char(254); color(7); cout << " Kawin";
+    color(13); cout << "\t    " << char(254); color(7); cout << " Cerai mati\n";
+
+    cout << endl << endl;
+    
+    cout << "\n\t    Terdapat " << total << " data terverifikasi"
+         << "\n\t    dari " << banyakData() << " penduduk terdaftar."
+         << endl << endl;    
 }
 
 /* ----------------------------------- FILE TXT ----------------------------------- */
