@@ -47,77 +47,77 @@ struct Penduduk{
 // data tersimpan
 Penduduk dataPenduduk[STORAGE];
 
-// fungsi yg digunakan
-void color(unsigned short kodeWarna);
-tm *timeNow();
-int random();
-void clearBuffer();
-bool logInBerhasil(string nik, string password);
-void dekorasi(int ascii, int jumlah);
-int banyakData();
-void diagram(int jumlah, unsigned int kodeWarna=7);
-
-// sorting & searching
-void insertionSortNIK(string mode="ASC");
-int binarySearch(string nik);
-
 // tampilan mode penduduk
-void menuMasukPenduduk();
-void logInPenduduk();
-void signUpPenduduk();
-void menuPenduduk(Penduduk penduduk);
-Penduduk isiFormulirBio(Penduduk penduduk);
-void tampilkanData(Penduduk penduduk);
+void menuMasukPenduduk();                           // menu login atau signup
+void logInPenduduk();                               // log in penduduk
+void signUpPenduduk();                              // sign up penduduk
+void menuPenduduk(Penduduk penduduk);               // menu di akun penduduk
+Penduduk isiFormulirBio(Penduduk penduduk);         // isi formulir penduduk
+void tampilkanData(Penduduk penduduk);              // tampilkan data
 
 // tampilan mode pemerintah
-void logInPemerintah();
-void menuPemerintah();
-void tampilkanDiagram();
+void logInPemerintah();                             // log in pemerintah
+void menuPemerintah();                              // menu di akun pemerintah
+void tampilkanDiagram();                            // tampilkan diagram data penduduk
 
 // diagram
-void diagramGender();
-void diagramUsia();
-void diagramAgama();
-void diagramGolDar();
-void diagramStatus();
+void diagramGender();                               // diagram berdasarkan gender
+void diagramUsia();                                 // diagram berdasarkan usia
+void diagramAgama();                                // diagram berdasarkan agama
+void diagramGolDar();                               // diagram berdasarkan golongan darah
+void diagramStatus();                               // diagram berdasarkna status
 
 // write & read txt
-void importFromTxt();
-void appendToTxt(Penduduk penduduk);
-void deleteToTxt(Penduduk penduduk);
-void updateToTxt(Penduduk penduduk);
+void importFromTxt();                               // ambil semua data dari txt
+void appendToTxt(Penduduk penduduk);                // tambahkan data baru ke txt
+void deleteToTxt(Penduduk penduduk);                // hapus data tertentu dari txt
+void updateToTxt(Penduduk penduduk);                // ubah data tertentu di txt
+
+// sorting & searching
+void insertionSortNIK(string mode="ASC");           // sorting berdasarkan NIK          
+int indexNIK(string nik);                           // cari index NIK
+void bubbleSortTanggal(const char* mode);           // sorting berdasarkan tanggal pembaruan
+
+// tambahan
+void color(unsigned short kodeWarna);               // ganti warna
+tm *timeNow();                                      // waktu sekarang
+string hariIni();                                   // tanggal hari ini
+int random();                                       // angka random
+void clearBuffer();                                 // bersihkan buffer
+bool logInBerhasil(string nik, string password);    // memastikan nik dan pw benar
+bool isDigit(string str);                           // memastikan string diisi angka saja
+int banyakData();                                   // banyak data tersimpan
+void dekorasi(int ascii, int jumlah);               // dekorasi tampilan
+void diagram(int jumlah, unsigned int kodeWarna=7); // batang diagram
 
 /*----------------------------------- MAIN PROGRAM -----------------------------------*/
 
 int main(){
     // default
-    bool running = true;
-    string warning = "";
-    int opsi1 = SELECT, 
-        opsi2 = UNSELECT,
-        opsi3 = UNSELECT;
+    bool running = true;        // program berjalan
+    string warning = "";        // peringatan
+    int opsi1 = SELECT,         // warna opsi 1
+        opsi2 = UNSELECT,       // warna opsi 2
+        opsi3 = UNSELECT;       // warna opsi 3
 
     while (running) {
-        system("cls");
+        system("cls");  
         cout << endl << endl << endl;
 
-        // ambil data dari txt
-        importFromTxt();
+        importFromTxt();        // ambil data dari txt
 
         dekorasi(177, 41);
-        cout << "\n\t    PENDATAAN PENDUDUK KOTA SAMARINDA  \n\n";
+        cout << "\n\t    PENDATAAN PENDUDUK KOTA SAMARINDA  \n\n";  // judul
+
+        color(12); cout << setw(38) << warning << endl;  color(7);  // notif peringatan
         
-        color(12); 
-        cout << setw(38) << warning << endl; 
-        color(7);
-        
-        cout << "\n\t       Jalankan program sebagai :      \n\n";
-        color(opsi1); cout << "\t   [1] Pemerintah  ";
-        color(opsi2); cout << "     [2] Penduduk \n\n";
-        color(opsi3); cout << "\t\t\t[KELUAR] \n\n"; 
+        // tampilan menu
+        cout << "\n\t       Jalankan program sebagai :      \n\n";  
+        color(opsi1); cout << "\t   [1] Pemerintah  ";              // opsi 1
+        color(opsi2); cout << "     [2] Penduduk\n\n";              // opsi 2
+        color(opsi3); cout << "\t\t\t[KELUAR]   \n\n";              // opsi 3
         
         color(7); cout << endl;
-
         dekorasi(177, 41);
 
         // pilih mode
@@ -132,43 +132,41 @@ int main(){
                 
                 // mode pemerintah
                 if (opsi1 == SELECT) {
-                    logInPemerintah();
+                    logInPemerintah();      // buka login pemerintah
                     
                 // mode penduduk
                 } else if (opsi2 == SELECT) {
-                    menuMasukPenduduk();
+                    menuMasukPenduduk();    // buka menu masuk penduduk
                     
                 // keluar
                 } else if (opsi3 == SELECT) {
-                    running = false;
+                    running = false;        // hentikan program
 
                 }
 
                 break;
             
-            // tekan RIGHT || LEFT
+            // tekan UP|| RIGHT || DOWN || LEFT 
             case -32:
                 pilih = getch();
 
                 // pilih opsi 1
-                if (pilih == LEFT || pilih == UP && opsi3 == SELECT){
+                if (pilih == LEFT || pilih == UP && opsi3 == SELECT) {
                     opsi1 = SELECT;
                     opsi2 = UNSELECT;
                     opsi3 = UNSELECT;
 
                 // pilih opsi 2  
-                } else if (pilih == RIGHT){
+                } else if (pilih == RIGHT) {
                     opsi1 = UNSELECT;
                     opsi2 = SELECT;
                     opsi3 = UNSELECT;
                     
                 // pilih opsi 3  
-                } else if (pilih == DOWN){
+                } else if (pilih == DOWN) {
                     opsi1 = UNSELECT;
                     opsi2 = UNSELECT;
                     opsi3 = SELECT;
-
-
                 }
 
                 break;
@@ -176,7 +174,7 @@ int main(){
             // opsi tidak ada
             default:
                 warning = "Opsi tidak tersedia!";
-                continue;
+                continue;   // lanjutkan looping
 
                 break;
         }
@@ -191,215 +189,37 @@ int main(){
 }
 
 
-/* ----------------------------------- FUNGSI ----------------------------------- */
-
-void color(unsigned short kodeWarna) {
-    HANDLE hCon = GetStdHandle(STD_OUTPUT_HANDLE);
-    SetConsoleTextAttribute(hCon, kodeWarna);
-}
-
-tm *timeNow() {
-    time_t now = time(0);
-    tm *ltm = localtime(&now);
-
-    return ltm;
-}
-
-string hariIni() {
-    time_t hariIni = time(0);
-
-    return ctime(&hariIni); // mengonversi dari time_t
-}
-
-int random() {
-    return rand()%9;
-}
-
-void clearBuffer() {
-    cin.clear(); 
-    cin.ignore(); 
-    fflush(stdin);
-}
-
-bool logInBerhasil(string nik, string password) {
-    for (int i=0; i<banyakData(); i++){
-        if (
-            dataPenduduk[i].nik == nik
-            && dataPenduduk[i].password == password
-        ){
-            return true;
-        }
-    }
-    
-    return false;
-}
-
-bool isDigit(string str) {
-    int length = str.length();
-
-    char strChar[length];
-    strcpy(strChar, str.c_str());
-
-    int isInteger = 0;
-    for (int i=0; i<length; i++) {
-        int cek = (int)strChar[i] - 48;
-
-        if (0 <= cek && cek <= 9) {
-            isInteger += 1;
-        }
-    }
-
-    if (isInteger == length) {
-        return true;
-    } else {
-        return false;
-    }
-
-}
-
-int banyakData(){
-    for (int i=0; i<STORAGE; i++) {
-        if (dataPenduduk[i].nik == "") {
-            return i;
-        }
-    }
-    return STORAGE;
-}
-
-void dekorasi(int ascii, int jumlah) {
-    cout << "\t";
-    for (int i=0; i<jumlah; i++) {
-        cout << char(ascii);
-    }
-    cout << endl << endl;
-}
-
-void diagram(int jumlah, unsigned int kodeWarna) {
-    cout << "\t    " << char(221);
-    color(kodeWarna);
-    for (int i=0; i<jumlah; i++) {
-        cout << char(219);
-    }
-    color(7);
-}
-
-
-/* ----------------------------------- SORT & SEARCH ----------------------------------- */
-
-void insertionSortNIK(string mode) {
-    Penduduk key;
-    int i, j,
-        length = banyakData();
-
-    for (i = 1; i < length; i++) {
-
-        key = dataPenduduk[i];
-        j = i-1;
-
-        // ascending
-        if (mode == "ASC") {
-            while (j >= 0 && dataPenduduk[j].nik.compare(key.nik) > 0){
-                dataPenduduk[j+1] = dataPenduduk[j];
-                j = j-1;
-            }
-
-        // descending
-        } else {
-            while (j >= 0 && dataPenduduk[j].nik.compare(key.nik) < 0){
-                dataPenduduk[j+1] = dataPenduduk[j];
-                j = j-1;
-            }
-        }
-
-        dataPenduduk[j+1] = key;
-    }
-}
-
-int binarySearchNIK(string nik) {
-    insertionSortNIK();
-
-    int index = -1,
-        beg = 0,
-        end = banyakData()-1;
-
-    while (beg <= end){
-        int mid = (end + beg)/2; 
-        
-        if (dataPenduduk[mid].nik == nik) { 
-            index = mid;
-            break;
-        
-        } else{
-            if (nik.compare(dataPenduduk[mid].nik) > 0) { 
-                beg = mid + 1;
-           
-            } else {
-                end = mid - 1;
-            }
-        }
-    }
-
-    return index;
-}
-
-// sorting berdasarkan judul
-void bubbleSortTanggal(const char* mode) {
-    Penduduk temp;
-    int length = banyakData();
-    for (int i=0; i<length-1; i++){
-        for (int j=0; j<length-1; j++){
-            // ascending
-            if(
-                dataPenduduk[j].tanggalPembaruan.compare(dataPenduduk[j+1].tanggalPembaruan) > 0
-                && mode == "ASC"
-            ){
-                temp = dataPenduduk[j];
-                dataPenduduk[j] = dataPenduduk[j+1];
-                dataPenduduk[j+1] = temp;
-            }
-
-            // descending
-            if (
-                dataPenduduk[j].tanggalPembaruan.compare(dataPenduduk[j+1].tanggalPembaruan) < 0
-                && mode == "DESC"
-            ){
-                temp = dataPenduduk[j];
-                dataPenduduk[j] = dataPenduduk[j+1];
-                dataPenduduk[j+1] = temp;
-            } // end if
-        } // end for
-    } // end for 
-} // end function
-
 /* ----------------------------------- TAMPILAN ----------------------------------- */
-// penduduk ::::::::::::::::::::::
+
+// penduduk :::::::::::::::::::::::::::::::::::::
 void menuMasukPenduduk() {
-    bool openPage = true;
-    string warning = "";
-    int opsi0 = SELECT,
+
+    // default
+    bool openPage = true;   // selama halaman dibuka
+    string warning = "";    // notif peringatan
+    int opsi0 = SELECT,     // pilih opsi 1
         opsi1 = UNSELECT,
         opsi2 = UNSELECT;
 
     while (openPage) {
         system("cls");
         cout << endl << endl << endl;
-
-        dekorasi(177, 41);
-        cout << "\n\t                PENDUDUK                 ";
-
-        cout << "\n\t              Pilih opsi :             \n";
-
-        cout << endl;
-        color(12); cout << setw(38) << warning << endl; color(7);
-        cout << endl;
-
-        color(opsi0); cout << "\t     [0] Kembali";
-        color(opsi2); cout << "\t[2] Sign Up"     << endl; 
-        color(opsi1); cout << "\t     [1] Log In" << endl << endl;
-        color(7); cout << endl;
-
         dekorasi(177, 41);
 
+        cout << "\n\t                PENDUDUK                 ";    // judul halaman
+        cout << "\n\t              Pilih opsi :           \n\n";
+
+        color(12); cout << setw(38) << warning << endl; color(7);   // notif peringatan
+        cout << endl;
+
+        color(opsi0); cout << "\t     [0] Kembali";     // opsi 0
+        color(opsi2); cout << "\t[2] Sign Up   \n";     // opsi 1
+        color(opsi1); cout << "\t     [1] Log In\n\n";  // opsi 2
+        
+        color(7); cout << endl; 
+        dekorasi(177, 41);
+
+        // pilih menu
         char menu, pilih;
         menu = getch();
 
@@ -411,15 +231,15 @@ void menuMasukPenduduk() {
 
                 // kembali
                 if (opsi0 == SELECT) {
-                    openPage = false;
+                    openPage = false;   // berhenti buka halaman
 
                 // log in
                 } else if (opsi1 == SELECT) {
-                    logInPenduduk();
+                    logInPenduduk();    // buka log in penduduk
 
                 // sign up
                 } else if (opsi2 == SELECT) {
-                    signUpPenduduk();
+                    signUpPenduduk();   // buka sign up penduduk
                 }
 
                 break;
@@ -461,13 +281,49 @@ void menuMasukPenduduk() {
 
             default:
                 warning = "Opsi tidak tersedia!";
-                continue;
+                continue;   // lanjutkan looping
+                
                 break;
         }
 
         warning = "";
 
     }
+}
+
+void logInPenduduk() {
+    system("cls");
+    cout << endl << endl << endl;
+    dekorasi(177, 41);
+
+    string nik, password;
+
+    cout << "\n\t                  -*- LOGIN PENDUDUK\n\n";
+
+    cout << "\t   NIK      : "; cin >> nik;             fflush(stdin);
+    cout << "\t   Password : "; getline(cin, password); fflush(stdin);
+
+    cout << endl << endl;
+
+    // login berhasil
+    if ( logInBerhasil(nik, password) ) {
+
+        color(10);
+        cout << "\t            Log in berhasil!      \n\n" << endl; color(7); 
+
+        dekorasi(177, 41); getch();
+
+        int index = indexNIK(nik);          // index nik
+        menuPenduduk(dataPenduduk[index]);  // masuk ke akun sesuai nik
+    
+    // login gagal
+    } else {
+        color(12);
+        cout << "\t              Log in gagal!       \n\n" << endl; color(7); 
+
+        dekorasi(177, 41); getch();
+    }
+
 }
 
 void signUpPenduduk() {
@@ -477,14 +333,14 @@ void signUpPenduduk() {
 
     Penduduk pendudukBaru;
 
-    cout << "\n\t                  -*- SIGN UP PENDUDUK\n\n";
+    cout << "\n\t                  -*- SIGN UP PENDUDUK   \n" << endl;
 
     cout << "\t   Nama Lengkap : "; getline(cin, pendudukBaru.namaLengkap); fflush(stdin);
     cout << "\t   NIK          : "; cin >> pendudukBaru.nik;                fflush(stdin);
     cout << "\t   Password     : "; getline(cin, pendudukBaru.password);    fflush(stdin);
     
     // gagal sign up - nik sudah ada
-    if (binarySearchNIK(pendudukBaru.nik) != -1) {
+    if (indexNIK(pendudukBaru.nik) != -1) {
         color(12);
         cout << "\n\t         NIK telah terdaftar!        \n" << endl;
     
@@ -506,50 +362,16 @@ void signUpPenduduk() {
 
     color(7); cout << endl;
 
-    dekorasi(177, 41);
-    getch();
-
-}
-
-void logInPenduduk() {
-    system("cls");
-    cout << endl << endl << endl;
-    dekorasi(177, 41);
-
-    string nik, password;
-
-    cout << "\n\t                  -*- LOGIN PENDUDUK\n\n";
-
-    cout << "\t   NIK      : "; cin >> nik;             fflush(stdin);
-    cout << "\t   Password : "; getline(cin, password); fflush(stdin);
-
-    cout << endl << endl;
-
-    if (logInBerhasil(nik, password)){
-
-        color(10);
-        cout << "\t            Log in berhasil!             \n\n" << endl; 
-        color(7); 
-
-        dekorasi(177, 41); getch();
-
-        int index = binarySearchNIK(nik);
-        menuPenduduk(dataPenduduk[index]);
-    
-    } else {
-        color(12);
-        cout << "\t              Log in gagal!              \n\n" << endl; 
-        color(7); 
-
-        dekorasi(177, 41); getch();
-    }
+    dekorasi(177, 41); getch();
 
 }
 
 void menuPenduduk(Penduduk penduduk){
-    bool openPage = true;
-    string warning = "";
-    int opsi0 = SELECT,
+    
+    // default
+    bool openPage = true;   // selama buka halaman
+    string warning = "";    // notif peringatan
+    int opsi0 = SELECT,     // pilih opsi 0
         opsi1 = UNSELECT,
         opsi2 = UNSELECT,
         opsi3 = UNSELECT;
@@ -560,42 +382,42 @@ void menuPenduduk(Penduduk penduduk){
 
         dekorasi(240, 41);
 
-        cout << "\t   Selamat datang, " << penduduk.namaLengkap << "! " << char(2) << endl;
+        cout << "\t   Selamat datang, " << penduduk.namaLengkap << "! " << char(2)
+             << endl << endl;
 
-        cout << endl;
-        color(12); cout << setw(33) << warning << endl; color(7);
-        cout << endl;
+        color(12); cout << setw(33) << warning << endl << endl; 
 
-        color(opsi0); cout << "\t       [0] Keluar                \n";
-        color(opsi1); cout << "\t       [1] Isi data diri         \n";
-        color(opsi2); cout << "\t       [2] Tampilkan data diri   \n";
-        color(opsi3); cout << "\t       [3] Ubah data diri        \n\n\n"; color(7);
+        color(opsi0); cout << "\t       [0] Keluar                \n";  // opsi 0
+        color(opsi1); cout << "\t       [1] Isi data diri         \n";  // opsi 1
+        color(opsi2); cout << "\t       [2] Tampilkan data diri   \n";  // opsi 2
+        color(opsi3); cout << "\t       [3] Ubah data diri    \n\n\n";  // opsi 3
         
-        dekorasi(240, 41);
+        color(7); dekorasi(240, 41);
 
+        // pilih menu
         char menu, pilih;
         menu = getch();
 
+        // menu tersedia
         switch (menu) {
 
             // tekan ENTER
             case ENTER:
                 // kembali
                 if (opsi0 == SELECT) {
-                    openPage = false;
+                    openPage = false;                       // berhenti buka halaman
 
                 // isi formulir
                 } else if (opsi1 == SELECT) {
-                    penduduk = isiFormulirBio(penduduk);
+                    penduduk = isiFormulirBio(penduduk);    // buka halaman isi formulir
 
                 // tampilkan data diri
-                } else if (opsi2 == SELECT) {
-                    // tampilkan data diri
-                    tampilkanData(penduduk);
+                } else if (opsi2 == SELECT) {   
+                    tampilkanData(penduduk);                // buka halaman tampilkan data diri
 
                 // ubah data diri
                 } else if (opsi3 == SELECT) {
-                    // ubah data diri
+                                                            // buka halaman ubah data diri
                 }
                 break;
 
@@ -649,10 +471,11 @@ void menuPenduduk(Penduduk penduduk){
             default:
             warning = "Menu tidak tersedia!";
             continue;
+
             break;
         }
 
-        warning = "";
+        warning = "";   // reset warning
     }
 
 }
@@ -779,6 +602,7 @@ Penduduk isiFormulirBio(Penduduk penduduk){
 
                 break;
 
+            // halaman 3
             case 3:
                 // golongan darah
                 cout << "\tGolongan Darah                               \n"
@@ -831,7 +655,8 @@ Penduduk isiFormulirBio(Penduduk penduduk){
         updateToTxt(penduduk);
         
         cout << endl; 
-        color(10);    cout << "\n\t       Formulir telah berhasil diisi!    \n"; color(7);
+
+        color(10);     cout << "\n\t       Formulir telah berhasil diisi!    \n"; color(7);
         color(SELECT); cout << "\n\t<= Kembali                     "; 
         
         if (page == 1 || page == 2) { cout << "Berikutnya =>"; }
@@ -847,10 +672,13 @@ Penduduk isiFormulirBio(Penduduk penduduk){
             if (pilih == LEFT && page == 1) {
                 openPage = false;
                 break;
+
             } else if (pilih == LEFT && page == 2) {
                 page = 1;
+
             } else if (pilih == RIGHT && page == 1 || pilih == LEFT && page == 3) {
                 page = 2;
+
             } else if (pilih == RIGHT && page == 2) {
                 page = 3;
             }
@@ -871,8 +699,7 @@ void tampilkanData(Penduduk penduduk) {
     getch();   
 }
 
-
-// pemerintah ::::::::::::::::::::
+// pemerintah :::::::::::::::::::::::::::::::::::::
 void logInPemerintah() {
     system("cls");
     cout << endl << endl << endl;
@@ -884,13 +711,15 @@ void logInPemerintah() {
     cout << "\t      Username   : "; cin >> username; fflush(stdin);
     cout << "\t      Password   : "; cin >> password; fflush(stdin);
 
+    cout << endl << endl;
+
     // berhasil masuk
     if (username == "p" && password == "p") {
-        color(10);
-        cout << "\n\t            Log in berhasil!             \n\n\n" << endl; color(7);
         
-        dekorasi(177, 41);
-        getch();
+        color(10);
+        cout << "\t            Log in berhasil!       \n\n" << endl; color(7);
+        
+        dekorasi(177, 41); getch();
 
         menuPemerintah();
 
@@ -898,12 +727,10 @@ void logInPemerintah() {
     } else {
 
         color(12);
-        cout << "\n\t              Log in gagal!              \n\n\n" << endl; color(7);
+        cout << "\t              Log in gagal!        \n\n" << endl; color(7);
 
-        dekorasi(177, 41);
-        getch();
+        dekorasi(177, 41); getch();
     }
-
     
 }
 
@@ -943,19 +770,20 @@ void menuPemerintah() {
             case ENTER:
                 // kembali
                 if (opsi0 == SELECT) {
-                    openPage = false;
+                    openPage = false;           // berhenti buka halaman
 
                 // tampilkan data penduduk
                 } else if (opsi1 == SELECT) {
-                    // tampilkan data penduduk
+                                                // buka tampilkan data penduduk
 
                 // ubah data penduduk
                 } else if (opsi2 == SELECT) {
-                    // ubah data penduduk
+                                                // buka ubah data penduduk
                 
                 // tampilkan diagram
                 } else if (opsi3 == SELECT) {
-                    tampilkanDiagram();
+                    tampilkanDiagram();         // buka tampilkan diagram
+
                 }
 
                 break;
@@ -1010,6 +838,7 @@ void menuPemerintah() {
             default:
             warning = "Menu tidak tersedia!";
             continue;
+            
             break;
         }
 
@@ -1032,12 +861,16 @@ void tampilkanDiagram() {
 
         if (page == 1) {
             diagramGender();
+
         } else if (page == 2) {
             diagramUsia();
+
         } else if (page == 3) {
             diagramAgama();
+
         } else if (page == 4) {
             diagramGolDar();
+
         } else if (page == 5) {
             diagramStatus();
         }
@@ -1076,15 +909,17 @@ void tampilkanDiagram() {
                 page = 5; kategori = "Status";
 
             } // end if 
+
         } // end if
+
     } // end while
 
 }
 
 // diagram
 void diagramGender() {
-    int totalL = 0,
-        totalP = 0;
+    short int totalL = 0,
+              totalP = 0;
 
     // hitung jumlah data per gender
     for (int i=0; i<banyakData(); i++) {
@@ -1336,6 +1171,7 @@ void diagramStatus() {
          << endl << endl;    
 }
 
+
 /* ----------------------------------- FILE TXT ----------------------------------- */
 
 void importFromTxt() {
@@ -1425,7 +1261,7 @@ void appendToTxt(Penduduk penduduk) {
 
 void deleteFromTxt(Penduduk penduduk) {
     int length = banyakData();
-    int index = binarySearchNIK(penduduk.nik);
+    int index = indexNIK(penduduk.nik);
 
     ofstream output;
     output.open("data.txt");
@@ -1451,3 +1287,187 @@ void updateToTxt(Penduduk penduduk) {
     appendToTxt(penduduk);
     
 }
+
+
+/* ----------------------------------- SORT & SEARCH ----------------------------------- */
+
+// sorting berdasarkan NIK
+void insertionSortNIK(string mode) {
+    Penduduk key;
+    int i, j,
+        length = banyakData();
+
+    for (i = 1; i < length; i++) {
+
+        key = dataPenduduk[i];
+        j = i-1;
+
+        // ascending
+        if (mode == "ASC") {
+            while (j >= 0 && dataPenduduk[j].nik.compare(key.nik) > 0){
+                dataPenduduk[j+1] = dataPenduduk[j];
+                j = j-1;
+            }
+
+        // descending
+        } else {
+            while (j >= 0 && dataPenduduk[j].nik.compare(key.nik) < 0){
+                dataPenduduk[j+1] = dataPenduduk[j];
+                j = j-1;
+            }
+        }
+
+        dataPenduduk[j+1] = key;
+    }
+}
+
+int indexNIK(string nik) {  // binary search
+    insertionSortNIK();
+
+    int index = -1,
+        beg = 0,
+        end = banyakData()-1;
+
+    while (beg <= end){
+        int mid = (end + beg)/2; 
+        
+        if (dataPenduduk[mid].nik == nik) { 
+            index = mid;
+            break;
+        
+        } else{
+            if (nik.compare(dataPenduduk[mid].nik) > 0) { 
+                beg = mid + 1;
+           
+            } else {
+                end = mid - 1;
+            }
+        }
+    }
+
+    return index;
+}
+
+// sorting berdasarkan judul
+void bubbleSortTanggal(const char* mode) {
+    Penduduk temp;
+    int length = banyakData();
+    for (int i=0; i<length-1; i++){
+        for (int j=0; j<length-1; j++){
+            // ascending
+            if(
+                dataPenduduk[j].tanggalPembaruan.compare(dataPenduduk[j+1].tanggalPembaruan) > 0
+                && mode == "ASC"
+            ){
+                temp = dataPenduduk[j];
+                dataPenduduk[j] = dataPenduduk[j+1];
+                dataPenduduk[j+1] = temp;
+            }
+
+            // descending
+            if (
+                dataPenduduk[j].tanggalPembaruan.compare(dataPenduduk[j+1].tanggalPembaruan) < 0
+                && mode == "DESC"
+            ){
+                temp = dataPenduduk[j];
+                dataPenduduk[j] = dataPenduduk[j+1];
+                dataPenduduk[j+1] = temp;
+            } // end if
+        } // end for
+    } // end for 
+} // end function
+
+
+/* ----------------------------------- TAMBAHAN ----------------------------------- */
+
+void color(unsigned short kodeWarna) {
+    HANDLE hCon = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(hCon, kodeWarna);
+}
+
+tm *timeNow() {
+    time_t now = time(0);
+    tm *ltm = localtime(&now);
+
+    return ltm;
+}
+
+string hariIni() {
+    time_t hariIni = time(0);
+
+    return ctime(&hariIni); // mengonversi dari time_t
+}
+
+int random() {
+    return rand()%9;
+}
+
+void clearBuffer() {
+    cin.clear(); 
+    cin.ignore(); 
+    fflush(stdin);
+}
+
+bool logInBerhasil(string nik, string password) {
+    for (int i=0; i<banyakData(); i++){
+        if (
+            dataPenduduk[i].nik == nik
+            && dataPenduduk[i].password == password
+        ){
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+bool isDigit(string str) {
+    int length = str.length();
+
+    char strChar[length];
+    strcpy(strChar, str.c_str());
+
+    int isInteger = 0;
+    for (int i=0; i<length; i++) {
+        int cek = (int)strChar[i] - 48;
+
+        if (0 <= cek && cek <= 9) {
+            isInteger += 1;
+        }
+    }
+
+    if (isInteger == length) {
+        return true;
+    } else {
+        return false;
+    }
+
+}
+
+int banyakData(){
+    for (int i=0; i<STORAGE; i++) {
+        if (dataPenduduk[i].nik == "") {
+            return i;
+        }
+    }
+    return STORAGE;
+}
+
+void dekorasi(int ascii, int jumlah) {
+    cout << "\t";
+    for (int i=0; i<jumlah; i++) {
+        cout << char(ascii);
+    }
+    cout << endl << endl;
+}
+
+void diagram(int jumlah, unsigned int kodeWarna) {
+    cout << "\t    " << char(221);
+    color(kodeWarna);
+    for (int i=0; i<jumlah; i++) {
+        cout << char(219);
+    }
+    color(7);
+}
+
+
