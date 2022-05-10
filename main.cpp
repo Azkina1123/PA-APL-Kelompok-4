@@ -764,7 +764,7 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
                     continue;
                 }
 
-                penduduk.gender = gender;
+                penduduk.gender = gender-1;
             } else { 
                 color(14); cout << "sudah diisi";
             }
@@ -780,12 +780,12 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
             if (penduduk.agama == -1) { 
                 color(11); cin >> agama; 
 
-                if (agama < 1 || agama > 4) {
+                if (agama < 1 || agama > 6) {
                     warning = "Isian Anda salah!";
                     continue;
                 }
 
-                penduduk.agama = agama;
+                penduduk.agama = agama-1;
             } else { 
                 color(14); cout << "sudah diisi";  
             }
@@ -806,7 +806,7 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
                     continue;
                 }
 
-                penduduk.golDar = golDar;
+                penduduk.golDar = golDar-1;
 
             } else { 
                 color(14); cout << "sudah diisi";
@@ -828,7 +828,7 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
                     continue;
                 } 
 
-                penduduk.status = status;
+                penduduk.status = status-1;
             } else { 
                 color(14); cout << "sudah diisi";
             }
@@ -1125,7 +1125,7 @@ void tampilkanDiagram() {
 
 // diagram
 void diagramGender() {
-    short int totalL = 0,
+    float totalL = 0,
               totalP = 0;
 
     // hitung jumlah data per gender
@@ -1137,9 +1137,12 @@ void diagramGender() {
         }
     }
 
+    cout << setiosflags(ios::fixed) << setprecision(1);
+
     // diagram batang
     diagram(0); cout << endl; 
-    diagram((totalL*45)/(totalL+totalP), 9); cout << " " << (totalL*100)/(totalL+totalP) << "%" << endl;
+    diagram((totalL*45)/(totalL+totalP), 9); 
+    cout << " " <<  (totalL*100)/(totalL+totalP) << "%" << endl;
     diagram(0); cout << endl;     
     diagram(0); cout << endl;              
     diagram(0); cout << endl;     
@@ -1155,13 +1158,13 @@ void diagramGender() {
     cout << endl << endl << endl;
 
     // data tersimpan 
-    cout << "\n\t    Terdapat " << totalL+totalP << " data terverifikasi"
+    cout << "\n\t    Terdapat " << int(totalL+totalP) << " data terverifikasi"
          << "\n\t    dari " << banyakData() << " penduduk terdaftar."
          << endl << endl;
 }
 
 void diagramUsia() {
-    short int total1 = 0,
+    float total1 = 0,
               total2 = 0,
               total3 = 0,
               total4 = 0,
@@ -1190,6 +1193,8 @@ void diagramUsia() {
     }
 
     total = total1 + total2 + total3 + total4 + total5 + total6 + total7;
+
+    cout << setiosflags(ios::fixed) << setprecision(1);
 
     // diagram batang
     diagram((total1*45)/total, 8); 
@@ -1227,13 +1232,13 @@ void diagramUsia() {
     cout << endl;
     
     // data tersimpan
-    cout << "\n\t    Terdapat " << total << " data terverifikasi"
+    cout << "\n\t    Terdapat " << int(total) << " data terverifikasi"
          << "\n\t    dari " << banyakData() << " penduduk terdaftar."
          << endl << endl;
 }
 
 void diagramAgama() {
-    short int total1 = 0,
+    float total1 = 0,
               total2 = 0,
               total3 = 0,
               total4 = 0,
@@ -1259,6 +1264,8 @@ void diagramAgama() {
     }
 
     total = total1 + total2 + total3 + total4 + total5 + total6;
+
+    cout << setiosflags(ios::fixed) << setprecision(1);
 
     // diagram batang
     diagram((total1*45)/total, 10); 
@@ -1292,13 +1299,13 @@ void diagramAgama() {
     cout << endl << endl;
     
     // data tersimpan
-    cout << "\n\t    Terdapat " << total << " data terverifikasi"
+    cout << "\n\t    Terdapat " << int(total) << " data terverifikasi"
          << "\n\t    dari " << banyakData() << " penduduk terdaftar."
          << endl << endl;    
 }
 
 void diagramGolDar() {
-    short int total0 = 0,
+    float total0 = 0,
               total1 = 0,
               total2 = 0,
               total3 = 0,
@@ -1318,6 +1325,8 @@ void diagramGolDar() {
     }
 
     total = total0 + total1 + total2 + total3;
+
+    cout << setiosflags(ios::fixed) << setprecision(1);
 
     // diagram batang
     diagram((total0*45)/total, 12); cout << " " << (total0*100)/total << "%" << endl;
@@ -1339,13 +1348,13 @@ void diagramGolDar() {
     cout << endl << endl;
     
     // data tersimpan
-    cout << "\n\t    Terdapat " << total << " data terverifikasi"
+    cout << "\n\t    Terdapat " << int(total) << " data terverifikasi"
          << "\n\t    dari " << banyakData() << " penduduk terdaftar."
          << endl << endl;    
 }
 
 void diagramStatus() {
-    short int total0 = 0,
+    float total0 = 0,
               total1 = 0,
               total2 = 0,
               total3 = 0,
@@ -1365,6 +1374,8 @@ void diagramStatus() {
     }
 
     total = total0 + total1 + total2 + total3;
+
+    cout << setiosflags(ios::fixed) << setprecision(1);
 
     // diagram batang
     diagram((total0*45)/total, 3);  cout << " " << (total0*100)/total << "%" << endl;
@@ -1386,7 +1397,7 @@ void diagramStatus() {
     cout << endl << endl;
     
     // data tersimpan
-    cout << "\n\t    Terdapat " << total << " data terverifikasi"
+    cout << "\n\t    Terdapat " << int(total) << " data terverifikasi"
          << "\n\t    dari " << banyakData() << " penduduk terdaftar."
          << endl << endl;    
 }

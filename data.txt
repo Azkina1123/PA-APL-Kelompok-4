@@ -1,132 +1,156 @@
-Tue May 10 09:43:59 2022
-0
-0
-0
-21, 21/12/2002
-
-
-20
--1
--1
--1
--1
-Tue May 10 09:43:59 2022
-oo
-00
-00
-12, 3/3/1994
-
-
-28
--1
--1
--1
--1
-Tue May 10 09:43:59 2022
-000
-000
-000
-100, 1/12/2002
-Kel. Rawa MakmurKec. Palaran
-8912
-20
+Tue May 10 19:15:57 2022
 1
-2
--1
--1
-Tue May 10 09:43:59 2022
-11
-11
-11
-12, 23/12/1990
-
-
-32
--1
--1
--1
--1
-Tue May 10 09:43:59 2022
-111
-111
-111
-12, 12/12/12
-
-
-2010
--1
--1
--1
--1
-Tue May 10 09:43:59 2022
-p
-12
-12
-12, 12/12/1965
-
-
-57
--1
--1
--1
--1
-Tue May 10 09:43:59 2022
-222
-222
-
-
-
-
--1
--1
--1
--1
--1
-Tue May 10 09:43:59 2022
-ayam
-1111
-1111
-samarinda, 20/3/2003
-AWSKel. Tani AmanKec. Samarinda Kota
+1
+1
+SMD, 12/12/2012
+Anang HasyimKel. Air PutihKec. Samarinda Ulu
 0812
-19
+10
 1
+0
+3
 2
+Tue May 10 19:15:57 2022
+2
+2
+2
+Jakarta, 12/3/2002
+AnggurKel. SeliliKec. Samarinda Ulu
+0821
+20
+0
+3
+1
+3
+Tue May 10 19:15:57 2022
+3
+3
+3
+Balikpapan, 20/9/1995
+Wahid HasyimKel. Rapak DalamKec. Samarinda Kota
+1234
+27
+0
+3
+0
+3
+Tue May 10 19:15:57 2022
+4
+4
+4
+Samarinda, 3/3/2007
+AnggurKel. Sempaja SelatanKec. Samarinda Ilir
+12121
+15
+1
+1
+3
+0
+Tue May 10 19:15:57 2022
+5
+5
+5
+Kota Bangun, 19/1/1987
+BayamKel. BugisKec. Sungai Pinang
+2
+35
+1
+5
+3
+2
+Tue May 10 19:15:57 2022
+6
+6
+6
+Yogyakarta, 10/7/1975
+PahlawanKel. Tanah MerahKec. Samarinda Ilir
+000
+47
+0
 4
 2
-Tue May 10 09:43:59 2022
-1
-1
-1
-1, 1/1/1
-1
-1
-2021
-0
-0
-0
-0
-Tue May 10 09:43:59 2022
+3
+Tue May 10 19:15:57 2022
+7
+7
+7
+Jepara, 30/2/1958
+ArgamulyaKel. SambutanKec. Sungai Kunjang
 010
-010
-010
-Yoyo, 12/12/2002
-Jl. AyamKel. BaqaKec. Samarinda Seberang
-0812
-20
+64
+0
+0
+0
 1
+Tue May 10 19:15:57 2022
+8
+8
+8
+Padang, 10/10/1955
+SoedirmanKel. Teluk Lerong UluKec. Samarinda Utara
+99
+67
 1
+0
 2
+1
+Tue May 10 19:15:57 2022
+9
+9
+9
+Samarinda, 12/4/1975
+SuryanataKel. Dadi MulyaKec. Samarinda Ulu
+888
+47
+1
+0
+0
+1
+Tue May 10 19:15:57 2022
+10
+10
+10
+Pati, 12/6/1965
+SuryanataKel. Air HitamKec. Samarinda Ulu
+77
+57
+0
+0
+3
+1
+Tue May 10 19:15:57 2022
+11
+11
+11
+Samarinda, 2/1/2018
+Gunung KeluaKel. Gunung KeluaKec. Samarinda Ulu
+000
+4
+0
+1
+1
+0
+Tue May 10 19:15:57 2022
+12
+12
+12
+Samarinda, 4/4/2004
+AWSKel. Sungai SiringKec. Samarinda Ilir
+11
+18
+0
+1
+3
+0
+Tue May 10 19:15:57 2022
+13
+13
+
+India, 9/9/2009
+APT PranotoKel. Sungai KeledangKec. Samarinda Seberang
+12
+13
+0
 2
-Tue May 10 09:47:26 2022
-asa
-212
-212
-
-
-
--1
--1
--1
--1
--1
+3
+0
