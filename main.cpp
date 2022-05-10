@@ -223,7 +223,7 @@ void menuMasukPenduduk() {
         cout << endl << endl << endl;
         dekorasi(177, 41);
 
-        cout << "\n\t                PENDUDUK                 ";    // judul halaman
+        cout << "\n\t                PENDUDUK               \n";    // judul halaman
         cout << "\n\t              Pilih opsi :           \n\n";
 
         color(12); cout << setw(38) << warning << endl; color(7);   // notif peringatan
@@ -233,7 +233,7 @@ void menuMasukPenduduk() {
         color(opsi2); cout << "\t[2] Sign Up   \n";                 // opsi 2
         color(opsi1); cout << "\t     [1] Log In\n\n";              // opsi 1
         
-        color(7); cout << endl; 
+        color(7); cout << endl << endl; 
         dekorasi(177, 41);
 
         // pilih menu
@@ -315,7 +315,7 @@ void logInPenduduk() {
 
     string nik, password;
 
-    cout << "\n\t                  -*- LOGIN PENDUDUK\n\n";
+    cout << "\n\t                  -*- LOGIN PENDUDUK\n\n\n";
 
     cout << "\t   NIK      : "; cin >> nik;             fflush(stdin);
     cout << "\t   Password : "; getline(cin, password); fflush(stdin);
@@ -326,7 +326,7 @@ void logInPenduduk() {
     if ( logInBerhasil(nik, password) ) {
 
         color(10);
-        cout << "\t            Log in berhasil!      \n\n" << endl; color(7); 
+        cout << "\t            Log in berhasil!      \n\n\n" << endl; color(7); 
 
         dekorasi(177, 41); getch();
 
@@ -336,7 +336,7 @@ void logInPenduduk() {
     // login gagal
     } else {
         color(12);
-        cout << "\t              Log in gagal!       \n\n" << endl; color(7); 
+        cout << "\t              Log in gagal!       \n\n\n" << endl; color(7); 
 
         dekorasi(177, 41); getch();
     }
@@ -350,7 +350,7 @@ void signUpPenduduk() {
 
     Penduduk pendudukBaru;
 
-    cout << "\n\t                  -*- SIGN UP PENDUDUK   \n" << endl;
+    cout << "\n\t                  -*- SIGN UP PENDUDUK   \n\n" << endl;
 
     cout << "\t   Nama Lengkap : "; getline(cin, pendudukBaru.namaLengkap); 
     cout << "\t   NIK          : "; getline(cin, pendudukBaru.nik);         
@@ -361,12 +361,12 @@ void signUpPenduduk() {
     // gagal sign up - nik sudah ada
     if (indexNIK(pendudukBaru.nik) != -1) {
         color(12);
-        cout << "\n\t         NIK telah terdaftar!        \n" << endl;
+        cout << "\n\t         NIK telah terdaftar!        \n\n" << endl;
     
     // gagal sign up - nik salah
     } else if (!isDigit(pendudukBaru.nik)) {
         color(12);
-        cout << "\n\t    NIK yang dimasukkan tidak valid! \n" << endl;
+        cout << "\n\t    NIK yang dimasukkan tidak valid! \n\n" << endl;
 
     // berhasil sign up
     } else {
@@ -375,7 +375,7 @@ void signUpPenduduk() {
         appendToTxt(pendudukBaru);
 
         color(10);
-        cout << "\n\t    Akun telah berhasil didaftarkan! \n" << endl;
+        cout << "\n\t    Akun telah berhasil didaftarkan! \n\n" << endl;
     }
 
     color(7); cout << endl;
@@ -399,7 +399,7 @@ void menuPenduduk(Penduduk penduduk){
 
         dekorasi(240, 41);
 
-        cout << "\t   Selamat datang, " << penduduk.namaLengkap << "! " << char(2)
+        cout << "\n\t   Selamat datang, " << penduduk.namaLengkap << "! " << char(2)
              << endl << endl;
 
         color(12); cout << setw(33) << warning << endl << endl;         // notif peringatan
@@ -409,7 +409,7 @@ void menuPenduduk(Penduduk penduduk){
         color(opsi2); cout << "\t       [2] Tampilkan data diri   \n";  // opsi 2
         color(opsi3); cout << "\t       [3] Ubah data diri    \n\n\n";  // opsi 3
         
-        color(7); dekorasi(240, 41);
+        color(7); cout << endl; dekorasi(240, 41);
 
         // pilih menu
         char menu, pilih;
@@ -506,12 +506,13 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
         system("cls");
         cout << endl << endl << endl;
 
-        cout << "\t         FORMULIR BIODATA PENDUDUK         \n" << endl;
-        color(12); cout << setw(38) << warning << endl; color(7);   // notif peringatan
+        cout << "\t         FORMULIR BIODATA PENDUDUK         \n" << endl;  // judul
+        color(12); cout << setw(38) << warning << endl; color(7);           // notif peringatan
         
         // halaman 1
         if ( page == 1 ) {
 
+            // nama dan NIK
             cout << "\tNama Lengkap \t: " << penduduk.namaLengkap << endl;  // nama lengkap
             cout << "\tNIK \t\t: "        << penduduk.nik         << endl;  // NIK
 
@@ -521,15 +522,18 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
                 int tanggal, bulan, tahun, 
                     thnNow = timeNow()->tm_year + 1900;
 
-                cout << "\n\tTempat/Tanggal Lahir" << endl;
-                cout << "  \t   Tempat    : "; 
-                color(11); getline(cin, tempat); fflush(stdin); color(8); 
+                cout << "\n\tTempat/Tanggal Lahir" << endl;                         
+                cout << "  \t   Tempat    : "; color(11); getline(cin, tempat);
+                fflush(stdin); 
+
+                color(8);
                 cout << "\n\t     -- isi di bawah ini dengan angka \n\n"; color(7);
 
                 cout << "  \t   Tanggal   : "; color(11); cin >> tanggal; color(7); clearBuffer();
                 cout << "  \t   Bulan     : "; color(11); cin >> bulan;   color(7); clearBuffer();
                 cout << "  \t   Tahun     : "; color(11); cin >> tahun;   color(7); clearBuffer();
 
+                // cara mengisi ada yg salah
                 if (
                     tempat == "" 
                     || tanggal < 1 || tanggal > 31
@@ -543,7 +547,7 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
                 penduduk.ttl = tempat + ", " + to_string(tanggal) + "/" + to_string(bulan) + "/" + to_string(tahun);
                 penduduk.usia = timeNow()->tm_year + 1900 - tahun; // usia
 
-            } else {    // ttl sudah diisi
+            } else {                    // ttl sudah diisi
 
                 cout << "\n\tTempat/Tanggal Lahir" << endl;
                 cout << "  \t   Tempat    : "; color(14); cout << "sudah diisi." << endl; color(7);
@@ -555,39 +559,45 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
                 cout << "  \t   Tahun     : "; color(14); cout << "sudah diisi." << endl; color(7);
             }
 
-                cout << "\n\tNo. Telepon\t: ";
-                if (penduduk.telepon == "") { 
-                    color(11); getline(cin, penduduk.telepon); color(7); fflush(stdin); 
-                } else { 
-                    color(14); cout << "sudah diisi" << endl;; color(7); 
-                }
+            // nomor telepon
+            cout << "\n\tNo. Telepon\t: ";
+            if (penduduk.telepon == "") { 
+                color(11); getline(cin, penduduk.telepon); fflush(stdin); 
+            } else { 
+                color(14); cout << "sudah diisi" << endl;
+            }
+            color(7); 
 
-        cout << endl << endl << endl << endl << endl << endl;
+            cout << endl << endl << endl << endl << endl << endl;
                 
         // halaman 2
         } else if ( page == 2 ) {
 
+            // var sementara
             string jalan;
-            short int kecamatan, kelurahan;
+            short int noKec, noKel;
 
+            // alamat
             cout << "\tAlamat" << endl;
+
+            // jalan
             cout << "\t   Jalan    : ";
             if (penduduk.alamat == "") { 
-                color(11); getline(cin, jalan); fflush(stdin); color(7);
+                color(11); getline(cin, jalan); fflush(stdin);
 
                 if (jalan == "") {
                     warning = "Isian Anda salah";
                     continue;
                 }
-
             } else { 
-                color(14); cout << "sudah diisi" << endl; color(7);
+                color(14); cout << "sudah diisi" << endl;
             }
 
             color(8); 
             cout << "\n\t-- isi dengan memilih angka pada opsi\n"; color(7);
 
-            cout << "\n\t   Kecamatan                                          "
+            // kecamatan
+            cout << "\n\t   Kecamatan                                    "
                  << "\n\t   [1] Palaran             [6] Sungai Kunjang   "
                  << "\n\t   [2] Samarinda Seberang  [7] Sambutan         "
                  << "\n\t   [3] Samarinda Ulu       [8] Sungai Pinang    "
@@ -595,24 +605,25 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
                  << "\n\t   [5] Samarinda Utara     [10] Loa Janan Ilir  "
                  << "\n\t   : ";
 
-            if (penduduk.alamat == "") {
-                color(11); cin >> kecamatan; clearBuffer(); color(7);
+            if (penduduk.alamat == "") {    // alamat belum diisi
+                color(11); cin >> noKec; clearBuffer();
 
-                if (kecamatan < 1 || kecamatan > 10) {
+                if (noKec < 1 || noKec > 10) {
                     warning = "Isian Anda salah!";
                     continue;
                 }
 
-            } else {
-                for (int i=0; i<10; i++) {
-                    kecamatan = penduduk.alamat.find(KECAMATAN[i]);
+            } else {                        // alamat sudah diisi
 
-                    if (kecamatan != -1) {
+                for (int i=0; i<10; i++) {
+                    noKec = penduduk.alamat.find(KECAMATAN[i]);
+
+                    if (noKec != -1) {
                         string kecamatanPenduduk = KECAMATAN[i];
 
                         for (int i=0; i<10; i++) {
                             if (KECAMATAN[i] == kecamatanPenduduk) {
-                                kecamatan = i;
+                                noKec = i;
                                 break;
                             }
                         }
@@ -620,27 +631,29 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
                     }
                 }
 
-                color(14); cout << "sudah diisi" << endl; color(7); 
+                color(14); cout << "sudah diisi" << endl;  
             }
+            color(7);
 
-            if ( kecamatan == 1) {
-                cout << "\n\t   Kelurahan                                     "
+            // kelurahan
+            if (noKec == 1) {           // palaran
+                cout << "\n\t   Kelurahan                                   "
                      << "\n\t   [1] Rawa Makmur         [5] Bantuas         "
                      << "\n\t   [2] Handil Bakti                            "
                      << "\n\t   [3] Bukuan                                  "
                      << "\n\t   [4] Simpang Pasir                           "
                      << "\n\t   : ";
 
-            } else if (kecamatan == 2) {
-                cout << "\n\t   Kelurahan                                     "
+            } else if (noKec == 2) {    // samarinda seberang
+                cout << "\n\t   Kelurahan                                   "
                      << "\n\t   [1] Sungai Keledang     [5] Gunung Panjang  "
                      << "\n\t   [2] Baqa                                    "
                      << "\n\t   [3] Mesjid                                  "
                      << "\n\t   [4] Mangkupalas                             "
                      << "\n\t   : ";
 
-            } else if (kecamatan == 3) {
-                cout << "\n\t   Kelurahan                                     "
+            } else if (noKec == 3) {    // samarinda ulu
+                cout << "\n\t   Kelurahan                                   "
                      << "\n\t   [1] Teluk Lerong Ilir   [5] Air Hitam       "
                      << "\n\t   [2] Jawa                [6] Dadi Mulya      "
                      << "\n\t   [3] Air Putih           [7] Gunung Kelua    "
@@ -648,8 +661,8 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
                      << "\n\t   : ";
 
 
-            } else if (kecamatan == 4) {
-                cout << "\n\t   Kelurahan                                     "
+            } else if (noKec == 4) {    // samarinda ilir
+                cout << "\n\t   Kelurahan                                   "
                      << "\n\t   [1] Selili              [5] Pelita          "
                      << "\n\t   [2] Sungai Dama                             "
                      << "\n\t   [3] Sidomulyo                               "
@@ -657,48 +670,48 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
                      << "\n\t   : ";
 
 
-            } else if (kecamatan == 5) {
-                cout << "\n\t   Kelurahan                                     "
+            } else if (noKec == 5) {    // samarinda utara
+                cout << "\n\t   Kelurahan                                   "
                      << "\n\t   [1] Sempaja Selatan     [5] Tanah Merah     "
                      << "\n\t   [2] Lempake             [6] Sempaja Barat   "   
                      << "\n\t   [3] Sungai Siring       [7] Sempaja Timur   "
                      << "\n\t   [4] Sempaja Utara       [8] Budaya Pampang  "
                      << "\n\t   : ";
 
-            } else if (kecamatan == 6) {
-                cout << "\n\t   Kelurahan                                     "
+            } else if (noKec == 6) {    // sungai kunjang
+                cout << "\n\t   Kelurahan                                   "
                      << "\n\t   [1] Loa Bakung          [5] Teluk Lerong Ulu"
                      << "\n\t   [2] Loa Buah            [6] Karang Asam Ilir"   
                      << "\n\t   [3] Karang Asam Ulu     [7] Karang Anyar    "
                      << "\n\t   [4] Lok Bahu                                "
                      << "\n\t   : ";
 
-            } else if (kecamatan == 7) {
-                cout << "\n\t   Kelurahan                                     "
+            } else if (noKec == 7) {    // sambutan
+                cout << "\n\t   Kelurahan                                   "
                      << "\n\t   [1] Sungai Kapih        [5] Pulau Atas      "
                      << "\n\t   [2] Sambutan                                "
                      << "\n\t   [3] Makroman                                "
                      << "\n\t   [4] Sindang Sari                            "
                      << "\n\t   : ";
 
-            } else if (kecamatan == 8) {
-                cout << "\n\t   Kelurahan                                     "
+            } else if (noKec == 8) {    // sungai pinang
+                cout << "\n\t   Kelurahan                                   "
                      << "\n\t   [1] Temindung Permai    [5] Bandara         "
                      << "\n\t   [2] Sungai Pinang Dalam                     "
                      << "\n\t   [3] Gunung Lingai                           "
                      << "\n\t   [4] Mugirejo                                "
                      << "\n\t   : ";
 
-            } else if (kecamatan == 9) {
-                cout << "\n\t   Kelurahan                                     "
+            } else if (noKec == 9) {    // samarinda kota
+                cout << "\n\t   Kelurahan                                   "
                      << "\n\t   [1] Karang Mumus        [5] Sungai Pinang   "
                      << "\n\t   [2] Pelabuhan               Luar            "
                      << "\n\t   [3] Pasar Pagi                              "
                      << "\n\t   [4] Bugis                                   "
                      << "\n\t   : ";
 
-            } else if (kecamatan == 10) {
-                cout << "\n\t   Kelurahan                                     "
+            } else if (noKec == 10) {   // loa janan ilir
+                cout << "\n\t   Kelurahan                                   "
                      << "\n\t   [1] Simpang Tiga        [5] Rapak Dalam     "
                      << "\n\t   [2] Tani Aman                               "
                      << "\n\t   [3] Sengkotek                               "
@@ -707,58 +720,56 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
 
             }
             
-            if (penduduk.alamat != "") {
-                color(14); cout << "sudah diisi" << endl; color(7); 
-                
-            } else {
-                color(11); cin >> kelurahan; clearBuffer(); color(7);
+            if (penduduk.alamat == "") {    // alamat belum diisi
+                color(11); cin >> noKel; clearBuffer();
                 
                 if (
-                    kelurahan < 1 
-                    || kecamatan == 1 && kelurahan > 5
-                    || kecamatan == 2 && kelurahan > 6 
-                    || kecamatan == 3 && kelurahan > 8
-                    || kecamatan == 4 && kelurahan > 5
-                    || kecamatan == 5 && kelurahan > 8
-                    || kecamatan == 6 && kelurahan > 7
-                    || kecamatan == 7 && kelurahan > 5
-                    || kecamatan == 8 && kelurahan > 5
-                    || kecamatan == 9 && kelurahan > 5
-                    || kecamatan == 10 && kelurahan > 5
+                    noKel < 1 
+                    || noKec == 1 && noKel > 5
+                    || noKec == 2 && noKel > 6 
+                    || noKec == 3 && noKel > 8
+                    || noKec == 4 && noKel > 5
+                    || noKec == 5 && noKel > 8
+                    || noKec == 6 && noKel > 7
+                    || noKec == 7 && noKel > 5
+                    || noKec == 8 && noKel > 5
+                    || noKec == 9 && noKel > 5
+                    || noKec == 10 && noKel > 5
                 ) {
                     warning = "Isian Anda salah!";
                     continue;
                 }
 
-                penduduk.alamat = jalan + "Kel. " + KELURAHAN[kecamatan-1][kelurahan-1] + "Kec. " + KECAMATAN[kecamatan-1];
-
+                penduduk.alamat = jalan + "Kel. " + KELURAHAN[noKec-1][noKel-1] + "Kec. " + KECAMATAN[noKec-1];
+                
+            } else {                        // alamat sudah diisi
+                color(14); cout << "sudah diisi" << endl;  
             }
+            color(7);
 
         // halaman 3
         } else if ( page == 3 ) {
             short int gender, agama, golDar, status;
 
             // gender
-            cout << "\n\tJenis Kelamin \n"       
+            cout << "\tJenis Kelamin \n"       
                  << "\t     [1] Laki-laki     [2] Perempuan           \n"   
                  << "\t     : "; 
 
             if (penduduk.gender == -1) { 
-
-                color(11); cin >> gender; color(7);
-                
+                color(11); cin >> gender; 
+        
                 if (gender < 1 || gender > 2) {
                     warning = "Isian Anda salah!"; 
                     continue;
                 }
 
                 penduduk.gender = gender;
-
             } else { 
-                color(14); cout << "sudah diisi"; color(7); 
+                color(14); cout << "sudah diisi";
             }
-
-            cout << endl;
+            
+            color(7); cout << endl;
 
             // agama
             cout << "\n\tAgama \n"
@@ -767,8 +778,7 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
                 << "\t     : ";
 
             if (penduduk.agama == -1) { 
-
-                color(11); cin >> agama; color(7);
+                color(11); cin >> agama; 
 
                 if (agama < 1 || agama > 4) {
                     warning = "Isian Anda salah!";
@@ -776,19 +786,20 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
                 }
 
                 penduduk.agama = agama;
-
             } else { 
-                color(14); cout << "sudah diisi"; color(7); 
+                color(14); cout << "sudah diisi";  
             }
 
+            color(7); cout << endl;
+
             // golongan darah
-            cout << "\n\tGolongan Darah                                \n"
+            cout << "\n\tGolongan Darah                              \n"
                  << "\t     [1] A         [3] AB                     \n"
                  << "\t     [2] B         [4] O                      \n"
                  << "\t     : ";
 
             if (penduduk.golDar == -1) { 
-                color(11); cin >> golDar; color(7);
+                color(11); cin >> golDar;
 
                 if (golDar < 1 || golDar > 4) {
                     warning = "Isian Anda salah!";
@@ -798,10 +809,10 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
                 penduduk.golDar = golDar;
 
             } else { 
-                color(14); cout << "sudah diisi"; color(7); 
+                color(14); cout << "sudah diisi";
             }
 
-            cout << endl;
+            color(7); cout << endl;
 
             // status
             cout << "\n\tStatus \n"
@@ -810,7 +821,7 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
                 << "\t     : ";
 
             if (penduduk.status == -1) { 
-                color(11); cin >> status; color(7);
+                color(11); cin >> status;
 
                 if (status < 1 || status > 4) {
                     warning = "Isian Anda salah!";
@@ -818,17 +829,14 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
                 } 
 
                 penduduk.status = status;
-
             } else { 
-                color(14); cout << "sudah diisi"; color(7); 
+                color(14); cout << "sudah diisi";
             }
 
-            cout << endl << endl;
-
+            color(7); cout << endl << endl;
         }
 
         penduduk.tanggalPembaruan = hariIni();  // tgl data pembaruan diubah
-
         updateToTxt(penduduk);
 
         color(10); cout << "\n\t       Formulir telah berhasil diisi!    \n"; color(7);
@@ -863,7 +871,6 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
 
     }
 
-
     return penduduk;
 }
 
@@ -876,14 +883,16 @@ void tampilkanData(Penduduk penduduk) {
     getch();   
 }
 
+
 // pemerintah :::::::::::::::::::::::::::::::::::::
 void logInPemerintah() {
     system("cls");
     cout << endl << endl << endl;
     dekorasi(177, 41);
 
-    cout << "\n\t  LOGIN PEMERINTAH -*-\n" << endl;
+    cout << "\n\t  LOGIN PEMERINTAH -*-\n\n" << endl;   // judul
 
+    // masukkan username dan password
     string username, password;
     cout << "\t      Username   : "; cin >> username; fflush(stdin);
     cout << "\t      Password   : "; cin >> password; fflush(stdin);
@@ -894,7 +903,7 @@ void logInPemerintah() {
     if (username == "p" && password == "p") {
         
         color(10);
-        cout << "\t            Log in berhasil!       \n\n" << endl; color(7);
+        cout << "\t            Log in berhasil!       \n\n\n" << endl; color(7);
         
         dekorasi(177, 41); getch();
 
@@ -904,7 +913,7 @@ void logInPemerintah() {
     } else {
 
         color(12);
-        cout << "\t              Log in gagal!        \n\n" << endl; color(7);
+        cout << "\t              Log in gagal!        \n\n\n" << endl; color(7);
 
         dekorasi(177, 41); getch();
     }
@@ -927,7 +936,7 @@ void menuPemerintah() {
 
         dekorasi(240, 41);
 
-        cout << "\n\t   Selamat datang, Pemerintah! " << char(2) << endl;
+        cout << "\n\t   Selamat datang, Pemerintah! " << char(2) << endl;       // judul
 
         cout << endl;
         color(12); cout << setw(33) << warning << endl; color(7);               // notif peringatan
@@ -938,11 +947,11 @@ void menuPemerintah() {
         color(opsi2); cout << "\t       [2] Ubah data penduduk       \n";       // opsi 2
         color(opsi3); cout << "\t       [3] Tampilkan hasil pendataan\n\n\n";   // opsi 3
         
-        color(7); dekorasi(240, 41);
+        color(7); cout << endl; dekorasi(240, 41);
 
+        // pilih menu
         char menu, pilih;
         menu = getch();
-
 
         switch (menu) {
             // tekan ENTER
@@ -1058,12 +1067,14 @@ void tampilkanDiagram() {
             diagramStatus();
         }
         
+        // ganti halaman
         color(SELECT); 
         cout << "\n\t<= Kembali                     "; 
         if (page >= 1 && page < 5) { cout << "Berikutnya =>"; } color(7);
 
         cout << endl << endl << endl;
 
+        // intruksi 
         char opsi, pilih;
         opsi = getch();
 
@@ -1540,6 +1551,7 @@ void bubbleSortTanggal(const char* mode) {
     } // end for 
 } // end function
 
+
 /* ----------------------------------- TAMBAHAN ----------------------------------- */
 
 void color(unsigned short kodeWarna) {
@@ -1624,11 +1636,12 @@ void dekorasi(int ascii, int jumlah) {
 }
 
 void diagram(int jumlah, unsigned int kodeWarna) {
-    cout << "\t    " << char(221);
-    color(kodeWarna);
+    cout << "\t    " << char(221); color(kodeWarna);
+
     for (int i=0; i<jumlah; i++) {
         cout << char(219);
     }
+
     color(7);
 }
 
