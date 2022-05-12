@@ -26,7 +26,8 @@ using namespace std;
 const string GENDER[] = {"Laki-Laki", "Perempuan"};
 const string AGAMA[] = {"Islam", "Kristen", "Katolik", "Hindu", "Buddha", "Konghuchu"};
 const string GOLDAR[] = {"A", "B", "AB", "O"};
-const string STATUS[] = {"Belum kawin", "Kawin", "Cerai hidup", "Cerai mati"};
+const string STATUSKAWIN[] = {"Belum kawin", "Kawin", "Cerai hidup", "Cerai mati"};
+const string STATUSHIDUP[] = {"Wafat", "Hidup"};
 const string KECAMATAN[] = {
     "Palaran", "Samarinda Seberang", "Samarinda Ulu", "Samarinda Ulu", 
     "Samarinda Ilir", "Samarinda Utara", "Sungai Kunjang", "Sambutan", 
@@ -49,16 +50,17 @@ const string KELURAHAN[10][8] = {
 struct Penduduk{
     string tanggalPembaruan;
     string namaLengkap;
-    string nik;
+    char nik[17];
     string password;
     string ttl;
     string alamat;
     string telepon;
     int usia = -1;
-    short int gender = -1;       // index GENDER
-    short int agama = -1;        // index AGAMA
-    short int golDar = -1;       // index GOLDAR
-    short int status = -1;       // index STATUS
+    short int gender      = -1;       // index GENDER
+    short int agama       = -1;        // index AGAMA
+    short int golDar      = -1;       // index GOLDAR
+    short int statusKawin = -1;       // index STATUS
+    short int statusHidup = -1;
 };
 
 // data tersimpan
@@ -82,7 +84,7 @@ void diagramGender();                               // diagram berdasarkan gende
 void diagramUsia();                                 // diagram berdasarkan usia
 void diagramAgama();                                // diagram berdasarkan agama
 void diagramGolDar();                               // diagram berdasarkan golongan darah
-void diagramStatus();                               // diagram berdasarkna status
+void diagramStatusKawin();                               // diagram berdasarkna status
 
 // write & read txt
 void importFromTxt();                               // ambil semua data dari txt
@@ -101,11 +103,12 @@ string hariIni();                                   // tanggal hari ini
 int random();                                       // angka random
 void clearBuffer();                                 // bersihkan buffer
 bool logInBerhasil(string nik, string password);    // memastikan nik dan pw benar
-bool isDigit(string str);                           // memastikan string diisi angka saja
+bool isAngka(string str);                           // memastikan string diisi angka saja
 int banyakData();                                   // banyak data tersimpan
 void dekorasi(int ascii, int jumlah);               // dekorasi tampilan
 void diagram(int jumlah, unsigned int kodeWarna=7); // batang diagram
-
+string alamatKecamatan(string alamat);              // kecamatan pada alamat
+bool formulirTerisi(Penduduk penduduk);             // cek apakah formulir sudah diisis
 
 /*----------------------------------- MAIN PROGRAM -----------------------------------*/
 
@@ -352,9 +355,9 @@ void signUpPenduduk() {
 
     cout << "\n\t                  -*- SIGN UP PENDUDUK   \n\n" << endl;
 
-    cout << "\t   Nama Lengkap : "; getline(cin, pendudukBaru.namaLengkap); 
-    cout << "\t   NIK          : "; getline(cin, pendudukBaru.nik);         
-    cout << "\t   Password     : "; getline(cin, pendudukBaru.password);    
+    cout << "\t   Nama Lengkap : "; getline(cin, pendudukBaru.namaLengkap); fflush(stdin);
+    cout << "\t   NIK          : "; cin.get(pendudukBaru.nik, 17);          clearBuffer();
+    cout << "\t   Password     : "; getline(cin, pendudukBaru.password);    fflush(stdin);
     
     fflush(stdin);
     
@@ -364,7 +367,7 @@ void signUpPenduduk() {
         cout << "\n\t         NIK telah terdaftar!        \n\n" << endl;
     
     // gagal sign up - nik salah
-    } else if (!isDigit(pendudukBaru.nik)) {
+    } else if (!isAngka(pendudukBaru.nik)) {
         color(12);
         cout << "\n\t    NIK yang dimasukkan tidak valid! \n\n" << endl;
 
@@ -372,6 +375,7 @@ void signUpPenduduk() {
     } else {
 
         pendudukBaru.tanggalPembaruan = hariIni();  // tgl data diri diubah
+        pendudukBaru.statusHidup = 1;
         appendToTxt(pendudukBaru);
 
         color(10);
@@ -506,6 +510,11 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
         system("cls");
         cout << endl << endl << endl;
 
+        bool updateTanggal = true;
+        if (formulirTerisi(penduduk)) {
+            updateTanggal = false;
+        }
+
         cout << "\t         FORMULIR BIODATA PENDUDUK         \n" << endl;  // judul
         color(12); cout << setw(38) << warning << endl; color(7);           // notif peringatan
         
@@ -520,7 +529,7 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
                 // TTL
                 string tempat;
                 int tanggal, bulan, tahun, 
-                    thnNow = timeNow()->tm_year + 1900;
+                    tahunIni = timeNow()->tm_year + 1900;
 
                 cout << "\n\tTempat/Tanggal Lahir" << endl;                         
                 cout << "  \t   Tempat    : "; color(11); getline(cin, tempat);
@@ -536,16 +545,16 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
                 // cara mengisi ada yg salah
                 if (
                     tempat == "" 
-                    || tanggal < 1 || tanggal > 31
-                    || bulan   < 1 || bulan   > 12
-                    || tahun   < 0 || tahun   > thnNow
+                    || tanggal < 1    || tanggal > 31
+                    || bulan   < 1    || bulan   > 12
+                    || tahun   < 1920 || tahun   > tahunIni
                 ) {
                     warning = "Isian Anda salah!";
                     continue;
                 } 
 
-                penduduk.ttl = tempat + ", " + to_string(tanggal) + "/" + to_string(bulan) + "/" + to_string(tahun);
-                penduduk.usia = timeNow()->tm_year + 1900 - tahun; // usia
+                penduduk.ttl = tempat + ", " + to_string(tanggal) + "-" + to_string(bulan) + "-" + to_string(tahun);
+                penduduk.usia = tahunIni - tahun; // usia
 
             } else {                    // ttl sudah diisi
 
@@ -562,7 +571,14 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
             // nomor telepon
             cout << "\n\tNo. Telepon\t: ";
             if (penduduk.telepon == "") { 
-                color(11); getline(cin, penduduk.telepon); fflush(stdin); 
+                color(11); getline(cin, penduduk.telepon); fflush(stdin);
+
+                if (!isAngka(penduduk.telepon) || penduduk.telepon.length() > 12) {
+                    penduduk.telepon = "";
+                    warning = "Isian Anda salah!";
+                    continue;
+                }
+
             } else { 
                 color(14); cout << "sudah diisi" << endl;
             }
@@ -616,18 +632,8 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
             } else {                        // alamat sudah diisi
 
                 for (int i=0; i<10; i++) {
-                    noKec = penduduk.alamat.find(KECAMATAN[i]);
-
-                    if (noKec != -1) {
-                        string kecamatanPenduduk = KECAMATAN[i];
-
-                        for (int i=0; i<10; i++) {
-                            if (KECAMATAN[i] == kecamatanPenduduk) {
-                                noKec = i;
-                                break;
-                            }
-                        }
-                        break; 
+                    if (alamatKecamatan(penduduk.alamat) == KECAMATAN[i]) {
+                        noKec = i+1;
                     }
                 }
 
@@ -740,7 +746,7 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
                     continue;
                 }
 
-                penduduk.alamat = jalan + "Kel. " + KELURAHAN[noKec-1][noKel-1] + "Kec. " + KECAMATAN[noKec-1];
+                penduduk.alamat = jalan + " Kel. " + KELURAHAN[noKec-1][noKel-1] + " Kec. " + KECAMATAN[noKec-1];
                 
             } else {                        // alamat sudah diisi
                 color(14); cout << "sudah diisi" << endl;  
@@ -748,8 +754,8 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
             color(7);
 
         // halaman 3
-        } else if ( page == 3 ) {
-            short int gender, agama, golDar, status;
+        } else if ( page == 3 ) {   // halaman 3
+            short int gender, agama, golDar, statusKawin;
 
             // gender
             cout << "\tJenis Kelamin \n"       
@@ -757,7 +763,7 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
                  << "\t     : "; 
 
             if (penduduk.gender == -1) { 
-                color(11); cin >> gender; 
+                color(11); cin >> gender; clearBuffer();
         
                 if (gender < 1 || gender > 2) {
                     warning = "Isian Anda salah!"; 
@@ -766,10 +772,10 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
 
                 penduduk.gender = gender-1;
             } else { 
-                color(14); cout << "sudah diisi";
+                color(14); cout << "sudah diisi" << endl;
             }
             
-            color(7); cout << endl;
+            color(7);
 
             // agama
             cout << "\n\tAgama \n"
@@ -778,7 +784,7 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
                 << "\t     : ";
 
             if (penduduk.agama == -1) { 
-                color(11); cin >> agama; 
+                color(11); cin >> agama; clearBuffer();
 
                 if (agama < 1 || agama > 6) {
                     warning = "Isian Anda salah!";
@@ -787,10 +793,10 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
 
                 penduduk.agama = agama-1;
             } else { 
-                color(14); cout << "sudah diisi";  
+                color(14); cout << "sudah diisi" << endl;  
             }
 
-            color(7); cout << endl;
+            color(7);
 
             // golongan darah
             cout << "\n\tGolongan Darah                              \n"
@@ -799,7 +805,7 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
                  << "\t     : ";
 
             if (penduduk.golDar == -1) { 
-                color(11); cin >> golDar;
+                color(11); cin >> golDar; clearBuffer();
 
                 if (golDar < 1 || golDar > 4) {
                     warning = "Isian Anda salah!";
@@ -809,10 +815,10 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
                 penduduk.golDar = golDar-1;
 
             } else { 
-                color(14); cout << "sudah diisi";
+                color(14); cout << "sudah diisi" << endl;
             }
 
-            color(7); cout << endl;
+            color(7);
 
             // status
             cout << "\n\tStatus \n"
@@ -820,24 +826,27 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
                 << "\t     [2] Kawin          [4] Cerai mati       \n"
                 << "\t     : ";
 
-            if (penduduk.status == -1) { 
-                color(11); cin >> status;
+            if (penduduk.statusKawin == -1) { 
+                color(11); cin >> statusKawin; clearBuffer();
 
-                if (status < 1 || status > 4) {
+                if (statusKawin < 1 || statusKawin > 4) {
                     warning = "Isian Anda salah!";
                     continue;
                 } 
 
-                penduduk.status = status-1;
+                penduduk.statusKawin = statusKawin-1;
             } else { 
-                color(14); cout << "sudah diisi";
+                color(14); cout << "sudah diisi" << endl;
             }
 
-            color(7); cout << endl << endl;
+            color(7); cout << endl;
+
         }
 
-        penduduk.tanggalPembaruan = hariIni();  // tgl data pembaruan diubah
-        updateToTxt(penduduk);
+        if (updateTanggal) {
+            penduduk.tanggalPembaruan = hariIni();  // tgl data pembaruan diubah
+            updateToTxt(penduduk);
+        }
 
         color(10); cout << "\n\t       Formulir telah berhasil diisi!    \n"; color(7);
         color(11); cout << "\n\t<= Kembali                     "; 
@@ -879,7 +888,7 @@ void tampilkanData(Penduduk penduduk) {
     cout << "Gender " << GENDER[penduduk.gender] << endl; 
     cout << "Agama " << AGAMA[penduduk.agama] << endl; 
     cout << "GolDar " << GOLDAR[penduduk.golDar] << endl; 
-    cout << "Status " << STATUS[penduduk.status] << endl; 
+    cout << "Status " << STATUSKAWIN[penduduk.statusKawin] << endl; 
     getch();   
 }
 
@@ -928,7 +937,8 @@ void menuPemerintah() {
     int opsi0 = SELECT,
         opsi1 = UNSELECT,
         opsi2 = UNSELECT,
-        opsi3 = UNSELECT;
+        opsi3 = UNSELECT,
+        opsi4 = UNSELECT;
 
     while(looping) {
         system("cls");
@@ -944,8 +954,9 @@ void menuPemerintah() {
 
         color(opsi0); cout << "\t       [0] Keluar                   \n";       // opsi 0
         color(opsi1); cout << "\t       [1] Tampilkan data penduduk  \n";       // opsi 1
-        color(opsi2); cout << "\t       [2] Ubah data penduduk       \n";       // opsi 2
-        color(opsi3); cout << "\t       [3] Tampilkan hasil pendataan\n\n\n";   // opsi 3
+        color(opsi2); cout << "\t       [2] Perbarui status penduduk \n";       // opsi 2
+        color(opsi3); cout << "\t       [3] Hapus data penduduk      \n";       // opsi 3
+        color(opsi4); cout << "\t       [4] Tampilkan hasil pendataan\n\n";     // opsi 4
         
         color(7); cout << endl; dekorasi(240, 41);
 
@@ -965,12 +976,16 @@ void menuPemerintah() {
                 } else if (opsi1 == SELECT) {
                     //         
 
-                // ubah data penduduk
+                // perbarui status
                 } else if (opsi2 == SELECT) {
                     //                          
                 
-                // tampilkan diagram
+                // hapus data penduduk
                 } else if (opsi3 == SELECT) {
+                    //
+
+                // tampilkan diagram data
+                } else if (opsi4 == SELECT) {
                     tampilkanDiagram();         
 
                 }
@@ -990,6 +1005,7 @@ void menuPemerintah() {
                     opsi1 = UNSELECT; 
                     opsi2 = UNSELECT; 
                     opsi3 = UNSELECT;
+                    opsi4 = UNSELECT;
                 
                 // pilih opsi 1
                 } else if (
@@ -1000,6 +1016,7 @@ void menuPemerintah() {
                     opsi1 = SELECT; 
                     opsi2 = UNSELECT; 
                     opsi3 = UNSELECT;
+                    opsi4 = UNSELECT;
                 
                 // pilih opsi 2
                 } else if (
@@ -1010,16 +1027,29 @@ void menuPemerintah() {
                     opsi1 = UNSELECT; 
                     opsi2 = SELECT; 
                     opsi3 = UNSELECT;
+                    opsi4 = UNSELECT;
                 
                 // pilih opsi 3
                 } else if (
                     pilih == DOWN && opsi2 == SELECT ||
-                    pilih == DOWN && opsi3 == SELECT
+                    pilih == UP   && opsi4 == SELECT
                 ) {
                     opsi0 = UNSELECT; 
                     opsi1 = UNSELECT; 
                     opsi2 = UNSELECT; 
                     opsi3 = SELECT;
+                    opsi4 = UNSELECT;
+
+                // pilih opsi 4
+                } else if (
+                    pilih == DOWN && opsi3 == SELECT ||
+                    pilih == DOWN && opsi4 == SELECT
+                ) {
+                    opsi0 = UNSELECT; 
+                    opsi1 = UNSELECT; 
+                    opsi2 = UNSELECT; 
+                    opsi3 = UNSELECT;
+                    opsi4 = SELECT;
                 }
 
                 break;
@@ -1064,7 +1094,7 @@ void tampilkanDiagram() {
             diagramGolDar();
 
         } else if (page == 5) {     // berdasarkan status
-            diagramStatus();
+            diagramStatusKawin();
         }
         
         // ganti halaman
@@ -1141,12 +1171,12 @@ void diagramGender() {
 
     // diagram batang
     diagram(0); cout << endl; 
-    diagram((totalL*45)/(totalL+totalP), 9); 
+    diagram((totalL*35)/(totalL+totalP), 9); 
     cout << " " <<  (totalL*100)/(totalL+totalP) << "%" << endl;
     diagram(0); cout << endl;     
     diagram(0); cout << endl;              
     diagram(0); cout << endl;     
-    diagram((totalP*45)/(totalL+totalP), 13); cout << " " << (totalP*100)/(totalL+totalP) << "%" << endl;
+    diagram((totalP*35)/(totalL+totalP), 13); cout << " " << (totalP*100)/(totalL+totalP) << "%" << endl;
     diagram(0); cout << endl;     
 
     cout << endl;
@@ -1165,17 +1195,17 @@ void diagramGender() {
 
 void diagramUsia() {
     float total1 = 0,
-              total2 = 0,
-              total3 = 0,
-              total4 = 0,
-              total5 = 0,
-              total6 = 0,
-              total7 = 0,
-              total;
+          total2 = 0,
+          total3 = 0,
+          total4 = 0,
+          total5 = 0,
+          total6 = 0,
+          total7 = 0,
+          total;
 
     // hitung jumlah data per usia
     for (int i=0; i<banyakData(); i++) {
-        if (dataPenduduk[i].usia <= 9) {
+        if (dataPenduduk[i].usia >= 0 && dataPenduduk[i].usia <= 9) {
             total1++;
         } else if (dataPenduduk[i].usia >= 10 && dataPenduduk[i].usia <= 19) {
             total2++;
@@ -1197,25 +1227,25 @@ void diagramUsia() {
     cout << setiosflags(ios::fixed) << setprecision(1);
 
     // diagram batang
-    diagram((total1*45)/total, 8); 
+    diagram((total1*35)/total, 8); 
     cout << " " << (total1*100)/total << "%" << endl;
 
-    diagram((total2*45)/total, 9); 
+    diagram((total2*35)/total, 9); 
     cout << " " << (total2*100)/total << "%" << endl;
     
-    diagram((total3*45)/total, 10); 
+    diagram((total3*35)/total, 10); 
     cout << " " << (total3*100)/total << "%" << endl;
     
-    diagram((total4*45)/total, 14); 
+    diagram((total4*35)/total, 14); 
     cout << " " << (total4*100)/total << "%" << endl;
     
-    diagram((total5*45)/total, 12); 
+    diagram((total5*35)/total, 12); 
     cout << " " << (total5*100)/total << "%" << endl;
     
-    diagram((total6*45)/total, 13); 
+    diagram((total6*35)/total, 13); 
     cout << " " << (total6*100)/total << "%" << endl;
     
-    diagram((total7*45)/total, 6); 
+    diagram((total7*35)/total, 6); 
     cout << " " << (total7*100)/total << "%" << endl;
     
     cout << endl;
@@ -1268,22 +1298,22 @@ void diagramAgama() {
     cout << setiosflags(ios::fixed) << setprecision(1);
 
     // diagram batang
-    diagram((total1*45)/total, 10); 
+    diagram((total1*35)/total, 10); 
     cout << " " << (total1*100)/total << "%" << endl;
     
-    diagram((total2*45)/total, 13); 
+    diagram((total2*35)/total, 13); 
     cout << " " << (total2*100)/total << "%" << endl;
     
-    diagram((total3*45)/total, 8); 
+    diagram((total3*35)/total, 8); 
     cout << " " << (total3*100)/total << "%" << endl;
     
-    diagram((total4*45)/total, 14); 
+    diagram((total4*35)/total, 14); 
     cout << " " << (total4*100)/total << "%" << endl;
     
-    diagram((total5*45)/total, 9); 
+    diagram((total5*35)/total, 9); 
     cout << " " << (total5*100)/total << "%" << endl;
     
-    diagram((total6*45)/total, 12); 
+    diagram((total6*35)/total, 12); 
     cout << " " << (total6*100)/total << "%" << endl;
     
     cout << endl << endl;
@@ -1329,13 +1359,13 @@ void diagramGolDar() {
     cout << setiosflags(ios::fixed) << setprecision(1);
 
     // diagram batang
-    diagram((total0*45)/total, 12); cout << " " << (total0*100)/total << "%" << endl;
+    diagram((total0*35)/total, 12); cout << " " << (total0*100)/total << "%" << endl;
     diagram(0); cout << endl;
-    diagram((total1*45)/total, 9);  cout << " " << (total1*100)/total << "%" << endl;
+    diagram((total1*35)/total, 9);  cout << " " << (total1*100)/total << "%" << endl;
     diagram(0); cout << endl;
-    diagram((total2*45)/total, 13); cout << " " << (total2*100)/total << "%" << endl;
+    diagram((total2*35)/total, 13); cout << " " << (total2*100)/total << "%" << endl;
     diagram(0); cout << endl;
-    diagram((total3*45)/total, 8);  cout << " " << (total3*100)/total << "%" << endl;
+    diagram((total3*35)/total, 8);  cout << " " << (total3*100)/total << "%" << endl;
     
     cout << endl;
 
@@ -1353,7 +1383,7 @@ void diagramGolDar() {
          << endl << endl;    
 }
 
-void diagramStatus() {
+void diagramStatusKawin() {
     float total0 = 0,
               total1 = 0,
               total2 = 0,
@@ -1362,13 +1392,13 @@ void diagramStatus() {
 
     // hitung jumlah data per agama
     for (int i=0; i<banyakData(); i++) {
-        if (dataPenduduk[i].status == 0) {
+        if (dataPenduduk[i].statusKawin == 0) {
             total0++;
-        } else if (dataPenduduk[i].status == 1) {
+        } else if (dataPenduduk[i].statusKawin == 1) {
             total1++;
-        } else if (dataPenduduk[i].status == 2) {
+        } else if (dataPenduduk[i].statusKawin == 2) {
             total2++;
-        } else if (dataPenduduk[i].status == 3) {
+        } else if (dataPenduduk[i].statusKawin == 3) {
             total3++;
         }
     }
@@ -1378,13 +1408,13 @@ void diagramStatus() {
     cout << setiosflags(ios::fixed) << setprecision(1);
 
     // diagram batang
-    diagram((total0*45)/total, 3);  cout << " " << (total0*100)/total << "%" << endl;
+    diagram((total0*35)/total, 3);  cout << " " << (total0*100)/total << "%" << endl;
     diagram(0); cout << endl;
-    diagram((total1*45)/total, 10); cout << " " << (total1*100)/total << "%" << endl;
+    diagram((total1*35)/total, 10); cout << " " << (total1*100)/total << "%" << endl;
     diagram(0); cout << endl;
-    diagram((total2*45)/total, 6);  cout << " " << (total2*100)/total << "%" << endl;
+    diagram((total2*35)/total, 6);  cout << " " << (total2*100)/total << "%" << endl;
     diagram(0); cout << endl;
-    diagram((total3*45)/total, 13); cout << " " << (total3*100)/total << "%" << endl;
+    diagram((total3*35)/total, 13); cout << " " << (total3*100)/total << "%" << endl;
     
     cout << endl;
 
@@ -1419,39 +1449,54 @@ void importFromTxt() {
         // tanggal update
         if (kolom == 1){
             penduduk.tanggalPembaruan = baris;
+
         // nama lengkap
         } else if (kolom == 2) {
             penduduk.namaLengkap = baris;
+
         // NIK
         } else if (kolom == 3) {
-            penduduk.nik = baris;
+            strcpy(penduduk.nik, baris.c_str());
+
         // password
         } else if (kolom == 4) {
             penduduk.password = baris;
+
         // tempat tanggal lahir
         } else if (kolom == 5) {
             penduduk.ttl = baris;
+
         // alamat
         } else if (kolom == 6) {
             penduduk.alamat = baris;
+
         // telepon
         } else if (kolom == 7) {
             penduduk.telepon = baris;
+
         // usia
         } else if (kolom == 8) {
             penduduk.usia = stoi(baris); 
+
         // gender
         } else if (kolom == 9) {
             penduduk.gender = stoi(baris);
+
         // agama
         } else if (kolom == 10) {
             penduduk.agama = stoi(baris);
+
         // golongan darah
         } else if (kolom == 11) {
             penduduk.golDar = stoi(baris);
-        // status
+
+        // status kawin
         } else if (kolom == 12) {
-            penduduk.status = stoi(baris);
+            penduduk.statusKawin = stoi(baris);
+
+        // status hidup
+        } else if (kolom == 13) {
+            penduduk.statusHidup = stoi(baris);
 
             dataPenduduk[index] = penduduk;
 
@@ -1483,7 +1528,8 @@ void appendToTxt(Penduduk penduduk) {
          << penduduk.gender << "\n"
          << penduduk.agama << "\n"
          << penduduk.golDar << "\n"
-         << penduduk.status << "\n";
+         << penduduk.statusKawin << "\n"
+         << penduduk.statusHidup << "\n";
 
     file.close();
 
@@ -1497,11 +1543,10 @@ void deleteFromTxt(Penduduk penduduk) {
     ofstream output;
     output.open("data.txt");
 
-
     for (int i=0; i<STORAGE; i++) {
-        if (dataPenduduk[i].nik == penduduk.nik) {
+        if (string(dataPenduduk[i].nik) == string(penduduk.nik)) {
             continue;
-        } else if (dataPenduduk[i].nik == "") {
+        } else if (string(dataPenduduk[i].nik) == "") {
             break;
         } 
 
@@ -1606,7 +1651,7 @@ bool logInBerhasil(string nik, string password) {
     return false;
 }
 
-bool isDigit(string str) {
+bool isAngka(string str) {
     int length = str.length();
 
     char strChar[length];
@@ -1631,7 +1676,7 @@ bool isDigit(string str) {
 
 int banyakData(){
     for (int i=0; i<STORAGE; i++) {
-        if (dataPenduduk[i].nik == "") {
+        if (string(dataPenduduk[i].nik) == "") {
             return i;
         }
     }
@@ -1656,5 +1701,42 @@ void diagram(int jumlah, unsigned int kodeWarna) {
     color(7);
 }
 
+bool formulirTerisi(Penduduk penduduk) {
 
+    if (
+        penduduk.tanggalPembaruan == "" ||
+        penduduk.ttl              == "" ||
+        penduduk.alamat           == "" ||
+        penduduk.telepon          == "" ||
+        penduduk.gender           == -1 ||
+        penduduk.agama            == -1 ||
+        penduduk.golDar           == -1 ||
+        penduduk.statusKawin      == -1
+    ) {
+        return false;
+    }
+
+    return true;
+}
+
+string alamatKecamatan(string alamat) {
+    int indexKec = alamat.find("Kec.");
+
+    int length = alamat.length();
+    char alamatChar[length];
+
+    strcpy(alamatChar, alamat.c_str());
+
+    string kecamatanDitemukan;
+    int index = 0;
+
+    for (int i=0; i<length; i++) {
+
+        if (i >= indexKec+5) {
+            kecamatanDitemukan += alamatChar[i];
+        }
+    }
+
+    return kecamatanDitemukan;
+}
 
