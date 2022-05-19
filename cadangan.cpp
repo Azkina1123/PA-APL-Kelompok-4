@@ -19,8 +19,7 @@ using namespace std;
 #define UNSELECT 7
 #define ENTER 13
 #define RESET 7
-#define SIGNED 3
-#define UNSIGNED 0
+#define NORMAL 3
 #define FAIL 12
 #define SUCCESS 10
 
@@ -51,13 +50,6 @@ const string KELURAHAN[10][8] = {
     {"Simpang Tiga", "Tani Aman", "Sengkotek", "Harapan Baru", "Rapak Dalam"}
 };
 
-
-struct Alamat {
-    string jalan;
-    short int kecamatan = -1;
-    short int kelurahan = -1;
-};
-
 // struct penduduk
 struct Penduduk{
     string tanggalPembaruan;
@@ -65,7 +57,7 @@ struct Penduduk{
     char nik[17];
     string password;
     string ttl;
-    Alamat alamat;
+    string alamat;
     string telepon;
     int usia = -1;
     short int gender      = -1;       // index GENDER
@@ -121,16 +113,14 @@ int banyakData();                                   // banyak data tersimpan
 void dekorasi(int ascii, int jumlah, int warna=7);  // dekorasi tampilan
 void diagram(int jumlah, unsigned int warna=7);     // batang diagram
 string alamatKecamatan(string alamat);              // kecamatan pada alamat
-bool formulirTerisi(Penduduk penduduk);             // cek apakah formulir sudah diisi
-bool isSpace(string str);
-void hapusTulisan();
+bool formulirTerisi(Penduduk penduduk);             // cek apakah formulir sudah diisis
 
 /*----------------------------------- MAIN PROGRAM -----------------------------------*/
 
 int main(){
     // default
     bool running = true;        // program berjalan
-    int notif = SIGNED,
+    int notif = NORMAL,
         opsi1 = SELECT,         // warna opsi 1
         opsi2 = UNSELECT,       // warna opsi 2
         opsi3 = UNSELECT,       // warna opsi 3
@@ -217,7 +207,7 @@ int main(){
                 break;
         }
 
-        notif = SIGNED;
+        notif = NORMAL;
     }
 
     cout << "Program dihentikan" << endl;
@@ -234,7 +224,7 @@ void menuMasukPenduduk() {
 
     // default
     bool looping = true;   // selama halaman dibuka
-    short int notif = SIGNED,
+    short int notif = NORMAL,
               opsi1 = SELECT,     // login
               opsi2 = UNSELECT,   // sign up
               opsi3 = UNSELECT,   // kembali
@@ -327,7 +317,7 @@ void menuMasukPenduduk() {
                 break;
         }
 
-        notif = SIGNED;       // reset warning
+        notif = NORMAL;       // reset warning
 
     }
 }
@@ -372,6 +362,7 @@ void signUpPenduduk() {
     Penduduk pendudukBaru;
 
     cout << "\t                  -*- SIGN UP PENDUDUK   \n\n" << endl;
+
     cout << "\t   Nama Lengkap : "; color(SELECT); getline(cin, pendudukBaru.namaLengkap); fflush(stdin); color(RESET);
     cout << "\t   NIK          : "; color(SELECT); cin.get(pendudukBaru.nik, 17);          clearBuffer(); color(RESET);
     cout << "\t   Password     : "; color(SELECT); getline(cin, pendudukBaru.password);    fflush(stdin); color(RESET);
@@ -384,14 +375,6 @@ void signUpPenduduk() {
     // gagal sign up - nik salah
     } else if (!isAngka(pendudukBaru.nik)) {
         color(FAIL); cout << "\t    NIK yang dimasukkan tidak valid! \n\n" << endl;
-
-    // gagal sign up - nama dikosongkan
-    } else if (isSpace(pendudukBaru.namaLengkap)) {
-        color(FAIL); cout << "\t        Nama tidak boleh kosong! \n\n" << endl;
-
-    // gagal sign up - password dikosongkan
-    } else if (!isAngka(pendudukBaru.password)) {
-        color(FAIL); cout << "\t      Password tidak boleh kosong! \n\n" << endl;
 
     // berhasil sign up
     } else {
@@ -516,24 +499,19 @@ void menuPenduduk(Penduduk penduduk){
 
 Penduduk isiFormulirPenduduk(Penduduk penduduk){
     bool looping = true;
+    int page = 1;
     string warning = "";
-    
-    short int page = 1,
-              isiTgl = SIGNED,
-              isiBln = UNSIGNED,
-              isiThn = UNSIGNED
-              ;
 
     while (looping) {
         system("cls");
         cout << endl << endl << endl;
 
-        gotoxy(0, 3);  cout << "\tFormulir Biodata Penduduk   "; dekorasi(177, 18, 9); // judul halaman
-        cout << endl << endl;           // notif peringatan
+        gotoxy(0, 3);  cout << "\t Formulir Biodata Penduduk   "; dekorasi(177, 6, 9); // judul halaman
+        color(12); cout << setw(38) << warning << endl; color(7);           // notif peringatan
         
-        if (formulirTerisi(penduduk)){
-            page = 0;
-            color(SUCCESS); cout << "\n\n\t    Anda telah mengisi formulir ini." << endl;
+        bool updateTanggal = true;
+        if (formulirTerisi(penduduk)) {
+            updateTanggal = false;
         }
 
         // halaman 1
@@ -542,74 +520,94 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
             // nama dan NIK
             cout << "\tNama Lengkap \t: " << penduduk.namaLengkap << endl;  // nama lengkap
             cout << "\tNIK \t\t: "        << penduduk.nik         << endl;  // NIK
-            
-            cout << "\n\tTempat/Tanggal Lahir" << endl;
-            cout << "  \t   Tempat    : \n";
-            color(8); cout << "\n\t   -- isi di bawah ini dengan angka   \n" << endl; color(7);
-            cout << "  \t   Tanggal   : \n";
-            cout << "  \t   Bulan     : \n";
-            cout << "  \t   Tahun     : \n";
-            cout << "\n\tNo. Telepon\t: \n";
 
-            color(SELECT);
-            
-            string tempat;
-            int tahunIni = timeNow()->tm_year + 1900;
+            if (penduduk.ttl == "") {   // ttl belum diisi
+                // TTL
+                string tempat;
+                int tanggal, bulan, tahun, 
+                    tahunIni = timeNow()->tm_year + 1900;
 
-            while (isSpace(tempat)) {
-                gotoxy(23, 9); hapusTulisan();
-                gotoxy(23, 9); color(SELECT); getline(cin, tempat); fflush(stdin);
-                
+                cout << "\n\tTempat/Tanggal Lahir" << endl;                         
+                cout << "  \t   Tempat    : "; color(11); getline(cin, tempat);
+                fflush(stdin); 
+
+                color(8);
+                cout << "\n\t     -- isi di bawah ini dengan angka \n\n"; color(7);
+
+                cout << "  \t   Tanggal   : "; color(11); cin >> tanggal; color(7); clearBuffer();
+                cout << "  \t   Bulan     : "; color(11); cin >> bulan;   color(7); clearBuffer();
+                cout << "  \t   Tahun     : "; color(11); cin >> tahun;   color(7); clearBuffer();
+
+                // cara mengisi ada yg salah
+                if (
+                    tempat == "" 
+                    || tanggal < 1    || tanggal > 31
+                    || bulan   < 1    || bulan   > 12
+                    || tahun   < 1920 || tahun   > tahunIni
+                ) {
+                    warning = "Isian Anda salah!";
+                    continue;
+                } 
+
+                penduduk.ttl = tempat + ", " + to_string(tanggal) + "-" + to_string(bulan) + "-" + to_string(tahun);
+                penduduk.usia = tahunIni - tahun; // usia
+
+            } else {                    // ttl sudah diisi
+
+                cout << "\n\tTempat/Tanggal Lahir" << endl;
+                cout << "  \t   Tempat    : "; color(14); cout << "sudah diisi." << endl; color(7);
+
+                color(8); cout << "\n\t   -- isi di bawah ini dengan angka   \n" << endl; color(7);
+
+                cout << "  \t   Tanggal   : "; color(14); cout << "sudah diisi." << endl; color(7);
+                cout << "  \t   Bulan     : "; color(14); cout << "sudah diisi." << endl; color(7);
+                cout << "  \t   Tahun     : "; color(14); cout << "sudah diisi." << endl; color(7);
             }
 
-            cout << endl << endl << endl;
+            // nomor telepon
+            cout << "\n\tNo. Telepon\t: ";
+            if (penduduk.telepon == "") { 
+                color(11); getline(cin, penduduk.telepon); fflush(stdin);
 
-            short int jawaban[3], jarak = 0;
-            
-            for (int i=0; i<3; i++) {
-
-                while (true) {
-                    gotoxy(23, 13+jarak); hapusTulisan(); 
-                    gotoxy(23, 13+jarak); color(SELECT); cin >> jawaban[i];
-
-                    if (
-                        !cin.fail() && 
-                        jawaban[i] > 0 &&
-                        (
-                            i == 0 && jawaban[i] <= 31 ||
-                            i == 1 && jawaban[i] <= 12 ||
-                            i == 2 && jawaban[i] >= 1920 && jawaban[i] <= tahunIni
-                        )
-                    ) { clearBuffer(); break; }
-                    clearBuffer();
+                if (!isAngka(penduduk.telepon) || penduduk.telepon.length() > 12) {
+                    penduduk.telepon = "";
+                    warning = "Isian Anda salah!";
+                    continue;
                 }
 
-                jarak += 1;
+            } else { 
+                color(14); cout << "sudah diisi" << endl;
             }
-
-            penduduk.ttl = tempat + ", " + to_string(jawaban[0]) + "-" 
-                           + to_string(jawaban[1]) + "-" + to_string(jawaban[2]);
-            penduduk.usia = tahunIni - jawaban[2]; // usia
-
-            string noTelp;
-            while (isSpace(noTelp) || !isAngka(noTelp)) {
-                gotoxy(26, 17); hapusTulisan(); 
-                gotoxy(26, 17); color(SELECT); getline(cin, noTelp); fflush(stdin);
-            }
-
-            penduduk.telepon = noTelp;
-            color(RESET); 
+            color(7); 
 
             cout << endl << endl << endl << endl << endl << endl;
                 
         // halaman 2
-        } else if ( page == 2 ) {   // halaman 2
+        } else if ( page == 2 ) {
+
+            // var sementara
+            string jalan;
+            short int noKec, noKel;
 
             // alamat
             cout << "\tAlamat" << endl;
-            cout << "\t   Jalan    : "; color(8); 
 
+            // jalan
+            cout << "\t   Jalan    : ";
+            if (penduduk.alamat == "") { 
+                color(11); getline(cin, jalan); fflush(stdin);
+
+                if (jalan == "") {
+                    warning = "Isian Anda salah";
+                    continue;
+                }
+            } else { 
+                color(14); cout << "sudah diisi" << endl;
+            }
+
+            color(8); 
             cout << "\n\t-- isi dengan memilih angka pada opsi\n"; color(7);
+
             // kecamatan
             cout << "\n\t   Kecamatan                                    "
                  << "\n\t   [1] Palaran             [6] Sungai Kunjang   "
@@ -619,23 +617,25 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
                  << "\n\t   [5] Samarinda Utara     [10] Loa Janan Ilir  "
                  << "\n\t   : ";
 
-            // var sementara
-            string jalan;
-            short int noKec, noKel;
+            if (penduduk.alamat == "") {    // alamat belum diisi
+                color(11); cin >> noKec; clearBuffer();
 
-            while (isSpace(jalan)) {
-                gotoxy(22, 6); hapusTulisan(); 
-                gotoxy(22, 6); color(SELECT); getline(cin, jalan); fflush(stdin);
+                if (noKec < 1 || noKec > 10) {
+                    warning = "Isian Anda salah!";
+                    continue;
+                }
+
+            } else {                        // alamat sudah diisi
+
+                for (int i=0; i<10; i++) {
+                    if (alamatKecamatan(penduduk.alamat) == KECAMATAN[i]) {
+                        noKec = i+1;
+                    }
+                }
+
+                color(14); cout << "sudah diisi" << endl;  
             }
-
-            while (true) {
-                gotoxy(13, 15); hapusTulisan(); 
-                gotoxy(13, 15); color(SELECT); cin >> noKec;
-                if (!cin.fail() && noKec > 0 && noKec <= 10) { clearBuffer(); break; }
-                hapusTulisan; clearBuffer();
-            }
-
-            color(RESET);
+            color(7);
 
             // kelurahan
             if (noKec == 1) {           // palaran
@@ -722,116 +722,153 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk){
 
             }
             
-            while (true) {
-                gotoxy(13, 22); hapusTulisan(); 
-                gotoxy(13, 22); color(SELECT); cin >> noKel;
-
+            if (penduduk.alamat == "") {    // alamat belum diisi
+                color(11); cin >> noKel; clearBuffer();
+                
                 if (
-                    !cin.fail() && 
-                    noKel >= 1  &&
-                    (
-                        noKec == 1 && noKel <= 5 ||
-                        noKec == 2 && noKel <= 6 ||
-                        noKec == 3 && noKel <= 8 ||
-                        noKec == 4 && noKel <= 5 ||
-                        noKec == 5 && noKel <= 8 ||
-                        noKec == 6 && noKel <= 7 ||
-                        noKec == 7 && noKel <= 5 ||
-                        noKec == 8 && noKel <= 5 ||
-                        noKec == 9 && noKel <= 5 ||
-                        noKec == 10 && noKel <= 5
-                    ) 
-                ) { clearBuffer(); break; }
+                    noKel < 1 
+                    || noKec == 1 && noKel > 5
+                    || noKec == 2 && noKel > 6 
+                    || noKec == 3 && noKel > 8
+                    || noKec == 4 && noKel > 5
+                    || noKec == 5 && noKel > 8
+                    || noKec == 6 && noKel > 7
+                    || noKec == 7 && noKel > 5
+                    || noKec == 8 && noKel > 5
+                    || noKec == 9 && noKel > 5
+                    || noKec == 10 && noKel > 5
+                ) {
+                    warning = "Isian Anda salah!";
+                    continue;
+                }
 
-                hapusTulisan; clearBuffer();
+                penduduk.alamat = jalan + " Kel. " + KELURAHAN[noKec-1][noKel-1] + " Kec. " + KECAMATAN[noKec-1];
+                
+            } else {                        // alamat sudah diisi
+                color(14); cout << "sudah diisi" << endl;  
             }
-
-            penduduk.alamat.jalan = jalan;
-            penduduk.alamat.kecamatan = noKec - 1;
-            penduduk.alamat.kelurahan = noKel - 1;
+            color(7);
 
         // halaman 3
         } else if ( page == 3 ) {   // halaman 3
+            short int gender, agama, golDar, statusKawin;
 
+            // gender
             cout << "\tJenis Kelamin \n"       
-                 << "\t     [1] Laki-laki     [2] Perempuan          \n"   
-                 << "\t     : \n"; 
+                 << "\t     [1] Laki-laki     [2] Perempuan           \n"   
+                 << "\t     : "; 
 
+            if (penduduk.gender == -1) { 
+                color(11); cin >> gender; clearBuffer();
+        
+                if (gender < 1 || gender > 2) {
+                    warning = "Isian Anda salah!"; 
+                    continue;
+                }
+
+                penduduk.gender = gender-1;
+            } else { 
+                color(14); cout << "sudah diisi" << endl;
+            }
+            
+            color(7);
+
+            // agama
             cout << "\n\tAgama \n"
                 << "\t     [1] Islam     [3] Katolik   [5] Buddha    \n"
                 << "\t     [2] Kristen   [4] Hindu     [6] Konghuchu \n"
-                << "\t     : \n";
+                << "\t     : ";
 
+            if (penduduk.agama == -1) { 
+                color(11); cin >> agama; clearBuffer();
+
+                if (agama < 1 || agama > 6) {
+                    warning = "Isian Anda salah!";
+                    continue;
+                }
+
+                penduduk.agama = agama-1;
+            } else { 
+                color(14); cout << "sudah diisi" << endl;  
+            }
+
+            color(7);
+
+            // golongan darah
             cout << "\n\tGolongan Darah                              \n"
                  << "\t     [1] A         [3] AB                     \n"
                  << "\t     [2] B         [4] O                      \n"
-                 << "\t     : \n";
+                 << "\t     : ";
 
-            cout << "\n\tStatus \n"
-                << "\t     [1] Belum kawin    [3] Cerai hidup       \n"
-                << "\t     [2] Kawin          [4] Cerai mati        \n"
-                << "\t     : \n";
+            if (penduduk.golDar == -1) { 
+                color(11); cin >> golDar; clearBuffer();
 
-            color(SELECT);
-            short int jawaban[4];
-
-            int jarak = 0;
-            for (int i=0; i<4; i++) {
-                while (true) {
-                    gotoxy(15, 7+jarak); hapusTulisan(); 
-                    gotoxy(15, 7+jarak); color(SELECT); cin >> jawaban[i];
-
-                    if (
-                        !cin.fail() && 
-                        jawaban[i] > 0 &&
-                        (
-                            i == 0 && jawaban[i] <= 2 ||
-                            i == 1 && jawaban[i] <= 6 ||
-                            i == 2 && jawaban[i] <= 4 ||
-                            i == 3 && jawaban[i] <= 4
-                        )
-                    ) { clearBuffer(); break; }
-
-                    clearBuffer();
+                if (golDar < 1 || golDar > 4) {
+                    warning = "Isian Anda salah!";
+                    continue;
                 }
 
-                jarak += 5;
+                penduduk.golDar = golDar-1;
+
+            } else { 
+                color(14); cout << "sudah diisi" << endl;
             }
 
-            penduduk.gender = jawaban[0]-1;
-            penduduk.agama = jawaban[1]-1;
-            penduduk.golDar = jawaban[2]-1;
-            penduduk.statusKawin = jawaban[3]-1;
+            color(7);
 
-            penduduk.tanggalPembaruan = hariIni();  // tgl data pembaruan diubah
-            updateToTxt(penduduk);
+            // status
+            cout << "\n\tStatus \n"
+                << "\t     [1] Belum kawin    [3] Cerai hidup      \n"
+                << "\t     [2] Kawin          [4] Cerai mati       \n"
+                << "\t     : ";
 
-            color(SUCCESS); cout << "\n\t       Formulir telah berhasil diisi!    \n" << endl;
+            if (penduduk.statusKawin == -1) { 
+                color(11); cin >> statusKawin; clearBuffer();
+
+                if (statusKawin < 1 || statusKawin > 4) {
+                    warning = "Isian Anda salah!";
+                    continue;
+                } 
+
+                penduduk.statusKawin = statusKawin-1;
+            } else { 
+                color(14); cout << "sudah diisi" << endl;
+            }
+
+            color(7); cout << endl;
 
         }
 
-        gotoxy(0, 27);
-        color(SELECT); cout << "\t<= Keluar                       "; 
+        if (updateTanggal) {
+            penduduk.tanggalPembaruan = hariIni();  // tgl data pembaruan diubah
+            updateToTxt(penduduk);
+        }
+
+        color(SUCCESS); cout << "\n\t       Formulir telah berhasil diisi!    \n";
+        color(SELECT);  cout << "\n\t<= Kembali                      "; 
+        
         if (page == 1 || page == 2) { cout << "Berikutnya =>"; }
 
         color(RESET); cout << endl << endl;
         
-        char opsi, key;
+        char opsi, pilih;
         opsi = getch();
 
         if (opsi == -32) {
-            key = getch();
+            pilih = getch();
 
-            if (key == LEFT) {
+            if (pilih == LEFT && page == 1) {
                 looping = false;
                 break;
 
-            } else if (key == RIGHT && page == 1) {
+            } else if (pilih == LEFT && page == 2) {
+                page = 1;
+
+            } else if (pilih == RIGHT && page == 1 || pilih == LEFT && page == 3) {
                 page = 2;
 
-            } else if (key == RIGHT && page == 2) {
+            } else if (pilih == RIGHT && page == 2) {
                 page = 3;
-
             }
         }   
         
@@ -1423,40 +1460,34 @@ void importFromTxt() {
 
         // alamat
         } else if (kolom == 6) {
-            penduduk.alamat.jalan = baris;
-
-        } else if (kolom == 7) {
-            penduduk.alamat.kecamatan = stoi(baris);
-
-        } else if (kolom == 8) {
-            penduduk.alamat.kelurahan = stoi(baris);
+            penduduk.alamat = baris;
 
         // telepon
-        } else if (kolom == 9) {
+        } else if (kolom == 7) {
             penduduk.telepon = baris;
 
         // usia
-        } else if (kolom == 10) {
+        } else if (kolom == 8) {
             penduduk.usia = stoi(baris); 
 
         // gender
-        } else if (kolom == 11) {
+        } else if (kolom == 9) {
             penduduk.gender = stoi(baris);
 
         // agama
-        } else if (kolom == 12) {
+        } else if (kolom == 10) {
             penduduk.agama = stoi(baris);
 
         // golongan darah
-        } else if (kolom == 13) {
+        } else if (kolom == 11) {
             penduduk.golDar = stoi(baris);
 
         // status kawin
-        } else if (kolom == 14) {
+        } else if (kolom == 12) {
             penduduk.statusKawin = stoi(baris);
 
         // status hidup
-        } else if (kolom == 15) {
+        } else if (kolom == 13) {
             penduduk.statusHidup = stoi(baris);
 
             dataPenduduk[index] = penduduk;
@@ -1483,9 +1514,7 @@ void appendToTxt(Penduduk penduduk) {
          << penduduk.nik << "\n"
          << penduduk.password << "\n"
          << penduduk.ttl << "\n"
-         << penduduk.alamat.jalan << "\n" 
-         << penduduk.alamat.kecamatan << "\n" 
-         << penduduk.alamat.kelurahan << "\n"
+         << penduduk.alamat << "\n"
          << penduduk.telepon << "\n"
          << penduduk.usia << "\n"
          << penduduk.gender << "\n"
@@ -1636,7 +1665,7 @@ bool isAngka(string str) {
         }
     }
 
-    if (isInteger == length && !isSpace(str)) {
+    if (isInteger == length) {
         return true;
     } else {
         return false;
@@ -1674,10 +1703,9 @@ void diagram(int jumlah, unsigned int warna) {
 bool formulirTerisi(Penduduk penduduk) {
 
     if (
+        penduduk.tanggalPembaruan == "" ||
         penduduk.ttl              == "" ||
-        penduduk.alamat.jalan     == "" ||
-        penduduk.alamat.kecamatan == -1 ||
-        penduduk.alamat.kelurahan == -1 ||
+        penduduk.alamat           == "" ||
         penduduk.telepon          == "" ||
         penduduk.gender           == -1 ||
         penduduk.agama            == -1 ||
@@ -1711,35 +1739,3 @@ string alamatKecamatan(string alamat) {
     return kecamatanDitemukan;
 }
 
-bool isSpace(string str) {
-    if (str == "\t" || str == "\n" || str == "") {
-        return true;
-    }
-
-    int length = str.length(),
-        isSpasi = 0;
-    char strChar[length], 
-         spasi = ' ';
-
-    strcpy(strChar, str.c_str());
-
-    for (int i=0; i<length; i++) {
-        if (strChar[i] == spasi) {
-            isSpasi++;
-        }
-    }
-
-    if (length == isSpasi) {
-        return true;
-    }
-
-    return false;
-}
-
-void hapusTulisan() {
-    color(0);
-    for (int i=0; i<50; i++) {
-        cout << char(219);
-    }
-    color(RESET);
-}
