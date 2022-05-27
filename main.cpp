@@ -90,7 +90,6 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk);    // isi formulir penduduk
 bool cancelForm();
 void tampilkanData(Penduduk penduduk);              // tampilkan data
 Penduduk ubahDataDiri(Penduduk penduduk);
-int ubahKecamatan();
 
 // tampilan mode pemerintah
 void logInPemerintah();                             // log in pemerintah
@@ -105,6 +104,9 @@ void diagramUsia();                                 // diagram berdasarkan usia
 void diagramAgama();                                // diagram berdasarkan agama
 void diagramGolDar();                               // diagram berdasarkan golongan darah
 void diagramStatusKawin();                          // diagram berdasarkna status
+
+// tampilan opsi
+void tampilkanOpsi(string opsi);
 
 // write & read txt
 void importFromTxt();                               // ambil semua data dari txt
@@ -632,13 +634,9 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk) {
             cout << "\t   Jalan    : " << endl; color(8); 
 
             cout << "\n\t-- isi dengan memilih angka pada opsi\n"; color(7);
+            
             // kecamatan
-            cout << "\n\t   Kecamatan                                   "
-                 << "\n\t   [1] Palaran             [5] Samarinda Utara    [9]  Samarinda Kota"
-                 << "\n\t   [2] Samarinda Seberang  [6] Sungai Kunjang     [10] Loa Janan Ilir"
-                 << "\n\t   [3] Samarinda Ulu       [7] Sambutan        "
-                 << "\n\t   [4] Samarinda Ilir      [8] Sungai Pinang   "
-                 << "\n\t   : ";
+            tampilkanOpsi("Kecamatan");
 
             // var sementara
             string jalan;
@@ -659,78 +657,7 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk) {
             color(RESET);
 
             // kelurahan
-            if (noKec == 1) {           // palaran
-                cout << "\n\t   Kelurahan                                   "
-                     << "\n\t   [1] Rawa Makmur         [4] Simpang Pasir   "
-                     << "\n\t   [2] Handil Bakti        [5] Bantuas         "
-                     << "\n\t   [3] Bukuan                                  "
-                     << "\n\t   : ";
-
-            } else if (noKec == 2) {    // samarinda seberang
-                cout << "\n\t   Kelurahan                                   "
-                     << "\n\t   [1] Sungai Keledang     [4] Mangkupalas     "
-                     << "\n\t   [2] Baqa                [5] Gunung Panjang  "
-                     << "\n\t   [3] Mesjid                                  "
-                     << "\n\t   : ";
-
-            } else if (noKec == 3) {    // samarinda ulu
-                cout << "\n\t   Kelurahan                                   "
-                    << "\n\t   [1] Teluk Lerong Ilir    [4] Sidodadi          [7] Gunung Kelua "
-                    << "\n\t   [2] Jawa                 [5] Air Hitam         [8] Bukit Pinang "
-                    << "\n\t   [3] Air Putih            [6] Dadi Mulya       "
-                    << "\n\t   : ";
-
-
-            } else if (noKec == 4) {    // samarinda ilir
-                cout << "\n\t   Kelurahan                                   "
-                     << "\n\t   [1] Selili              [4] Sidodamai       "
-                     << "\n\t   [2] Sungai Dama         [5] Pelita          "
-                     << "\n\t   [3] Sidomulyo                               "
-                     << "\n\t   : ";
-
-            } else if (noKec == 5) {    // samarinda utara
-                cout << "\n\t   Kelurahan                                   "
-                     << "\n\t   [1] Sempaja Selatan     [4] Sempaja Utara     [7] Sempaja Timur"
-                     << "\n\t   [2] Lempake             [5] Tanah Merah       [8] Budaya Pampang"   
-                     << "\n\t   [3] Sungai Siring       [6] Sempaja Barat   "
-                     << "\n\t   : "; 
-
-            } else if (noKec == 6) {    // sungai kunjang
-                cout << "\n\t   Kelurahan                                   "
-                     << "\n\t   [1] Loa Bakung          [4] Lok Bahu          [6] Karang Asam "
-                     << "\n\t   [2] Loa Buah            [5] Telok Lerong          Ilir        "   
-                     << "\n\t   [3] Karang Asam Ulu         Ulu               [7] Karang Anyar"
-                     << "\n\t   : "; 
-
-            } else if (noKec == 7) {    // sambutan
-                cout << "\n\t   Kelurahan                                   "
-                     << "\n\t   [1] Sungai Kapih        [4] Sindang Sari    "
-                     << "\n\t   [2] Sambutan            [5] Pulau Atas      "
-                     << "\n\t   [3] Makroman                                "
-                     << "\n\t   : ";
-
-            } else if (noKec == 8) {    // sungai pinang
-                cout << "\n\t   Kelurahan                                   "
-                     << "\n\t   [1] Temindung Permai    [3] Gunung Lingai   "
-                     << "\n\t   [2] Sungai Pinang       [4] Mugirejo        "
-                     << "\n\t       Dalam               [5] Bandara         "
-                     << "\n\t   : ";
-
-            } else if (noKec == 9) {    // samarinda kota
-                cout << "\n\t   Kelurahan                                   "
-                     << "\n\t   [1] Karang Mumus        [4] Bugis           "
-                     << "\n\t   [2] Pelabuhan           [5] Sungai Pinang   "
-                     << "\n\t   [3] Pasar Pagi              Luar            "
-                     << "\n\t   : ";
-
-            } else if (noKec == 10) {   // loa janan ilir
-                cout << "\n\t   Kelurahan                                   "
-                     << "\n\t   [1] Simpang Tiga        [4] Harapan Baru    "
-                     << "\n\t   [2] Tani Aman           [5] Rapak Dalam     "
-                     << "\n\t   [3] Sengkotek                               "
-                     << "\n\t   : ";
-
-            }
+            tampilkanOpsi(KECAMATAN[noKec]);
             
             while (true) {
                 gotoxy(13, 20); hapusTulisan(); 
@@ -762,23 +689,10 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk) {
 
         // halaman 3
         } else if ( page == 3 ) {   // halaman 3
-
-            cout << "\tJenis Kelamin \n"       
-                 << "\t     [1] Laki-laki          [2] Perempuan          \n"   
-                 << "\t     : \n"; 
-
-            cout << "\n\tAgama \n"
-                << "\t     [1] Islam        [3] Katolik     [5] Buddha    \n"
-                << "\t     [2] Kristen      [4] Hindu       [6] Konghuchu \n"
-                << "\t     : \n";
-
-            cout << "\n\tGolongan Darah                                   \n"
-                 << "\t     [1] A        [2] B        [3] AB        [4] O \n"
-                 << "\t     : \n";
-
-            cout << "\n\tStatus \n"
-                << "\t     [1] Belum kawin   [2] Kawin   [3] Cerai hidup   [4] Cerai mati     \n"
-                << "\t     : \n";
+            tampilkanOpsi("Jenis Kelamin");
+            tampilkanOpsi("Agama");
+            tampilkanOpsi("Golongan Darah");
+            tampilkanOpsi("Status Perkawinan");
 
             color(SELECT);
             short int jawaban[4];
@@ -1065,21 +979,21 @@ Penduduk ubahDataDiri(Penduduk penduduk) {
 
                 // isi tempat
                 while (isSpace(isiStr)) {
-                    gotoxy(34, 5); hapusTulisan;
-                    gotoxy(34, 5); getline(cin, isiStr); fflush(stdin);
+                    gotoxy(34, 18); hapusTulisan();
+                    gotoxy(34, 18); getline(cin, isiStr); fflush(stdin);
                 }
 
                 string keterangan[3] = {"Tanggal", "Bulan", "Tahun"};
-                int jawaban[3],
-                    jarak = 0;
+                int jawaban[3];
 
                 // isi tanggal, bulan, tahun
                 for (int i=0; i<3; i++) {
-                    cout << "\n\t\t " << keterangan[i] << "   \t: ";
+                    cout << "\t\t " << keterangan[i] << "   \t: ";
 
+                    // isi tanggal / bulan / tahun
                     while (true) {
-                        gotoxy(34, 5+jarak); hapusTulisan;
-                        gotoxy(34, 5+jarak); cin >> isiInt; 
+                        gotoxy(34, 19+i); hapusTulisan();
+                        gotoxy(34, 19+i); cin >> jawaban[i]; 
 
                         // jika isi telah benar, berhenti isi
                         if (
@@ -1091,11 +1005,9 @@ Penduduk ubahDataDiri(Penduduk penduduk) {
                                 i == 2 && isTahun(jawaban[i])
                             )
                         ) { clearCin(); break; }
+                        clearCin();
 
                     }
-
-                        jarak++;
-
                 }
 
                 // simpan ttl
@@ -1110,12 +1022,38 @@ Penduduk ubahDataDiri(Penduduk penduduk) {
             // isi alamat
             } else if (index == 6) {
 
-                while(isSpace(isiStr)) {
+                string jalan;
+                int noKec, noKel;
+                
+                cout << "\n\t\t Jalan   \t: ";
+                while (isSpace(jalan)) {
                     gotoxy(34, 20); hapusTulisan();
-                    gotoxy(34, 20); getline(cin, isiStr); fflush(stdin);
+                    gotoxy(34, 20); getline(cin, jalan); fflush(stdin);
                 }
 
-                penduduk.alamat.kecamatan = ubahKecamatan();
+                tampilkanOpsi("Kecamatan");
+                while (true) {
+                    gotoxy(34, 20); hapusTulisan(100);
+                    gotoxy(34, 20); cin >> noKec; 
+
+                    if (!cin.fail() && noKec <= 1 && noKec <= 10) { clearCin; break; }
+                    clearCin();
+
+                }
+
+                tampilkanOpsi(KECAMATAN[noKec]);
+
+                while (true) {
+                    for (int i=0; i<5; i++) {
+                        gotoxy(20, 20+i); hapusTulisan(100);
+                    }
+
+                    gotoxy(34, 20); cin >> noKel; 
+
+                    if (!cin.fail() && noKec <= 1 && noKec <= 10) { clearCin; break; }
+                    clearCin();
+
+                }
 
             } else if (index > 6) {
                 cout << "\n\t\t " << opsi[index] << " \t: " << dataStr[index+2];
@@ -1124,6 +1062,11 @@ Penduduk ubahDataDiri(Penduduk penduduk) {
                 cout << "\n\t\t " << opsi[index] << " \t: " << dataStr[index];
 
             }
+
+            editing = false; 
+            warna[index] = UNSELECT; sign[index] = SELECT;
+            updateToTxt(penduduk);
+            continue;
         }
 
         kembali:
@@ -1192,34 +1135,6 @@ Penduduk ubahDataDiri(Penduduk penduduk) {
     }
 
     return penduduk;
-}
-
-int ubahKecamatan() {
-    gotoxy(0, 7);
-    cout << "\n\t\t"
-         << "- = - = - = - = - = - = - = - = - = - = - = - = - = -\n\t\t"
-         << "|                                                   |\n\t\t"
-         << "|   Kecamatan                                       |\n\t\t"
-         << "|   [1] Palaran               [6] Sungai Kunjang    |\n\t\t"
-         << "|   [2] Samarinda Seberang    [7] Sambutan          |\n\t\t"
-         << "|   [3] Samarinda Ulu         [8] Sungai Pinang     |\n\t\t"
-         << "|   [4] Samarinda Ilir        [9]  Samarinda Kota   |\n\t\t"
-         << "|   [5] Samarinda Utara       [10] Loa Janan Ilir   |\n\t\t"
-         << "|   :                                               |\n\t\t"
-         << "|                                                   |\n\t\t"
-         << "- = - = - = - = - = - = - = - = - = - = - = - = - = -\n\t\t";
-
-    int kecamatan;
-    while (true) {
-        gotoxy(22, 16); hapusTulisan(30);
-        gotoxy(22, 16); cin >> kecamatan;
-
-        if (!cin.fail() && kecamatan > 0 && kecamatan <= 10) {
-            break;
-        }
-    }
-
-    return kecamatan;
 }
 
 
@@ -1839,6 +1754,98 @@ void diagramStatusKawin() {
     
 }
 
+
+// pengisian formulir
+void tampilkanOpsi(string opsi) {
+    if (opsi == "Kecamatan") {
+        cout << "\n\t   Kecamatan                                   "
+             << "\n\t   [1] Palaran             [5] Samarinda Utara    [9]  Samarinda Kota"
+             << "\n\t   [2] Samarinda Seberang  [6] Sungai Kunjang     [10] Loa Janan Ilir"
+             << "\n\t   [3] Samarinda Ulu       [7] Sambutan        "
+             << "\n\t   [4] Samarinda Ilir      [8] Sungai Pinang   "
+             << "\n\t   : ";
+    
+    } else if (opsi == "Palaran") {
+        cout << "\n\t   Kelurahan                                   "
+             << "\n\t   [1] Rawa Makmur         [4] Simpang Pasir   "
+             << "\n\t   [2] Handil Bakti        [5] Bantuas         "
+             << "\n\t   [3] Bukuan                                  "
+             << "\n\t   : ";
+    } else if (opsi == "Samarinda Seberang") {
+        cout << "\n\t   Kelurahan                                   "
+             << "\n\t   [1] Sungai Keledang     [4] Mangkupalas     "
+             << "\n\t   [2] Baqa                [5] Gunung Panjang  "
+             << "\n\t   [3] Mesjid                                  "
+             << "\n\t   : ";
+    } else if (opsi == "Samarinda Ulu") {
+        cout << "\n\t   Kelurahan                                   "
+             << "\n\t   [1] Teluk Lerong Ilir    [4] Sidodadi          [7] Gunung Kelua "
+             << "\n\t   [2] Jawa                 [5] Air Hitam         [8] Bukit Pinang "
+             << "\n\t   [3] Air Putih            [6] Dadi Mulya       "
+             << "\n\t   : ";
+    } else if (opsi == "Samarinda Ilir") {
+        cout << "\n\t   Kelurahan                                   "
+             << "\n\t   [1] Selili              [4] Sidodamai       "
+             << "\n\t   [2] Sungai Dama         [5] Pelita          "
+             << "\n\t   [3] Sidomulyo                               "
+             << "\n\t   : ";
+    } else if (opsi == "Samarinda Utara") {
+        cout << "\n\t   Kelurahan                                   "
+             << "\n\t   [1] Sempaja Selatan     [4] Sempaja Utara     [7] Sempaja Timur"
+             << "\n\t   [2] Lempake             [5] Tanah Merah       [8] Budaya Pampang"   
+             << "\n\t   [3] Sungai Siring       [6] Sempaja Barat   "
+             << "\n\t   : "; 
+    } else if (opsi == "Sungai Kunjang") {
+        cout << "\n\t   Kelurahan                                   "
+             << "\n\t   [1] Loa Bakung          [4] Lok Bahu          [6] Karang Asam "
+             << "\n\t   [2] Loa Buah            [5] Telok Lerong          Ilir        "   
+             << "\n\t   [3] Karang Asam Ulu         Ulu               [7] Karang Anyar"
+             << "\n\t   : "; 
+    } else if (opsi == "Sambutan") {
+        cout << "\n\t   Kelurahan                                   "
+             << "\n\t   [1] Sungai Kapih        [4] Sindang Sari    "
+             << "\n\t   [2] Sambutan            [5] Pulau Atas      "
+             << "\n\t   [3] Makroman                                "
+             << "\n\t   : ";
+    } else if (opsi == "Sungai Pinang") {
+        cout << "\n\t   Kelurahan                                   "
+             << "\n\t   [1] Temindung Permai    [3] Gunung Lingai   "
+             << "\n\t   [2] Sungai Pinang       [4] Mugirejo        "
+             << "\n\t       Dalam               [5] Bandara         "
+             << "\n\t   : ";
+    } else if (opsi == "Samarinda Kota") {
+        cout << "\n\t   Kelurahan                                   "
+             << "\n\t   [1] Karang Mumus        [4] Bugis           "
+             << "\n\t   [2] Pelabuhan           [5] Sungai Pinang   "
+             << "\n\t   [3] Pasar Pagi              Luar            "
+             << "\n\t   : ";
+    } else if (opsi == "Loa Janan Ilir") {
+        cout << "\n\t   Kelurahan                                   "
+             << "\n\t   [1] Simpang Tiga        [4] Harapan Baru    "
+             << "\n\t   [2] Tani Aman           [5] Rapak Dalam     "
+             << "\n\t   [3] Sengkotek                               "
+             << "\n\t   : ";
+    } else if (opsi == "Jenis Kelamin") {
+        cout << "\tJenis Kelamin \n"       
+             << "\t     [1] Laki-laki          [2] Perempuan          \n"   
+             << "\t     : \n";
+    } else if (opsi == "Agama") {
+        cout << "\n\tAgama \n"
+             << "\t     [1] Islam        [3] Katolik     [5] Buddha    \n"
+             << "\t     [2] Kristen      [4] Hindu       [6] Konghuchu \n"
+             << "\t     : \n";
+    } else if (opsi == "Golongan Darah") {
+        cout << "\n\tGolongan Darah                                   \n"
+             << "\t     [1] A        [2] B        [3] AB        [4] O \n"
+             << "\t     : \n";
+
+    } else if (opsi == "Status Perkawinan") {
+        cout << "\n\tStatus \n"
+             << "\t     [1] Belum kawin   [2] Kawin   [3] Cerai hidup   [4] Cerai mati     \n"
+             << "\t     : \n";
+    } else if (opsi == "Status Hidup") {
+    }
+}
 
 /* ----------------------------------- FILE TXT ----------------------------------- */
 
