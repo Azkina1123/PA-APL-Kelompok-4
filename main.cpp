@@ -23,6 +23,7 @@ using namespace std;
 #define UNSIGNED 0
 #define FAIL 12
 #define SUCCESS 10
+#define MARKED 8
 
 // penyimpanan data
 #define STORAGE 1000
@@ -50,7 +51,7 @@ const string KELURAHAN[10][8] = {
     {"Karang Mumus", "Pelabuhan", "Pasar Pagi", "Bugis", "Sungai Pinang Luar"},
     {"Simpang Tiga", "Tani Aman", "Sengkotek", "Harapan Baru", "Rapak Dalam"}
 };
-
+const string HARI[] = {"Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"};
 
 struct Alamat {
     string jalan;
@@ -75,6 +76,8 @@ struct Penduduk{
     short int statusHidup = -1;
 };
 
+/*----------------------------------- PROTOTYPE -----------------------------------*/
+
 // data tersimpan
 Penduduk dataPenduduk[STORAGE];
 
@@ -86,6 +89,8 @@ void menuPenduduk(Penduduk penduduk);               // menu di akun penduduk
 Penduduk isiFormulirPenduduk(Penduduk penduduk);    // isi formulir penduduk
 bool cancelForm();
 void tampilkanData(Penduduk penduduk);              // tampilkan data
+Penduduk ubahDataDiri(Penduduk penduduk);
+int ubahKecamatan();
 
 // tampilan mode pemerintah
 void logInPemerintah();                             // log in pemerintah
@@ -93,11 +98,13 @@ void menuPemerintah();                              // menu di akun pemerintah
 void tampilkanDiagram();                            // tampilkan diagram data penduduk
 
 // diagram
+void diagramKecamatan();
 void diagramGender();                               // diagram berdasarkan gender
+void diagramStatusHidup();
 void diagramUsia();                                 // diagram berdasarkan usia
 void diagramAgama();                                // diagram berdasarkan agama
 void diagramGolDar();                               // diagram berdasarkan golongan darah
-void diagramStatusKawin();                               // diagram berdasarkna status
+void diagramStatusKawin();                          // diagram berdasarkna status
 
 // write & read txt
 void importFromTxt();                               // ambil semua data dari txt
@@ -108,6 +115,7 @@ void updateToTxt(Penduduk penduduk);                // ubah data tertentu di txt
 // sorting & searching
 int indexNIK(string nik);                           // cari index NIK
 void bubbleSortTanggal(const char* mode);           // sorting berdasarkan tanggal pembaruan
+int indexElemen(short int array[], int cari, int length);
 
 // tambahan
 void color(unsigned short warna);                   // ganti warna
@@ -115,17 +123,24 @@ void gotoxy(int x, int y);                          // ganti posisi
 tm *timeNow();                                      // waktu sekarang
 string hariIni();                                   // tanggal hari ini
 int random();                                       // angka random
-void clearBuffer();                                 // bersihkan buffer
+void clearCin();                                 // bersihkan buffer
 bool logInBerhasil(string nik, string password);    // memastikan nik dan pw benar
-bool isAngka(string str);                           // memastikan string diisi angka saja
 int banyakData();                                   // banyak data tersimpan
 void karakter(int ascii, int jumlah, int warna=7);  // dekorasi tampilan
 void diagram(int jumlah, unsigned int warna=7);     // batang diagram
 string alamatKecamatan(string alamat);              // kecamatan pada alamat
 bool formulirTerisi(Penduduk penduduk);             // cek apakah formulir sudah diisi
-bool isSpace(string str);
-void hapusTulisan();
+void hapusTulisan(int panjang=50);
+int banyakDataTerisi();
 
+// cek pengisian formulir
+bool isAngka(string str);                           // memastikan string diisi angka saja
+bool isSpace(string str);                           // memastrikan string diisi spasi saja
+bool isTanggal(int tanggal);
+bool isBulan(int bulan);
+bool isTahun(int tahun);
+bool isNIK(char nik[]);
+bool isTelp(string telp);
 
 /*----------------------------------- MAIN PROGRAM -----------------------------------*/
 
@@ -139,6 +154,8 @@ int main(){
         sign1, sign2, sign3;    // tanda
 
     while (running) {
+        importFromTxt(); // ambil data dari txt
+
         // tampilan ----------------------------------------
 
         // warna tanda saat memilih opsi
@@ -146,12 +163,11 @@ int main(){
         sign2 = (opsi2 == SELECT) ? 3 : 0;
         sign3 = (opsi3 == SELECT) ? 3 : 0;
 
-        system("cls");
-        gotoxy(0, 3);  cout << "\t"; karakter(177, 41, 9);  // taruh dekorasi
-        gotoxy(0, 17); cout << "\t"; karakter(177, 41, 9);  
-        gotoxy(0, 6);                                       // reset posisi
-                                    
-        importFromTxt();        // ambil data dari txt
+        system("cls"); cout << endl << endl;
+        cout << "\t"; karakter(177, 41, 9); gotoxy(0, 17); 
+        cout << "\t"; karakter(177, 41, 9);  
+        gotoxy(0, 5);                                       // reset posisi
+
 
         cout << "\t    PENDATAAN PENDUDUK KOTA SAMARINDA    \n\n";  // judul
         cout << "\t        Jalankan program sebagai :       \n\n";  
@@ -256,10 +272,10 @@ void menuMasukPenduduk() {
         sign2 = (opsi2 == SELECT) ? 3 : 0;
         sign3 = (opsi3 == SELECT) ? 3 : 0;
 
-        system("cls");
-        gotoxy(0, 3);  cout << "\t"; karakter(177, 41, 9);  // taruh dekorasi
-        gotoxy(0, 17); cout << "\t"; karakter(177, 41, 9);  
-        gotoxy(0, 6);                                       // reset posisi
+        system("cls"); cout << endl << endl;
+        cout << "\t"; karakter(177, 41, 9); gotoxy(0, 17); 
+        cout << "\t"; karakter(177, 41, 9);  
+        gotoxy(0, 5);                                     // reset posisi
 
         cout << "\t                PENDUDUK               \n\n";    // judul halaman
         cout << "\t              Pilih opsi :             \n\n";
@@ -345,10 +361,10 @@ void menuMasukPenduduk() {
 }
 
 void logInPenduduk() {
-    system("cls");
-    gotoxy(0, 3);  cout << "\t"; karakter(177, 41, 9);  // taruh dekorasi
-    gotoxy(0, 17); cout << "\t"; karakter(177, 41, 9);  
-    gotoxy(0, 6);                                       // reset posisi
+    system("cls"); cout << endl << endl;
+    cout << "\t"; karakter(177, 41, 9); gotoxy(0, 17); 
+    cout << "\t"; karakter(177, 41, 9);  
+    gotoxy(0, 5);                                      // reset posisi
 
     string nik, password;
 
@@ -376,16 +392,16 @@ void logInPenduduk() {
 }
 
 void signUpPenduduk() {
-    system("cls");
-    gotoxy(0, 3);  cout << "\t"; karakter(177, 41, 9);  // taruh dekorasi
-    gotoxy(0, 17); cout << "\t"; karakter(177, 41, 9);                         
-    gotoxy(0, 6);   // reset posisi
+    system("cls"); cout << endl << endl;
+    cout << "\t"; karakter(177, 41, 9); gotoxy(0, 17); 
+    cout << "\t"; karakter(177, 41, 9);  
+    gotoxy(0, 5); 
 
     Penduduk pendudukBaru;
 
     cout << "\t                  -*- SIGN UP PENDUDUK   \n\n" << endl;
     cout << "\t   Nama Lengkap : "; color(SELECT); getline(cin, pendudukBaru.namaLengkap); fflush(stdin); color(RESET);
-    cout << "\t   NIK          : "; color(SELECT); cin.get(pendudukBaru.nik, 17);          clearBuffer(); color(RESET);
+    cout << "\t   NIK          : "; color(SELECT); cin.get(pendudukBaru.nik, 17);          clearCin(); color(RESET);
     cout << "\t   Password     : "; color(SELECT); getline(cin, pendudukBaru.password);    fflush(stdin); color(RESET);
     cout << endl;
 
@@ -394,7 +410,7 @@ void signUpPenduduk() {
         color(FAIL); cout << "\t         NIK telah terdaftar!        \n\n" << endl;
     
     // gagal sign up - nik salah
-    } else if (!isAngka(pendudukBaru.nik)) {
+    } else if (!isNIK(pendudukBaru.nik)) {
         color(FAIL); cout << "\t    NIK yang dimasukkan tidak valid! \n\n" << endl;
 
     // gagal sign up - nama dikosongkan
@@ -438,9 +454,10 @@ void menuPenduduk(Penduduk penduduk) {
         sign3 = (opsi3 == SELECT) ? 3 : 0;
         sign4 = (opsi4 == SELECT) ? 3 : 0;
 
-        system("cls");
-        gotoxy(0, 3);  cout << "\t"; karakter(177, 12, 9); cout << "    PENDUDUK    "; karakter(177, 13, 9);   // taruh dekorasi
-        gotoxy(0, 17); cout << "\t"; karakter(177, 41, 9);  
+        system("cls"); cout << endl << endl;
+        cout << "\t"; karakter(177, 12, 9); 
+        cout << "    PENDUDUK    "; karakter(177, 13, 9); gotoxy(0, 17);    // taruh dekorasi
+        cout << "\t"; karakter(177, 41, 9);  
         gotoxy(0, 5);                        
 
         cout << "\n\t    Selamat datang, " << penduduk.namaLengkap << "! " << char(2)
@@ -456,7 +473,7 @@ void menuPenduduk(Penduduk penduduk) {
         // navigasi ----------------------------------------
 
         // pilih menu
-        char menu, pilih;
+        char menu, key;
         menu = getch();
 
         // menu tersedia
@@ -473,44 +490,41 @@ void menuPenduduk(Penduduk penduduk) {
                     penduduk = isiFormulirPenduduk(penduduk);    // buka halaman isi formulir
 
                 // tampilkan data diri
-                } else if (opsi2 == SELECT) {   
+                } else if (opsi3 == SELECT) {   
                     tampilkanData(penduduk);                // buka halaman tampilkan data diri
 
                 // ubah data diri
-                } else if (opsi3 == SELECT) {
-                                                            // buka halaman ubah data diri
+                } else if (opsi4 == SELECT) {
+                    penduduk = ubahDataDiri(penduduk);      // buka halaman ubah data diri
                 }
+
                 break;
 
             // tekan UP || DOWN
             case -32:
-                pilih = getch();
+                key = getch();
 
-                // pilih opsi 1
-                if (pilih == UP && opsi2 == SELECT) {
+                if (key == UP && opsi2 == SELECT) {
                     opsi1 = SELECT; 
                     opsi2 = UNSELECT; 
                 
-                // pilih opsi 2
                 } else if (
-                    pilih == DOWN && opsi1 == SELECT
-                    || pilih == UP && opsi3 == SELECT
+                    key == DOWN && opsi1 == SELECT ||
+                    key == UP && opsi3 == SELECT
                 ) {
                     opsi2 = SELECT; 
                     opsi1 = UNSELECT; 
                     opsi3 = UNSELECT; 
                 
-                // pilih opsi 3
                 } else if (
-                    pilih == DOWN && opsi2 == SELECT
-                    || pilih == UP && opsi4 == SELECT
+                    key == DOWN && opsi2 == SELECT ||
+                    key == UP && opsi4 == SELECT
                 ) {
                     opsi3 = SELECT; 
                     opsi2 = UNSELECT; 
                     opsi4 = UNSELECT;
                 
-                // pilih opsi 4
-                } else if (pilih == DOWN && opsi3 == SELECT) {
+                } else if (key == DOWN && opsi3 == SELECT) {
                     opsi4 = SELECT;
                     opsi3 = UNSELECT; 
                 }
@@ -524,25 +538,20 @@ void menuPenduduk(Penduduk penduduk) {
 
 Penduduk isiFormulirPenduduk(Penduduk penduduk) {
     bool openPage = true;
-    string warning = "";
-    
-    short int page = 1,
-              isiTgl = SIGNED,
-              isiBln = UNSIGNED,
-              isiThn = UNSIGNED;
+    short int page = 1;
 
     while (openPage) {
         system("cls");
-        cout << endl << endl << endl;
+        cout << endl << endl;
 
-        gotoxy(0, 3);  
-        cout << "\t"; karakter(177, 2, 9);
-        cout << " Formulir Biodata Penduduk "; karakter(177, 17, 9); // judul halaman
-        cout << endl << endl;           // notif peringatan
+        // judul halaman
+        cout << "\t"; karakter(177, 5, 9);
+        cout << "  Formulir Biodata Penduduk  "; karakter(177, 35, 9); 
+        cout << endl << endl;
         
         if (formulirTerisi(penduduk)){
             page = 0;
-            color(SUCCESS); cout << "\n\n\t    Anda telah mengisi formulir ini." << endl;
+            color(SUCCESS); cout << "\n\n\t\t\bAnda telah mengisi formulir ini." << endl;
         }
 
         // halaman 1
@@ -552,66 +561,70 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk) {
             cout << "\tNama Lengkap \t: " << penduduk.namaLengkap << endl;  // nama lengkap
             cout << "\tNIK \t\t: "        << penduduk.nik         << endl;  // NIK
             
+            // tempat tanggal lahir
             cout << "\n\tTempat/Tanggal Lahir" << endl;
-            cout << "  \t   Tempat    : \n";
+            cout << "  \t   Tempat    :   \n";
             color(8); cout << "\n\t   -- isi di bawah ini dengan angka   \n" << endl; color(7);
-            cout << "  \t   Tanggal   : \n";
-            cout << "  \t   Bulan     : \n";
-            cout << "  \t   Tahun     : \n";
+            cout << "  \t   Tanggal   : \n\n";
+            cout << "  \t   Bulan     : \n\n";
+            cout << "  \t   Tahun     :   \n";
             cout << "\n\tNo. Telepon\t: \n";
 
             color(SELECT);
             
+            // isi tempat
             string tempat;
             int tahunIni = timeNow()->tm_year + 1900;
 
             while (isSpace(tempat)) {
-                gotoxy(23, 9); hapusTulisan();
-                gotoxy(23, 9); color(SELECT); getline(cin, tempat); fflush(stdin);
+                gotoxy(23, 8); hapusTulisan();
+                gotoxy(23, 8); color(SELECT); getline(cin, tempat); fflush(stdin);
                 
             }
 
             cout << endl << endl << endl;
 
+            // isi tanggal, bulan, tahun
             short int jawaban[3], jarak = 0;
-            
             for (int i=0; i<3; i++) {
 
+                // selama pengisian sesuai syarat
                 while (true) {
-                    gotoxy(23, 13+jarak); hapusTulisan(); 
-                    gotoxy(23, 13+jarak); color(SELECT); cin >> jawaban[i];
+                    gotoxy(23, 12+jarak); hapusTulisan(); 
+                    gotoxy(23, 12+jarak); color(SELECT); cin >> jawaban[i];
 
                     if (
-                        !cin.fail() && 
-                        jawaban[i] > 0 &&
+                        !cin.fail() &&
                         (
-                            i == 0 && jawaban[i] <= 31 ||
-                            i == 1 && jawaban[i] <= 12 ||
-                            i == 2 && jawaban[i] >= 1920 && jawaban[i] <= tahunIni
+                            i == 0 && isTanggal(jawaban[i]) ||
+                            i == 1 && isBulan(jawaban[i])   ||
+                            i == 2 && isTahun(jawaban[i])
                         )
-                    ) { clearBuffer(); break; }
-                    clearBuffer();
+                    ) { clearCin(); break; }
+                    clearCin();
                 }
 
-                jarak += 1;
+                jarak += 2;
             }
 
+            // simpan ttl
             penduduk.ttl = tempat + ", " + to_string(jawaban[0]) + "-" 
                            + to_string(jawaban[1]) + "-" + to_string(jawaban[2]);
+            // simpan usia
             penduduk.usia = tahunIni - jawaban[2]; // usia
 
+            // isi nomor telepon
             string noTelp;
-            while (isSpace(noTelp) || !isAngka(noTelp)) {
-                gotoxy(26, 17); hapusTulisan(); 
-                gotoxy(26, 17); color(SELECT); getline(cin, noTelp); fflush(stdin);
+            while (!isTelp(noTelp)) {
+                gotoxy(26, 18); hapusTulisan(); 
+                gotoxy(26, 18); color(SELECT); getline(cin, noTelp); fflush(stdin);
             }
 
+            // simpan nomor telepon
             penduduk.telepon = noTelp;
             color(RESET); 
-
-            cout << endl << endl << endl << endl << endl << endl;
                 
-        // halaman 2
+
         } else if ( page == 2 ) {   // halaman 2
 
             // alamat
@@ -620,12 +633,11 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk) {
 
             cout << "\n\t-- isi dengan memilih angka pada opsi\n"; color(7);
             // kecamatan
-            cout << "\n\t   Kecamatan                                    "
-                 << "\n\t   [1] Palaran             [6] Sungai Kunjang   "
-                 << "\n\t   [2] Samarinda Seberang  [7] Sambutan         "
-                 << "\n\t   [3] Samarinda Ulu       [8] Sungai Pinang    "
-                 << "\n\t   [4] Samarinda Ilir      [9] Samarinda Kota   "
-                 << "\n\t   [5] Samarinda Utara     [10] Loa Janan Ilir  "
+            cout << "\n\t   Kecamatan                                   "
+                 << "\n\t   [1] Palaran             [5] Samarinda Utara    [9]  Samarinda Kota"
+                 << "\n\t   [2] Samarinda Seberang  [6] Sungai Kunjang     [10] Loa Janan Ilir"
+                 << "\n\t   [3] Samarinda Ulu       [7] Sambutan        "
+                 << "\n\t   [4] Samarinda Ilir      [8] Sungai Pinang   "
                  << "\n\t   : ";
 
             // var sementara
@@ -633,15 +645,15 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk) {
             short int noKec, noKel;
 
             while (isSpace(jalan)) {
-                gotoxy(22, 6); hapusTulisan(); 
-                gotoxy(22, 6); color(SELECT); getline(cin, jalan); fflush(stdin);
+                gotoxy(22, 5); hapusTulisan(); 
+                gotoxy(22, 5); color(SELECT); getline(cin, jalan); fflush(stdin);
             }
 
             while (true) {
-                gotoxy(13, 16); hapusTulisan(); 
-                gotoxy(13, 16); color(SELECT); cin >> noKec;
-                if (!cin.fail() && noKec > 0 && noKec <= 10) { clearBuffer(); break; }
-                hapusTulisan; clearBuffer();
+                gotoxy(13, 14); hapusTulisan(); 
+                gotoxy(13, 14); color(SELECT); cin >> noKec;
+                if (!cin.fail() && noKec > 0 && noKec <= 10) { clearCin(); break; }
+                hapusTulisan; clearCin();
             }
 
             color(RESET);
@@ -649,91 +661,80 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk) {
             // kelurahan
             if (noKec == 1) {           // palaran
                 cout << "\n\t   Kelurahan                                   "
-                     << "\n\t   [1] Rawa Makmur         [5] Bantuas         "
-                     << "\n\t   [2] Handil Bakti                            "
+                     << "\n\t   [1] Rawa Makmur         [4] Simpang Pasir   "
+                     << "\n\t   [2] Handil Bakti        [5] Bantuas         "
                      << "\n\t   [3] Bukuan                                  "
-                     << "\n\t   [4] Simpang Pasir                           "
                      << "\n\t   : ";
 
             } else if (noKec == 2) {    // samarinda seberang
                 cout << "\n\t   Kelurahan                                   "
-                     << "\n\t   [1] Sungai Keledang     [5] Gunung Panjang  "
-                     << "\n\t   [2] Baqa                                    "
+                     << "\n\t   [1] Sungai Keledang     [4] Mangkupalas     "
+                     << "\n\t   [2] Baqa                [5] Gunung Panjang  "
                      << "\n\t   [3] Mesjid                                  "
-                     << "\n\t   [4] Mangkupalas                             "
                      << "\n\t   : ";
 
             } else if (noKec == 3) {    // samarinda ulu
                 cout << "\n\t   Kelurahan                                   "
-                     << "\n\t   [1] Teluk Lerong Ilir   [5] Air Hitam       "
-                     << "\n\t   [2] Jawa                [6] Dadi Mulya      "
-                     << "\n\t   [3] Air Putih           [7] Gunung Kelua    "
-                     << "\n\t   [4] Sidodadi            [8] Bukit Pinang    "
-                     << "\n\t   : ";
+                    << "\n\t   [1] Teluk Lerong Ilir    [4] Sidodadi          [7] Gunung Kelua "
+                    << "\n\t   [2] Jawa                 [5] Air Hitam         [8] Bukit Pinang "
+                    << "\n\t   [3] Air Putih            [6] Dadi Mulya       "
+                    << "\n\t   : ";
 
 
             } else if (noKec == 4) {    // samarinda ilir
                 cout << "\n\t   Kelurahan                                   "
-                     << "\n\t   [1] Selili              [5] Pelita          "
-                     << "\n\t   [2] Sungai Dama                             "
+                     << "\n\t   [1] Selili              [4] Sidodamai       "
+                     << "\n\t   [2] Sungai Dama         [5] Pelita          "
                      << "\n\t   [3] Sidomulyo                               "
-                     << "\n\t   [4] Sidodamai                               "
                      << "\n\t   : ";
-
 
             } else if (noKec == 5) {    // samarinda utara
                 cout << "\n\t   Kelurahan                                   "
-                     << "\n\t   [1] Sempaja Selatan     [5] Tanah Merah     "
-                     << "\n\t   [2] Lempake             [6] Sempaja Barat   "   
-                     << "\n\t   [3] Sungai Siring       [7] Sempaja Timur   "
-                     << "\n\t   [4] Sempaja Utara       [8] Budaya Pampang  "
-                     << "\n\t   : ";
+                     << "\n\t   [1] Sempaja Selatan     [4] Sempaja Utara     [7] Sempaja Timur"
+                     << "\n\t   [2] Lempake             [5] Tanah Merah       [8] Budaya Pampang"   
+                     << "\n\t   [3] Sungai Siring       [6] Sempaja Barat   "
+                     << "\n\t   : "; 
 
             } else if (noKec == 6) {    // sungai kunjang
                 cout << "\n\t   Kelurahan                                   "
-                     << "\n\t   [1] Loa Bakung          [5] Teluk Lerong Ulu"
-                     << "\n\t   [2] Loa Buah            [6] Karang Asam Ilir"   
-                     << "\n\t   [3] Karang Asam Ulu     [7] Karang Anyar    "
-                     << "\n\t   [4] Lok Bahu                                "
-                     << "\n\t   : ";
+                     << "\n\t   [1] Loa Bakung          [4] Lok Bahu          [6] Karang Asam "
+                     << "\n\t   [2] Loa Buah            [5] Telok Lerong          Ilir        "   
+                     << "\n\t   [3] Karang Asam Ulu         Ulu               [7] Karang Anyar"
+                     << "\n\t   : "; 
 
             } else if (noKec == 7) {    // sambutan
                 cout << "\n\t   Kelurahan                                   "
-                     << "\n\t   [1] Sungai Kapih        [5] Pulau Atas      "
-                     << "\n\t   [2] Sambutan                                "
+                     << "\n\t   [1] Sungai Kapih        [4] Sindang Sari    "
+                     << "\n\t   [2] Sambutan            [5] Pulau Atas      "
                      << "\n\t   [3] Makroman                                "
-                     << "\n\t   [4] Sindang Sari                            "
                      << "\n\t   : ";
 
             } else if (noKec == 8) {    // sungai pinang
                 cout << "\n\t   Kelurahan                                   "
-                     << "\n\t   [1] Temindung Permai    [5] Bandara         "
-                     << "\n\t   [2] Sungai Pinang Dalam                     "
-                     << "\n\t   [3] Gunung Lingai                           "
-                     << "\n\t   [4] Mugirejo                                "
+                     << "\n\t   [1] Temindung Permai    [3] Gunung Lingai   "
+                     << "\n\t   [2] Sungai Pinang       [4] Mugirejo        "
+                     << "\n\t       Dalam               [5] Bandara         "
                      << "\n\t   : ";
 
             } else if (noKec == 9) {    // samarinda kota
                 cout << "\n\t   Kelurahan                                   "
-                     << "\n\t   [1] Karang Mumus        [5] Sungai Pinang   "
-                     << "\n\t   [2] Pelabuhan               Luar            "
-                     << "\n\t   [3] Pasar Pagi                              "
-                     << "\n\t   [4] Bugis                                   "
+                     << "\n\t   [1] Karang Mumus        [4] Bugis           "
+                     << "\n\t   [2] Pelabuhan           [5] Sungai Pinang   "
+                     << "\n\t   [3] Pasar Pagi              Luar            "
                      << "\n\t   : ";
 
             } else if (noKec == 10) {   // loa janan ilir
                 cout << "\n\t   Kelurahan                                   "
-                     << "\n\t   [1] Simpang Tiga        [5] Rapak Dalam     "
-                     << "\n\t   [2] Tani Aman                               "
+                     << "\n\t   [1] Simpang Tiga        [4] Harapan Baru    "
+                     << "\n\t   [2] Tani Aman           [5] Rapak Dalam     "
                      << "\n\t   [3] Sengkotek                               "
-                     << "\n\t   [4] Harapan Baru                            "
                      << "\n\t   : ";
 
             }
             
             while (true) {
-                gotoxy(13, 23); hapusTulisan(); 
-                gotoxy(13, 23); color(SELECT); cin >> noKel;
+                gotoxy(13, 20); hapusTulisan(); 
+                gotoxy(13, 20); color(SELECT); cin >> noKel;
 
                 if (
                     !cin.fail() && 
@@ -750,9 +751,9 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk) {
                         noKec == 9 && noKel <= 5 ||
                         noKec == 10 && noKel <= 5
                     ) 
-                ) { clearBuffer(); break; }
+                ) { clearCin(); break; }
 
-                hapusTulisan; clearBuffer();
+                hapusTulisan; clearCin();
             }
 
             penduduk.alamat.jalan = jalan;
@@ -763,22 +764,20 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk) {
         } else if ( page == 3 ) {   // halaman 3
 
             cout << "\tJenis Kelamin \n"       
-                 << "\t     [1] Laki-laki     [2] Perempuan          \n"   
+                 << "\t     [1] Laki-laki          [2] Perempuan          \n"   
                  << "\t     : \n"; 
 
             cout << "\n\tAgama \n"
-                << "\t     [1] Islam     [3] Katolik   [5] Buddha    \n"
-                << "\t     [2] Kristen   [4] Hindu     [6] Konghuchu \n"
+                << "\t     [1] Islam        [3] Katolik     [5] Buddha    \n"
+                << "\t     [2] Kristen      [4] Hindu       [6] Konghuchu \n"
                 << "\t     : \n";
 
-            cout << "\n\tGolongan Darah                              \n"
-                 << "\t     [1] A         [3] AB                     \n"
-                 << "\t     [2] B         [4] O                      \n"
+            cout << "\n\tGolongan Darah                                   \n"
+                 << "\t     [1] A        [2] B        [3] AB        [4] O \n"
                  << "\t     : \n";
 
             cout << "\n\tStatus \n"
-                << "\t     [1] Belum kawin    [3] Cerai hidup       \n"
-                << "\t     [2] Kawin          [4] Cerai mati        \n"
+                << "\t     [1] Belum kawin   [2] Kawin   [3] Cerai hidup   [4] Cerai mati     \n"
                 << "\t     : \n";
 
             color(SELECT);
@@ -787,8 +786,8 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk) {
             int jarak = 0;
             for (int i=0; i<4; i++) {
                 while (true) {
-                    gotoxy(15, 7+jarak); hapusTulisan(); 
-                    gotoxy(15, 7+jarak); color(SELECT); cin >> jawaban[i];
+                    gotoxy(15, 6+jarak); hapusTulisan(); 
+                    gotoxy(15, 6+jarak); color(SELECT); cin >> jawaban[i];
 
                     if (
                         !cin.fail() && 
@@ -799,12 +798,13 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk) {
                             i == 2 && jawaban[i] <= 4 ||
                             i == 3 && jawaban[i] <= 4
                         )
-                    ) { clearBuffer(); break; }
+                    ) { clearCin(); break; }
 
-                    clearBuffer();
+                    clearCin();
                 }
 
-                jarak += 5;
+                if (i == 0) { jarak += 5; }
+                else { jarak += 4; }
             }
 
             penduduk.gender = jawaban[0]-1;
@@ -819,11 +819,14 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk) {
 
         }
 
-        gotoxy(0, 27);
+        gotoxy(0, 23);
         color(SELECT); cout << "\t<= Keluar                       "; 
-        if (page == 1 || page == 2) { cout << "Berikutnya =>"; }
+        if (page == 1 || page == 2) { cout << "  Lanjutkan =>     "; }
 
         color(RESET); cout << endl << endl;
+
+
+        // navigasi ----------------------------------------
         
         char opsi, key;
         opsi = getch();
@@ -833,7 +836,11 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk) {
 
             if (key == LEFT) {
 
-                if (!formulirTerisi(penduduk) && cancelForm()) {
+                
+                if (
+                    !formulirTerisi(penduduk) && cancelForm() || // keluar saat belum selesai isi
+                    formulirTerisi(penduduk)                     // keluar saat sudah selesai isi
+                ) {
                     openPage = false;
                     break;
 
@@ -847,9 +854,7 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk) {
                 page = 3;
 
             }
-        }   
-        
-        warning = "";
+        }  
 
     }
 
@@ -866,35 +871,33 @@ bool cancelForm() {
         tidak1 = (ya1 == 0) ? 3 : 0;
         tidak2 = (ya2 == UNSELECT) ? SELECT : UNSELECT;
 
-        gotoxy(8, 10);
+        // batas atas
+        gotoxy(15, 8);
         for (int i=0; i<32; i++) {
-            if (i%2 == 0) {
-                karakter(177, 2, 9);
-            } else {
-                cout << " ";
-            }
+            if (i%2 == 0) { karakter(177, 2, 9); } 
+            else          { cout << " "; }
         }
 
-        gotoxy(8, 18);
+        // batas bawah
+        gotoxy(15, 16);
         for (int i=0; i<32; i++) {
-            if (i%2 == 0) {
-                karakter(177, 2, 9);
-            } else {
-                cout << " ";
-            }
+            if (i%2 == 0) { karakter(177, 2, 9); } 
+            else          { cout << " "; }
         }
-        color(7);
-        gotoxy(8, 9); cout << "-----------------------------------------------";
-        gotoxy(8, 11); cout << "|                                             |";
-        gotoxy(8, 12); cout << "|     Keluar saat ini tidak akan menyimpan    |";
-        gotoxy(8, 13); cout << "|          data yang telah Anda isi.          |";
-        gotoxy(8, 14); cout << "|                                             |";
-        gotoxy(8, 15); cout << "|       Apakah Anda yakin ingin keluar?       |";
-        gotoxy(8, 16); cout << "|                                             |";
-        gotoxy(19, 16); color(ya1);    cout << char(16); color(ya2);    cout << " Ya";
-        gotoxy(35, 16); color(tidak1); cout << char(16); color(tidak2); cout << " Tidak";
-        gotoxy(8, 17); cout << "|                                             |";
-        gotoxy(8, 19); cout << "-----------------------------------------------";
+
+        color(RESET); gotoxy(15, 7);  
+        cout << "-----------------------------------------------\n\t\t";
+        cout << "|                                             |\n\t\t";
+        cout << "|     Keluar saat ini tidak akan menyimpan    |\n\t\t";
+        cout << "|          data yang telah Anda isi.          |\n\t\t";
+        cout << "|                                             |\n\t\t";
+        cout << "|       Apakah Anda yakin ingin keluar?       |\n\t\t";
+        cout << "|                                             |\n\t\t";
+        cout << "|                                             |\n\t\t";
+        cout << "-----------------------------------------------\n\t\t";
+
+        gotoxy(28, 14); color(ya1);    cout << char(16); color(ya2);    cout << " Ya";
+        gotoxy(40, 14); color(tidak1); cout << char(16); color(tidak2); cout << " Tidak";
 
         gotoxy(0, 22);
         color(RESET); cout << endl << endl;
@@ -907,12 +910,12 @@ bool cancelForm() {
             // tekan enter
             case ENTER:
 
-                // batal hapus
+                // tidak
                 if (tidak2 == SELECT) {
                     openNotif = false;
                     break;
 
-                // benar hapus
+                // ya
                 } else if (ya2 == SELECT) {
                     return true;
                 }
@@ -943,24 +946,292 @@ bool cancelForm() {
 }
 
 
+// belom selese
 void tampilkanData(Penduduk penduduk) {
     system("cls");
     cout << "Gender " << GENDER[penduduk.gender] << endl; 
     cout << "Agama " << AGAMA[penduduk.agama] << endl; 
     cout << "GolDar " << GOLDAR[penduduk.golDar] << endl; 
     cout << "Status " << STATUSKAWIN[penduduk.statusKawin] << endl; 
+    cout << "Kec " << KECAMATAN[penduduk.alamat.kecamatan] << penduduk.alamat.kecamatan << endl; 
+    
     getch();   
+}
+
+Penduduk ubahDataDiri(Penduduk penduduk) {
+    bool openPage = true,
+         editing = false;
+    short int index,
+              warna[11] = {
+                  SELECT, UNSELECT, UNSELECT, UNSELECT, UNSELECT,
+                  UNSELECT, UNSELECT, UNSELECT, UNSELECT, UNSELECT,
+                  UNSELECT
+              },
+              sign[11] = {
+                  SIGNED, UNSIGNED, UNSIGNED, UNSIGNED, UNSIGNED,
+                  UNSIGNED, UNSIGNED, UNSIGNED, UNSIGNED, UNSIGNED,
+                  UNSIGNED
+              };
+
+    string opsi[11] = {
+        "Nama Lengkap", "NIK",    "Password", "Tempat, Tanggal Lahir", "Jenis Kelamin", 
+        "Telepon",      "Alamat", "Agama",    "Golongan Darah",        "Status Perkawinan",
+        "Kembali"
+    };
+
+    while (openPage) {
+        string dataStr[] = {
+            penduduk.namaLengkap,                                               // 0
+            penduduk.nik,                                                       // 1
+            penduduk.password,                                                  // 2
+            penduduk.ttl,                                                       // 3
+            GENDER[penduduk.gender],                                            // 4
+            penduduk.telepon,                                                   // 5
+            penduduk.alamat.jalan,                                              // 6
+            KELURAHAN[penduduk.alamat.kecamatan][penduduk.alamat.kelurahan],    // 7
+            KECAMATAN[penduduk.alamat.kecamatan],                               // 8
+            AGAMA[penduduk.agama],                                              // 9 
+            GOLDAR[penduduk.golDar],                                            // 10
+            STATUSKAWIN[penduduk.statusKawin]                                   // 11
+        };
+
+        system("cls");
+        cout << endl << endl;
+
+        // judul halaman
+        cout << "\t"; karakter(177, 5, 9);
+        cout << "  Mengubah Biodata Diri  "; karakter(177, 40, 9); 
+
+        if (!formulirTerisi(penduduk)) {
+            color(14); cout << "\n\n\t\t\bHarap isi formulir terlebih dahulu." << endl;
+            goto kembali;
+        }
+
+        // tampilkan opsi data yg ingin diubah
+        for (int i=0; i<10; i++) {
+
+            if (i == 0 || i == 5) { gotoxy(0, 3); }
+
+            if (i < 5) { cout << "\n\n\t\t"; }
+            else       { cout << "\n\n\t\t\t\t\t\t"; }
+
+            color(sign[i]);  cout << char(16) << " "; 
+            color(warna[i]); cout << opsi[i];
+
+        }
+        
+        color(8);
+        cout << "\n\n\t\t\t"
+             << "[Tekan ENTER untuk mengubah data]" 
+             << endl << endl; color(RESET);
+
+        // jika sedang tidak mengedit
+        if (!editing) {
+
+            // tampilkan isian data yg ingin diubah
+            for (int i=0; i<10; i++) {
+                
+                // jika ditunjuk
+                if (warna[i] == SELECT || sign[i] == MARKED) {
+
+                    // alamat
+                    if (i == 6) {
+                        cout << "\n\t\t Jalan       \t: " << dataStr[6]
+                             << "\n\t\t Kelurahan   \t: " << dataStr[7]
+                             << "\n\t\t Kecamatan   \t: " << dataStr[8];
+
+                    // 
+                    } else if (i > 6) {
+                        cout << "\n\t\t " << opsi[i] << " \t: " << dataStr[i+2];
+
+                    } else {
+                        cout << "\n\t\t " << opsi[i] << " \t: " << dataStr[i];
+
+                    } // end if
+                    
+                } // end if
+
+            }
+
+        } else {
+
+            // ketika mengisi data
+            string isiStr; int isiInt;
+
+            // ganti tempat tanggal lahir
+            if (index == 3) {
+
+                cout << "\n\t\t Tempat   \t: ";
+
+                // isi tempat
+                while (isSpace(isiStr)) {
+                    gotoxy(34, 5); hapusTulisan;
+                    gotoxy(34, 5); getline(cin, isiStr); fflush(stdin);
+                }
+
+                string keterangan[3] = {"Tanggal", "Bulan", "Tahun"};
+                int jawaban[3],
+                    jarak = 0;
+
+                // isi tanggal, bulan, tahun
+                for (int i=0; i<3; i++) {
+                    cout << "\n\t\t " << keterangan[i] << "   \t: ";
+
+                    while (true) {
+                        gotoxy(34, 5+jarak); hapusTulisan;
+                        gotoxy(34, 5+jarak); cin >> isiInt; 
+
+                        // jika isi telah benar, berhenti isi
+                        if (
+                            !cin.fail() && 
+                            jawaban[i] > 0 &&
+                            (
+                                i == 0 && isTanggal(jawaban[i]) ||
+                                i == 1 && isBulan(jawaban[i])   ||
+                                i == 2 && isTahun(jawaban[i])
+                            )
+                        ) { clearCin(); break; }
+
+                    }
+
+                        jarak++;
+
+                }
+
+                // simpan ttl
+                penduduk.ttl = isiStr + ", "                    // tempat
+                                + to_string(jawaban[0]) + "-"   // tanggal
+                                + to_string(jawaban[1]) + "-"   // bulan
+                                + to_string(jawaban[2]);        // tahun
+
+                int tahunIni = timeNow()->tm_year + 1900;
+                penduduk.usia = tahunIni - jawaban[2];
+
+            // isi alamat
+            } else if (index == 6) {
+
+                while(isSpace(isiStr)) {
+                    gotoxy(34, 20); hapusTulisan();
+                    gotoxy(34, 20); getline(cin, isiStr); fflush(stdin);
+                }
+
+                penduduk.alamat.kecamatan = ubahKecamatan();
+
+            } else if (index > 6) {
+                cout << "\n\t\t " << opsi[index] << " \t: " << dataStr[index+2];
+
+            } else {
+                cout << "\n\t\t " << opsi[index] << " \t: " << dataStr[index];
+
+            }
+        }
+
+        kembali:
+        gotoxy(0, 23);
+
+        color(warna[10]); cout << "\tKembali" << endl;
+        color(sign[10]);  cout << "\t  <=   " << endl;
+
+        cout << endl << endl; color(RESET);
+        
+        // pilih opsi
+        char opsi, key;
+        opsi = getch();
+
+        switch (opsi) {
+
+            case ENTER:
+
+                index = indexElemen(warna, SELECT, 11);
+                warna[index] = UNSELECT;
+                sign[index] = MARKED;
+                editing = true;
+
+                break;
+
+            case -32:
+            key = getch();
+
+            index = indexElemen(warna, SELECT, 11);
+
+
+            if (key == DOWN && index+1 <= 10) {
+                warna[index] = UNSELECT;
+                sign[index]  = UNSIGNED;
+
+                if (index == 4) { index += 6; }
+                else            { index += 1; }
+
+            } else if (key == RIGHT && index+5 < 10) {
+                warna[index] = UNSELECT;
+                sign[index]  = UNSIGNED;
+
+                index += 5;
+            
+            } else if (key == UP && index-1 >= 0) {
+                warna[index] = UNSELECT;
+                sign[index]  = UNSIGNED;
+
+                if (index == 10) { index -= 6; }
+                else             { index -= 1; }
+
+            } else if (key == LEFT && index-5 >= 0) {
+                if (index == 10) { openPage = false; break; }
+
+                warna[index] = UNSELECT;
+                sign[index]  = UNSIGNED;
+
+                index -= 5;
+            }
+            
+            warna[index] = SELECT;
+            sign[index] = SIGNED;
+        
+        } // end switch
+
+    }
+
+    return penduduk;
+}
+
+int ubahKecamatan() {
+    gotoxy(0, 7);
+    cout << "\n\t\t"
+         << "- = - = - = - = - = - = - = - = - = - = - = - = - = -\n\t\t"
+         << "|                                                   |\n\t\t"
+         << "|   Kecamatan                                       |\n\t\t"
+         << "|   [1] Palaran               [6] Sungai Kunjang    |\n\t\t"
+         << "|   [2] Samarinda Seberang    [7] Sambutan          |\n\t\t"
+         << "|   [3] Samarinda Ulu         [8] Sungai Pinang     |\n\t\t"
+         << "|   [4] Samarinda Ilir        [9]  Samarinda Kota   |\n\t\t"
+         << "|   [5] Samarinda Utara       [10] Loa Janan Ilir   |\n\t\t"
+         << "|   :                                               |\n\t\t"
+         << "|                                                   |\n\t\t"
+         << "- = - = - = - = - = - = - = - = - = - = - = - = - = -\n\t\t";
+
+    int kecamatan;
+    while (true) {
+        gotoxy(22, 16); hapusTulisan(30);
+        gotoxy(22, 16); cin >> kecamatan;
+
+        if (!cin.fail() && kecamatan > 0 && kecamatan <= 10) {
+            break;
+        }
+    }
+
+    return kecamatan;
 }
 
 
 // pemerintah :::::::::::::::::::::::::::::::::::::
 void logInPemerintah() {
-    system("cls");
-    gotoxy(0, 3);  cout << "\t"; karakter(177, 41, 9);  // taruh dekorasi
-    gotoxy(0, 17); cout << "\t"; karakter(177, 41, 9);  
-    gotoxy(0, 6);                        
-
-    cout << "\n\t  LOGIN PEMERINTAH -*-\n\n" << endl;   // judul
+    system("cls"); cout << endl << endl;
+    cout << "\t"; karakter(177, 41, 9); gotoxy(0, 17); 
+    cout << "\t"; karakter(177, 41, 9);  
+    gotoxy(0, 5);                                      // reset posisi
+                        
+ 
+    cout << "\t   LOGIN PEMERINTAH -*-  \n\n" << endl;   // judul
 
     // masukkan username dan password
     string username, password;
@@ -1008,7 +1279,7 @@ void menuPemerintah() {
         sign5 = (opsi5 == SELECT) ? 3 : 0;
 
         system("cls");
-        gotoxy(0, 3);  cout << "\t"; karakter(177, 12, 9); cout << "    PEMERINTAH    "; karakter(177, 13, 9);   // taruh dekorasi
+        gotoxy(0, 2);  cout << "\t"; karakter(177, 12, 9); cout << "    PEMERINTAH    "; karakter(177, 13, 9);   // taruh dekorasi
         gotoxy(0, 17); cout << "\t"; karakter(177, 41, 9);  
         gotoxy(0, 5);                       
 
@@ -1120,80 +1391,169 @@ void menuPemerintah() {
 void tampilkanDiagram() {
 
     // default
-    bool looping = true;
+    bool openPage = true;
     string kategori = "Jenis Kelamin";
-    int page = 1;
+    short int kec1    = SELECT,   kec2    = SIGNED,  // kecamatan
+              hidup1  = UNSELECT, hidup2  = UNSIGNED,  
+              gender1 = UNSELECT, gender2 = UNSIGNED,  
+              usia1   = UNSELECT, usia2   = UNSIGNED,  
+              agama1  = UNSELECT, agama2  = UNSIGNED, 
+              golDar1 = UNSELECT, golDar2 = UNSIGNED,  
+              kawin1  = UNSELECT, kawin2  = UNSIGNED,  
+              nav1    = UNSELECT, nav2    = UNSIGNED;
 
-    while (looping) {
+    while (openPage) {
         system("cls");
-        cout << endl << endl << endl;
+        cout << endl << endl;
 
-        cout << "\t         HASIL PENDATAAN PENDUDUK    \n\n";  // judul
-        cout << "\t" << kategori << endl << endl;               // kategori diagram
+        // judul halaman
+        cout << "\t"; karakter(177, 5, 9);
+        cout << "  Diagram Data Penduduk  "; karakter(177, 40, 9); 
+        cout << endl << endl;
 
-        if (page == 1) {            // berdasarkan gender
-            diagramGender();
+        // kategori diagram  
+        cout << "\t"   ; color(kec2);    cout << char(16); color(kec1);    cout << " Kecamatan";        
+        cout << "     "; color(hidup2);  cout << char(16); color(hidup1);  cout << " Status Hidup ";        
+        cout << "     "; color(gender2); cout << char(16); color(gender1); cout << " Jenis Kelamin";    
+        cout << "\t   "; color(usia2);   cout << char(16); color(usia1);   cout << " Usia";             
+        cout << "\n\t" ; color(agama2);  cout << char(16); color(agama1);  cout << " Agama";            
+        cout << "\t\t" ; color(golDar2); cout << char(16); color(golDar1); cout << " Golongan Darah";   
+        cout << "    " ; color(kawin2);  cout << char(16); color(kawin1);  cout << " Status Perkawinan";
+        color(RESET); cout << endl << endl; 
 
-        } else if (page == 2) {     // berdasarkan usia
-            diagramUsia();
+        if (banyakDataTerisi() == 0) {
+            color(14); 
+            cout << endl << endl
+                 << "\t\t\tBelum ada data penduduk yang tersimpan" << endl;
+        
+        } else {
 
-        } else if (page == 3) {     // berdasarkan agama
-            diagramAgama();
+            if      (kec1    == SELECT || kec2    == MARKED) { diagramKecamatan(); } 
+            else if (hidup1  == SELECT || hidup2  == MARKED) { diagramStatusHidup(); } 
+            else if (gender1 == SELECT || gender2 == MARKED) { diagramGender(); } 
+            else if (usia1   == SELECT || usia2   == MARKED) { diagramUsia(); } 
+            else if (agama1  == SELECT || agama2  == MARKED) { diagramAgama(); } 
+            else if (golDar1 == SELECT || golDar2 == MARKED) { diagramGolDar(); } 
+            else if (kawin1  == SELECT || kawin2  == MARKED) { diagramStatusKawin(); }
 
-        } else if (page == 4) {     // berdasarkan golongan darah
-            diagramGolDar();
-
-        } else if (page == 5) {     // berdasarkan status
-            diagramStatusKawin();
         }
+
+        gotoxy(0, 18); color(RESET);    // reset posisi dan warna
+        // data tersimpan 
+        cout << "\tPenduduk terdaftar     : " << banyakData()       << endl
+             << "\tPenduduk terverifikasi : " << banyakDataTerisi() << endl << endl << endl;
         
         // ganti halaman
-        color(SELECT); 
-        cout << "\n\t<= Kembali                     "; 
-        if (page >= 1 && page < 5) { cout << "Berikutnya =>"; } color(7);
+        color(nav1); cout << "\tKembali\n";
+        color(nav2); cout << "\t  <=   ";
+        color(RESET); cout << endl << endl << endl;
 
-        cout << endl << endl << endl;
 
-        // intruksi 
-        char opsi, pilih;
+        // navigasi ----------------------------------------
+ 
+        char opsi, key;
         opsi = getch();
 
         if (opsi == -32) {
-            pilih = getch();
+            key = getch();
 
             // kembali ke menu
-            if (pilih == LEFT && page == 1) {
-                looping = false;
-                break;
-
-            // ke diagram selanjutnya - jenis kelamin
-            } else if (pilih == LEFT && page == 2) {
-                page = 1; kategori = "Jenis Kelamin";
-
-            // ke diagram selanjutnya - usia
-            } else if (
-                pilih == RIGHT && page == 1 || 
-                pilih == LEFT && page == 3
+            if (
+                key == LEFT && hidup1 == SELECT ||
+                key == UP   && agama1 == SELECT
             ) {
-                page = 2; kategori = "Usia";
+                kec1   = SELECT;   kec2   = SIGNED;
+                hidup1 = UNSELECT; hidup2 = UNSIGNED;
+                agama1 = UNSELECT; agama2 = UNSIGNED;
 
-            // ke diagram selanjutnya - agama
+            // status hidup
             } else if (
-                pilih == RIGHT && page == 2 || 
-                pilih == LEFT && page == 4
+                key == RIGHT && kec1    == SELECT || 
+                key == LEFT  && gender1 == SELECT ||
+                key == UP    && golDar1 == SELECT
             ) {
-                page = 3; kategori = "Agama";
+                hidup1  = SELECT;   hidup2  = SIGNED;
+                kec1    = UNSELECT; kec2    = UNSIGNED;
+                gender1 = UNSELECT; gender2 = UNSIGNED;
+                golDar1 = UNSELECT; golDar2 = UNSIGNED;
 
-            // ke diagram selanjutnya - golongan darah
+            // jenis kelamin
             } else if (
-                pilih == RIGHT && page == 3 || 
-                pilih == LEFT && page == 5
+                key == RIGHT && hidup1 == SELECT || 
+                key == LEFT  && usia1  == SELECT ||
+                key == UP    && kawin1 == SELECT
             ) {
-                page = 4; kategori = "Golongan Darah";
+                gender1 = SELECT;   gender2 = SIGNED;
+                hidup1  = UNSELECT; hidup2  = UNSIGNED;
+                usia1   = UNSELECT; usia2   = UNSIGNED;
+                kawin1  = UNSELECT; kawin2  = UNSIGNED;
+
+            // usia
+            } else if (
+                key == RIGHT && gender1 == SELECT || 
+                key == RIGHT && kawin1  == SELECT
+            ) {
+                usia1 = SELECT;     usia2   = SIGNED;
+                gender1 = UNSELECT; gender2 = UNSIGNED;
+                kawin1 = UNSELECT;  kawin2  = UNSIGNED;
         
-            // ke diagram selanjutnya - status
-            } else if (pilih == RIGHT && page == 4) {
-                page = 5; kategori = "Status";
+            // agama
+            } else if (
+                key == DOWN && kec1    == SELECT ||
+                key == LEFT && golDar1 == SELECT ||
+                key == UP   && nav1    == SELECT && agama2 == MARKED
+            ) {
+                agama1  = SELECT;   agama2  = SIGNED;
+                kec1    = UNSELECT; kec2    = UNSIGNED;
+                golDar1 = UNSELECT; golDar2 = UNSIGNED;
+                nav1    = UNSELECT; nav2    = UNSIGNED;
+
+            // golongan darah
+            } else if (
+                key == DOWN  && hidup1 == SELECT ||
+                key == LEFT  && kawin1 == SELECT ||
+                key == RIGHT && agama1 == SELECT ||
+                key == UP    && nav1   == SELECT && golDar2 == MARKED
+            ) {
+                golDar1 = SELECT;   golDar2 = SIGNED;
+                hidup1  = UNSELECT; hidup2  = UNSIGNED;
+                kawin1  = UNSELECT; kawin2  = UNSIGNED;
+                agama1  = UNSELECT; agama2  = UNSIGNED;
+                nav1    = UNSELECT; nav2    = UNSIGNED;
+
+            // status kawin
+            } else if (
+                key == DOWN  && gender1 == SELECT ||
+                key == DOWN  && usia1   == SELECT ||
+                key == RIGHT && golDar1 == SELECT ||
+                key == UP    && nav1    == SELECT && kawin2 == MARKED 
+            ) {
+                kawin1  = SELECT;   kawin2  = SIGNED;
+                gender1 = UNSELECT; gender2 = UNSIGNED;
+                usia1   = UNSELECT; usia2   = UNSIGNED;
+                golDar1 = UNSELECT; golDar2 = UNSIGNED;
+                nav1    = UNSELECT; nav2    = UNSIGNED;
+
+            // navigasi
+            } else if (
+                key == DOWN && agama1  == SELECT ||
+                key == DOWN && golDar1 == SELECT ||
+                key == DOWN && kawin1  == SELECT 
+            ) {
+                if      (agama1  == SELECT) { agama2  = MARKED; }
+                else if (golDar1 == SELECT) { golDar2 = MARKED; }
+                else if (kawin1  == SELECT) { kawin2  = MARKED; }
+                
+                nav1    = SELECT; nav2 = SIGNED;
+                agama1  = UNSELECT; 
+                golDar1 = UNSELECT; 
+                kawin1  = UNSELECT;
+
+            } else if (
+                key == LEFT && nav1 == SELECT
+            ) {
+                openPage = false;
+                break;
 
             } // end if 
 
@@ -1203,283 +1563,280 @@ void tampilkanDiagram() {
 
 }
 
+
 // diagram
-void diagramGender() {
-    float totalL = 0,
-              totalP = 0;
+void diagramKecamatan() {
 
-    // hitung jumlah data per gender
-    for (int i=0; i<banyakData(); i++) {
-        if (dataPenduduk[i].gender == 0) {
-            totalL++;
-        } else if (dataPenduduk[i].gender == 1) {
-            totalP++;
-        }
-    }
+    float total[10]     = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+          totalData     = banyakDataTerisi();
+    short int warna[10] = {1, 2, 15, 5, 12, 6, 3, 8, 13, 14};
 
+    // atur angka belakang koma
     cout << setiosflags(ios::fixed) << setprecision(1);
 
-    // diagram batang
-    diagram(0); cout << endl; 
-    diagram((totalL*35)/(totalL+totalP), 9); 
-    cout << " " <<  (totalL*100)/(totalL+totalP) << "%" << endl;
-    diagram(0); cout << endl;     
-    diagram(0); cout << endl;              
-    diagram(0); cout << endl;     
-    diagram((totalP*35)/(totalL+totalP), 13); cout << " " << (totalP*100)/(totalL+totalP) << "%" << endl;
-    diagram(0); cout << endl;     
+    for (int i=0; i<10; i++) {
 
-    cout << endl;
+        // hitung jumlah data per gender
+        for (int j=0; j<totalData; j++) {
+            if (dataPenduduk[j].alamat.kecamatan == i) {
+                 total[i]++;
+            } 
+        }
 
-    // keterangan
-    color(9);  cout << "\t    " << char(254); color(7); cout << " Laki-laki\n";
-    color(13); cout << "\t    " << char(254); color(7); cout << " Perempuan";
+        // tampilkan diagram
+        diagram((total[i]*30)/(totalData), warna[i]); 
+        cout << " " <<  (total[i]*100)/(totalData) << "%" << endl;
+
+    }
+
+    // keterangan warna
+    for (int i=0; i<10; i++) {
+        gotoxy(55, 7+i); 
+        color(warna[i]); cout << char(254) << " "; 
+        color(RESET); cout << KECAMATAN[i]; 
+    }
+
+    cout << endl << endl;
+}
+
+void diagramStatusHidup() {
+    float total[2]  = {0, 0},
+          totalData = banyakDataTerisi();
+    short int warna[2] = {8, 14};
+
+    // atur angka belakang koma
+    cout << setiosflags(ios::fixed) << setprecision(1);
+
+    // hitung jumlah data per status 
+    for (int i=0; i<totalData; i++) {
+        if      (dataPenduduk[i].statusHidup == 0) { total[0]++; }
+        else if (dataPenduduk[i].statusHidup == 1) { total[1]++; }
+    }
+
+    // tampilkan diagram
+    for (int i=0; i<10; i++) {
+
+        if (i == 2) {           // hidup
+            diagram((total[1]*30)/(totalData), warna[1]); 
+            cout << " " << (total[1]*100)/(totalData) << "%" << endl;
+
+        } else if (i == 7) {    // wafat
+            diagram((total[0]*30)/(totalData), warna[0]); 
+            cout << " " <<  (total[0]*100)/(totalData) << "%" << endl;
+
+        } else {
+            diagram(0); cout << endl;
+        }
+
+    }
+
+    // keterangan warna
+    gotoxy(55, 9);  color(warna[1]); cout << char(254) << " "; color(RESET); cout << STATUSHIDUP[1]; 
+    gotoxy(55, 14); color(warna[0]); cout << char(254) << " "; color(RESET); cout << STATUSHIDUP[0]; 
 
     cout << endl << endl << endl;
 
-    // data tersimpan 
-    cout << "\n\t    Terdapat " << int(totalL+totalP) << " data terverifikasi"
-         << "\n\t    dari " << banyakData() << " penduduk terdaftar."
-         << endl << endl;
+
+}
+
+void diagramGender() {
+    float total[2] = {0, 0},
+          totalData = banyakDataTerisi();
+    short int warna[2] = {9, 13};
+
+    // atur angka belakang koma
+    cout << setiosflags(ios::fixed) << setprecision(1);
+
+    // hitung jumlah data per gender
+    for (int j=0; j<totalData; j++) {
+        if      (dataPenduduk[j].gender == 0) { total[0] += 1; }    // laki-laki
+        else if (dataPenduduk[j].gender == 1) { total[1] += 1; }    // perempuan
+    }
+
+    // tampilkan diagram
+    for (int i=0; i<10; i++) {
+        if (i == 2) {           // laki-laki
+            diagram((total[0]*30)/(totalData), warna[0]); 
+            cout << " " << (total[0]*100)/(totalData) << "%" << endl;
+
+        } else if (i == 7) {    // perempuan
+            diagram((total[1]*30)/(totalData), warna[1]); 
+            cout << " " <<  (total[1]*100)/(totalData) << "%" << endl;
+
+        } else {
+            diagram(0); cout << endl;
+        }
+
+    }
+
+    // keterangan warna
+    gotoxy(55, 9);  color(warna[0]); cout << char(254) << " "; color(RESET); cout << GENDER[0]; 
+    gotoxy(55, 14); color(warna[1]); cout << char(254) << " "; color(RESET); cout << GENDER[1]; 
+
 }
 
 void diagramUsia() {
-    float total1 = 0,
-          total2 = 0,
-          total3 = 0,
-          total4 = 0,
-          total5 = 0,
-          total6 = 0,
-          total7 = 0,
-          total;
-
-    // hitung jumlah data per usia
-    for (int i=0; i<banyakData(); i++) {
-        if (dataPenduduk[i].usia >= 0 && dataPenduduk[i].usia <= 9) {
-            total1++;
-        } else if (dataPenduduk[i].usia >= 10 && dataPenduduk[i].usia <= 19) {
-            total2++;
-        } else if (dataPenduduk[i].usia >= 20 && dataPenduduk[i].usia <= 29) {
-            total3++;
-        } else if (dataPenduduk[i].usia >= 30 && dataPenduduk[i].usia <= 39) {
-            total4++;
-        } else if (dataPenduduk[i].usia >= 40 && dataPenduduk[i].usia <= 49) {
-            total5++;
-        } else if (dataPenduduk[i].usia >= 50 && dataPenduduk[i].usia <= 59) {
-            total6++;
-        } else if (dataPenduduk[i].usia >= 60) {
-            total7++;
-        }
-    }
-
-    total = total1 + total2 + total3 + total4 + total5 + total6 + total7;
+    float total[7] = {0, 0, 0 , 0 , 0 , 0, 0},
+          totalData = banyakDataTerisi();
+    short int warna[7] = {8, 9, 10, 14, 12, 13, 6};
 
     cout << setiosflags(ios::fixed) << setprecision(1);
 
-    // diagram batang
-    diagram((total1*35)/total, 8); 
-    cout << " " << (total1*100)/total << "%" << endl;
+    // hitung jumlah data per usia
+    for (int j=0; j<totalData; j++) {
+        if      (dataPenduduk[j].usia >= 0  && dataPenduduk[j].usia <= 9)  { total[0]++; } 
+        else if (dataPenduduk[j].usia >= 10 && dataPenduduk[j].usia <= 19) { total[1]++; } 
+        else if (dataPenduduk[j].usia >= 20 && dataPenduduk[j].usia <= 29) { total[2]++; } 
+        else if (dataPenduduk[j].usia >= 30 && dataPenduduk[j].usia <= 39) { total[3]++; } 
+        else if (dataPenduduk[j].usia >= 40 && dataPenduduk[j].usia <= 49) { total[4]++; } 
+        else if (dataPenduduk[j].usia >= 50 && dataPenduduk[j].usia <= 59) { total[5]++; } 
+        else if (dataPenduduk[j].usia >= 60)                               { total[6]++; }
+    }
 
-    diagram((total2*35)/total, 9); 
-    cout << " " << (total2*100)/total << "%" << endl;
-    
-    diagram((total3*35)/total, 10); 
-    cout << " " << (total3*100)/total << "%" << endl;
-    
-    diagram((total4*35)/total, 14); 
-    cout << " " << (total4*100)/total << "%" << endl;
-    
-    diagram((total5*35)/total, 12); 
-    cout << " " << (total5*100)/total << "%" << endl;
-    
-    diagram((total6*35)/total, 13); 
-    cout << " " << (total6*100)/total << "%" << endl;
-    
-    diagram((total7*35)/total, 6); 
-    cout << " " << (total7*100)/total << "%" << endl;
-    
+    // tampilkan diagram
+    for (int i=0; i<9; i++) {
+
+        if (i == 0 || i == 8) {
+            diagram(0); cout << endl;
+
+        } else {
+            diagram(total[i-1]*30/totalData, warna[i-1]); 
+            cout << " " <<  total[i-1]*100/totalData << "%" << endl;
+
+        }
+        
+    }
+
+    // keterangan 
+    gotoxy(55, 8);  color(warna[0]); cout << char(254) << " "; color(RESET); cout << "0-9 tahun"; 
+    gotoxy(55, 9);  color(warna[1]); cout << char(254) << " "; color(RESET); cout << "10-19 tahun"; 
+    gotoxy(55, 10); color(warna[2]); cout << char(254) << " "; color(RESET); cout << "20-29 tahun"; 
+    gotoxy(55, 11); color(warna[3]); cout << char(254) << " "; color(RESET); cout << "30-39 tahun"; 
+    gotoxy(55, 12); color(warna[4]); cout << char(254) << " "; color(RESET); cout << "40-49 tahun"; 
+    gotoxy(55, 13); color(warna[5]); cout << char(254) << " "; color(RESET); cout << "50-59 tahun"; 
+    gotoxy(55, 14); color(warna[6]); cout << char(254) << " "; color(RESET); cout << "60+ tahun"; 
+
     cout << endl;
 
-    // keterangan
-    color(8);  cout << "\t    " << char(254); color(7); cout << " 0-9 tahun";
-    color(12); cout << "\t    " << char(254); color(7); cout << " 40-49 tahun\n";
-    color(9);  cout << "\t    " << char(254); color(7); cout << " 10-20 tahun";
-    color(13); cout << "   "    << char(254); color(7); cout << " 50-59 tahun\n";
-    color(10); cout << "\t    " << char(254); color(7); cout << " 20-29 tahun";
-    color(6);  cout << "   "    << char(254); color(7); cout << " 60+ tahun\n";
-    color(14); cout << "\t    " << char(254); color(7); cout << " 30-39 tahun";
-
-    cout << endl;
-    
-    // data tersimpan
-    cout << "\n\t    Terdapat " << int(total) << " data terverifikasi"
-         << "\n\t    dari " << banyakData() << " penduduk terdaftar."
-         << endl << endl;
 }
 
 void diagramAgama() {
-    float total1 = 0,
-              total2 = 0,
-              total3 = 0,
-              total4 = 0,
-              total5 = 0,
-              total6 = 0,
-              total;
+    float total[6]  = {0, 0, 0, 0, 0, 0},
+          totalData = banyakDataTerisi();
 
-    // hitung jumlah data per agama
-    for (int i=0; i<banyakData(); i++) {
-        if (dataPenduduk[i].agama == 0) {
-            total1++;
-        } else if (dataPenduduk[i].agama == 1) {
-            total2++;
-        } else if (dataPenduduk[i].agama == 2) {
-            total3++;
-        } else if (dataPenduduk[i].agama == 3) {
-            total4++;
-        } else if (dataPenduduk[i].agama == 4) {
-            total5++;
-        } else if (dataPenduduk[i].agama == 5) {
-            total6++;
-        }
-    }
-
-    total = total1 + total2 + total3 + total4 + total5 + total6;
+    short int warna[6] = {10, 13, 8, 14, 9, 12};
 
     cout << setiosflags(ios::fixed) << setprecision(1);
 
-    // diagram batang
-    diagram((total1*35)/total, 10); 
-    cout << " " << (total1*100)/total << "%" << endl;
-    
-    diagram((total2*35)/total, 13); 
-    cout << " " << (total2*100)/total << "%" << endl;
-    
-    diagram((total3*35)/total, 8); 
-    cout << " " << (total3*100)/total << "%" << endl;
-    
-    diagram((total4*35)/total, 14); 
-    cout << " " << (total4*100)/total << "%" << endl;
-    
-    diagram((total5*35)/total, 9); 
-    cout << " " << (total5*100)/total << "%" << endl;
-    
-    diagram((total6*35)/total, 12); 
-    cout << " " << (total6*100)/total << "%" << endl;
-    
-    cout << endl << endl;
+    // hitung jumlah data per agama
+    for (int i=0; i<totalData; i++) {
+        if      (dataPenduduk[i].agama == 0) { total[0]++; } 
+        else if (dataPenduduk[i].agama == 1) { total[1]++; } 
+        else if (dataPenduduk[i].agama == 2) { total[2]++; } 
+        else if (dataPenduduk[i].agama == 3) { total[3]++; } 
+        else if (dataPenduduk[i].agama == 4) { total[4]++; } 
+        else if (dataPenduduk[i].agama == 5) { total[5]++; }
+    }
 
-    // keterangan
-    color(10); cout << "\t    " << char(254); color(7); cout << " Islam";
-    color(14); cout << "\t    " << char(254); color(7); cout << " Hindu\n";
-    color(13); cout << "\t    " << char(254); color(7); cout << " Kristen";
-    color(9);  cout << "\t    " << char(254); color(7); cout << " Buddha\n";
-    color(8);  cout << "\t    " << char(254); color(7); cout << " Katolik";
-    color(12); cout << "\t    " << char(254); color(7); cout << " Konghuchu";
+    // tampilkan diagram
+    for (int i=0; i<10; i++) {
+        if (i < 2 || i > 7) {
+            diagram(0); cout << endl;
+        } else {
+            diagram((total[i-2]*30)/totalData, warna[i-2]); 
+            cout << " " << (total[i-2]*100)/totalData << "%" << endl;
+        }
+    }
 
-    cout << endl << endl;
+    // keterangan warna
+    for (int i=0; i<6; i++) {
+        gotoxy(55, 9+i); 
+        color(warna[i]); cout << char(254) << " "; 
+        color(RESET); cout << AGAMA[i]; 
+    }
     
-    // data tersimpan
-    cout << "\n\t    Terdapat " << int(total) << " data terverifikasi"
-         << "\n\t    dari " << banyakData() << " penduduk terdaftar."
-         << endl << endl;    
 }
 
 void diagramGolDar() {
-    float total0 = 0,
-              total1 = 0,
-              total2 = 0,
-              total3 = 0,
-              total;
+    float total[4]  = {0, 0, 0, 0},
+          totalData = banyakDataTerisi();
 
-    // hitung jumlah data per agama
-    for (int i=0; i<banyakData(); i++) {
-        if (dataPenduduk[i].golDar == 0) {
-            total0++;
-        } else if (dataPenduduk[i].golDar == 1) {
-            total1++;
-        } else if (dataPenduduk[i].golDar == 2) {
-            total2++;
-        } else if (dataPenduduk[i].golDar == 3) {
-            total3++;
-        }
-    }
-
-    total = total0 + total1 + total2 + total3;
+    short int warna[4] = {12, 3, 8, 15};
 
     cout << setiosflags(ios::fixed) << setprecision(1);
 
-    // diagram batang
-    diagram((total0*35)/total, 12); cout << " " << (total0*100)/total << "%" << endl;
-    diagram(0); cout << endl;
-    diagram((total1*35)/total, 9);  cout << " " << (total1*100)/total << "%" << endl;
-    diagram(0); cout << endl;
-    diagram((total2*35)/total, 13); cout << " " << (total2*100)/total << "%" << endl;
-    diagram(0); cout << endl;
-    diagram((total3*35)/total, 8);  cout << " " << (total3*100)/total << "%" << endl;
-    
-    cout << endl;
+    // hitung jumlah data per agama
+    for (int i=0; i<totalData; i++) {
+        if      (dataPenduduk[i].golDar == 0) { total[0]++; } 
+        else if (dataPenduduk[i].golDar == 1) { total[1]++; } 
+        else if (dataPenduduk[i].golDar == 2) { total[2]++; } 
+        else if (dataPenduduk[i].golDar == 3) { total[3]++; } 
+    }
 
-    // keterangan
-    color(12); cout << "\t    " << char(254); color(7); cout << " A";
-    color(13); cout << "\t\t  " << char(254); color(7); cout << " AB\n";
-    color(9);  cout << "\t    " << char(254); color(7); cout << " B";
-    color(8);  cout << "\t\t  " << char(254); color(7); cout << " O\n";
+    // tampilkan diagram
+    for (int i=0; i<9; i++) {
 
-    cout << endl << endl;
+        if (i%2 == 0) {
+            diagram(0); cout << endl;
+
+        } else {
+            diagram((total[i/2]*30)/totalData, warna[i/2]); 
+            cout << " " << (total[i/2]*100)/totalData << "%" << endl;
+        }
+    }
+
+    // keterangan warna
+    int jarak = 0;
+    for (int i=0; i<4; i++) {
+
+        gotoxy(55, 8+jarak); 
+        color(warna[i]); cout << char(254) << " "; 
+        color(RESET); cout << GOLDAR[i]; 
+
+        jarak += 2;
+    }
     
-    // data tersimpan
-    cout << "\n\t    Terdapat " << int(total) << " data terverifikasi"
-         << "\n\t    dari " << banyakData() << " penduduk terdaftar."
-         << endl << endl;    
 }
 
 void diagramStatusKawin() {
-    float total0 = 0,
-              total1 = 0,
-              total2 = 0,
-              total3 = 0,
-              total;
+    float total[4]  = {0, 0, 0, 0},
+          totalData = banyakDataTerisi();
 
-    // hitung jumlah data per agama
-    for (int i=0; i<banyakData(); i++) {
-        if (dataPenduduk[i].statusKawin == 0) {
-            total0++;
-        } else if (dataPenduduk[i].statusKawin == 1) {
-            total1++;
-        } else if (dataPenduduk[i].statusKawin == 2) {
-            total2++;
-        } else if (dataPenduduk[i].statusKawin == 3) {
-            total3++;
-        }
-    }
-
-    total = total0 + total1 + total2 + total3;
+    short int warna[4] = {3, 10, 6, 13};
 
     cout << setiosflags(ios::fixed) << setprecision(1);
 
-    // diagram batang
-    diagram((total0*35)/total, 3);  cout << " " << (total0*100)/total << "%" << endl;
-    diagram(0); cout << endl;
-    diagram((total1*35)/total, 10); cout << " " << (total1*100)/total << "%" << endl;
-    diagram(0); cout << endl;
-    diagram((total2*35)/total, 6);  cout << " " << (total2*100)/total << "%" << endl;
-    diagram(0); cout << endl;
-    diagram((total3*35)/total, 13); cout << " " << (total3*100)/total << "%" << endl;
-    
-    cout << endl;
+    // hitung jumlah data per status kawin
+    for (int i=0; i<totalData; i++) {
+        if      (dataPenduduk[i].statusKawin == 0) { total[0]++; } 
+        else if (dataPenduduk[i].statusKawin == 1) { total[1]++; } 
+        else if (dataPenduduk[i].statusKawin == 2) { total[2]++; } 
+        else if (dataPenduduk[i].statusKawin == 3) { total[3]++; } 
+    }
 
-    // keterangan
-    color(3);  cout << "\t    " << char(254); color(7); cout << " Belum kawin";
-    color(6);  cout << "   "    << char(254); color(7); cout << " Cerai hidup\n";
-    color(10); cout << "\t    " << char(254); color(7); cout << " Kawin";
-    color(13); cout << "\t    " << char(254); color(7); cout << " Cerai mati\n";
+    // tampilkan diagram
+    for (int i=0; i<9; i++) {
 
-    cout << endl << endl;
+        if (i%2 == 0) {
+            diagram(0); cout << endl;
+
+        } else {
+            diagram((total[i/2]*30)/totalData, warna[i/2]); 
+            cout << " " << (total[i/2]*100)/totalData << "%" << endl;
+        }
+    }
+
+    // keterangan warna
+    int jarak = 0;
+    for (int i=0; i<4; i++) {
+
+        gotoxy(55, 8+jarak); 
+        color(warna[i]); cout << char(254) << " "; 
+        color(RESET); cout << STATUSKAWIN[i]; 
+
+        jarak += 2;
+    }
     
-    // data tersimpan
-    cout << "\n\t    Terdapat " << int(total) << " data terverifikasi"
-         << "\n\t    dari " << banyakData() << " penduduk terdaftar."
-         << endl << endl;    
 }
 
 
@@ -1490,79 +1847,61 @@ void importFromTxt() {
     input.open("data.txt");
 
     Penduduk penduduk;
-    string baris;
-    int index = 0, kolom = 1;
+    string temp;
+    int index = 0;
 
     while (!input.eof()) {
-        getline(input, baris);
+        getline(input, temp, '|');
 
-        // tanggal update
-        if (kolom == 1){
-            penduduk.tanggalPembaruan = baris;
+        if (temp == "") {
+            break;
+        } else {
+            penduduk.tanggalPembaruan = temp;
+        }       
 
-        // nama lengkap
-        } else if (kolom == 2) {
-            penduduk.namaLengkap = baris;
+        getline(input, penduduk.namaLengkap, '|');
+        
+        getline(input, temp, '|');
+        strcpy(penduduk.nik, temp.c_str());
 
-        // NIK
-        } else if (kolom == 3) {
-            strcpy(penduduk.nik, baris.c_str());
+        getline(input, penduduk.password, '|');
 
-        // password
-        } else if (kolom == 4) {
-            penduduk.password = baris;
+        getline(input, penduduk.ttl, '|');
 
-        // tempat tanggal lahir
-        } else if (kolom == 5) {
-            penduduk.ttl = baris;
+        getline(input, penduduk.alamat.jalan, '|');
 
-        // alamat
-        } else if (kolom == 6) {
-            penduduk.alamat.jalan = baris;
+        getline(input, temp, '|');
+        penduduk.alamat.kecamatan = stoi(temp);
 
-        } else if (kolom == 7) {
-            penduduk.alamat.kecamatan = stoi(baris);
+        getline(input, temp, '|');
+        penduduk.alamat.kelurahan = stoi(temp);
 
-        } else if (kolom == 8) {
-            penduduk.alamat.kelurahan = stoi(baris);
+        getline(input, penduduk.telepon, '|');
 
-        // telepon
-        } else if (kolom == 9) {
-            penduduk.telepon = baris;
+        getline(input, temp, '|');
+        penduduk.usia = stoi(temp);
 
-        // usia
-        } else if (kolom == 10) {
-            penduduk.usia = stoi(baris); 
+        getline(input, temp, '|');
+        penduduk.gender = stoi(temp);
 
-        // gender
-        } else if (kolom == 11) {
-            penduduk.gender = stoi(baris);
+        getline(input, temp, '|');
+        penduduk.agama = stoi(temp);
 
-        // agama
-        } else if (kolom == 12) {
-            penduduk.agama = stoi(baris);
+        getline(input, temp, '|');
+        penduduk.golDar = stoi(temp);
 
-        // golongan darah
-        } else if (kolom == 13) {
-            penduduk.golDar = stoi(baris);
+        getline(input, temp, '|');
+        penduduk.statusKawin = stoi(temp);
 
-        // status kawin
-        } else if (kolom == 14) {
-            penduduk.statusKawin = stoi(baris);
+        getline(input, temp, '\n');
+        penduduk.statusHidup = stoi(temp);
 
-        // status hidup
-        } else if (kolom == 15) {
-            penduduk.statusHidup = stoi(baris);
+        dataPenduduk[index] = penduduk;
 
-            dataPenduduk[index] = penduduk;
+        index++;
 
-            index++;
-            kolom = 1;
-            continue;
-        }
-
-        kolom++;
     }
+
     input.close();
 }
 
@@ -1573,20 +1912,20 @@ void appendToTxt(Penduduk penduduk) {
 
     penduduk.tanggalPembaruan = hariIni();  // tgl data diri diubah
 
-    file << penduduk.tanggalPembaruan
-         << penduduk.namaLengkap << "\n"
-         << penduduk.nik << "\n"
-         << penduduk.password << "\n"
-         << penduduk.ttl << "\n"
-         << penduduk.alamat.jalan << "\n" 
-         << penduduk.alamat.kecamatan << "\n" 
-         << penduduk.alamat.kelurahan << "\n"
-         << penduduk.telepon << "\n"
-         << penduduk.usia << "\n"
-         << penduduk.gender << "\n"
-         << penduduk.agama << "\n"
-         << penduduk.golDar << "\n"
-         << penduduk.statusKawin << "\n"
+    file << penduduk.tanggalPembaruan << "|"
+         << penduduk.namaLengkap << "|"
+         << penduduk.nik << "|"
+         << penduduk.password << "|"
+         << penduduk.ttl << "|"
+         << penduduk.alamat.jalan << "|" 
+         << penduduk.alamat.kecamatan << "|" 
+         << penduduk.alamat.kelurahan << "|"
+         << penduduk.telepon << "|"
+         << penduduk.usia << "|"
+         << penduduk.gender << "|"
+         << penduduk.agama << "|"
+         << penduduk.golDar << "|"
+         << penduduk.statusKawin << "|"
          << penduduk.statusHidup << "\n";
 
     file.close();
@@ -1665,6 +2004,15 @@ void bubbleSortTanggal(const char* mode) {
     } // end for 
 } // end function
 
+int indexElemen(short int array[], int cari, int length) {
+    for (int i=0; i<length; i++) {
+        if (array[i] == cari) {
+            return i;
+        }
+    }
+
+    return -1;
+}
 
 /* ----------------------------------- TAMBAHAN ----------------------------------- */
 
@@ -1688,16 +2036,19 @@ tm *timeNow() {
 }
 
 string hariIni() {
-    time_t hariIni = time(0);
+    int hari = timeNow()->tm_wday;
+    string tgl  = to_string(timeNow()->tm_mday);
+    string bulan = to_string(timeNow()->tm_mon);
+    string tahun = to_string(timeNow()->tm_year + 1900);
 
-    return ctime(&hariIni); // mengonversi dari time_t
+    return HARI[hari] + ", " + tgl + "/" + bulan + "/" + tahun;
 }
 
 int random() {
     return rand()%9;
 }
 
-void clearBuffer() {
+void clearCin() {
     cin.clear(); 
     cin.ignore(); 
     fflush(stdin);
@@ -1714,29 +2065,6 @@ bool logInBerhasil(string nik, string password) {
     }
     
     return false;
-}
-
-bool isAngka(string str) {
-    int length = str.length();
-
-    char strChar[length];
-    strcpy(strChar, str.c_str());
-
-    int isInteger = 0;
-    for (int i=0; i<length; i++) {
-        int cek = (int)strChar[i] - 48;
-
-        if (0 <= cek && cek <= 9) {
-            isInteger += 1;
-        }
-    }
-
-    if (isInteger == length && !isSpace(str)) {
-        return true;
-    } else {
-        return false;
-    }
-
 }
 
 int banyakData(){
@@ -1757,7 +2085,7 @@ void karakter(int ascii, int jumlah, int warna) {
 }
 
 void diagram(int jumlah, unsigned int warna) {
-    cout << "\t    " << char(221); color(warna);
+    cout << "\t      " << char(221); color(warna);
 
     for (int i=0; i<jumlah; i++) {
         cout << char(219);
@@ -1806,37 +2134,115 @@ string alamatKecamatan(string alamat) {
     return kecamatanDitemukan;
 }
 
+void hapusTulisan(int panjang) {
+    color(0);
+    for (int i=0; i<panjang; i++) {
+        cout << char(219);
+    }
+    color(RESET);
+}
+
+int banyakDataTerisi() {
+    // hitung data terverifikasi
+    int total = 0;
+    for (int i=0; i<banyakData(); i++) {
+        if (formulirTerisi(dataPenduduk[i])) {
+            total += 1;
+        }
+    }
+
+    return total;
+}
+
+
+/* ----------------------------------- CEK ISIAN ----------------------------------- */
+
+bool isAngka(string str) {
+    int length = str.length();
+
+    int isInteger = 0;
+    for (int i=0; i<length; i++) {
+        int cek = (int)str[i] - 48;
+
+        if (0 <= cek && cek <= 9) {
+            isInteger += 1;
+        }
+    }
+
+    if (isInteger == length && !isSpace(str)) {
+        return true;
+    } 
+
+    return false;
+}
+
 bool isSpace(string str) {
     if (str == "\t" || str == "\n" || str == "") {
         return true;
     }
 
     int length = str.length(),
-        isSpasi = 0;
-    char strChar[length], 
-         spasi = ' ';
-
-    strcpy(strChar, str.c_str());
+        banyakSpasi = 0;
 
     for (int i=0; i<length; i++) {
-        if (strChar[i] == spasi) {
-            isSpasi++;
+        if (str[i] == ' ') {
+            banyakSpasi++;
         }
     }
 
-    if (length == isSpasi) {
+    if (length == banyakSpasi) {
         return true;
     }
 
     return false;
 }
 
-void hapusTulisan() {
-    color(0);
-    for (int i=0; i<50; i++) {
-        cout << char(219);
+bool isTahun(int tahun) {
+    int tahunIni = timeNow()->tm_year + 1900;
+    
+    if (tahun >= 1920 && tahun <= tahunIni) {
+        return true;
     }
-    color(RESET);
+
+    return false;
 }
+
+bool isTanggal(int tanggal) {
+    if (tanggal >= 1 && tanggal <= 31) {
+        return true;
+    }
+
+    return false;
+}
+
+bool isBulan(int bulan) {
+    if (bulan >= 1 && bulan <= 12) {
+        return true;
+    }
+
+    return false;
+}
+
+bool isNIK(char nik[]) {
+    string nikStr = string(nik);
+    int length = nikStr.length();
+
+    if (!isSpace(nikStr) && isAngka(nikStr) && length == 16) {
+        return true;
+    }
+
+    return false;
+}
+
+bool isTelp(string telp) {
+    int length = telp.length();
+
+    if (!isSpace(telp) && isAngka(telp) && length == 12) {
+        return true;
+    }
+
+    return false;
+}
+
 
 
