@@ -115,7 +115,7 @@ void tabel();
 // write & read txt
 void importFromTxt();                               // ambil semua data dari txt
 void appendToTxt(Penduduk penduduk);                // tambahkan data baru ke txt
-void deleteToTxt(Penduduk penduduk);                // hapus data tertentu dari txt
+void deleteFromTxt(Penduduk penduduk);                // hapus data tertentu dari txt
 void updateToTxt(Penduduk penduduk);                // ubah data tertentu di txt
 
 // sorting & searching
@@ -1598,36 +1598,50 @@ void tampilkanDiagram() {
 }
 
 void tampilkanDataPenduduk() {
-    system("cls");
-    cout << endl << endl;
+    bool openPage = true;
+    short int nav1, nav2;
 
-    // judul halaman
-    cout << "\t"; karakter(177, 5, 9);
-    cout << "  Data Penduduk  "; karakter(177, 50, 9); 
-    cout << endl << endl;
+    while (openPage) {
+        system("cls");
+        cout << endl << endl;
 
-    for (int i=0; i<15; i++) {
-        gotoxy(10, 7+i); cout << dataPenduduk[i].tanggalPembaruan;
-        gotoxy(30, 7+i); cout << dataPenduduk[i].nik;
-        gotoxy(50, 7+i); cout << dataPenduduk[i].namaLengkap;
+        // judul halaman
+        cout << "\t"; karakter(177, 5, 9);
+        cout << "  Data Penduduk  "; karakter(177, 50, 9); 
+        cout << endl << endl;
+
+        for (int i=0; i<15; i++) {
+            gotoxy(10, 7+i); cout << i;
+            gotoxy(19, 7+i); cout << dataPenduduk[i].tanggalPembaruan;
+            gotoxy(39, 7+i); cout << dataPenduduk[i].nik;
+            gotoxy(58, 7+i); cout << dataPenduduk[i].namaLengkap;
+
+        }
+        
+        tabel();
+
+        // ganti halaman
+        color(nav1); cout << "\tKembali\n";
+        color(nav2); cout << "\t  <=   ";
+        color(RESET); cout << endl << endl << endl;
+
+        char opsi, key;
+        opsi = getch();
+
+        switch (opsi) {
+            case ENTER:
+
+                break;
+
+            case -32:
+                key = getch();
+                break;
+
+        }
 
     }
-    tabel();
-
-
-    char opsi, key;
-    opsi = getch();
-
-    switch (opsi) {
-        case ENTER:
-
-            break;
-
-        case -32:
-            key = getch();
-            break;
-
-    }
+    
+    
 
 
 }
@@ -2001,17 +2015,23 @@ void tampilkanOpsi(string opsi) {
 }
 
 // tabel
-void tabel() {
-    cout << "\t+---------------------+--------------------+---------------------------+" << endl;
-    cout << "\t|  Tanggal Pembaruan  |         NIK        |         Nama Lengkap      |" << endl;
-    cout << "\t+---------------------+--------------------+---------------------------+" << endl;
+void tabel(short int opsi1) {
+    gotoxy(0, 5);
+    cout << "\t+--------+-------------------+------------------+----------------------+" << endl;
+
+    cout << "\t|   No   "; color(opsi1); cout << char(31);
+    cout << "| Tanggal Pembaruan |        NIK       |     Nama Lengkap     |" << endl;
+    
+    cout << "\t+--------+-------------------+------------------+----------------------+" << endl;
 
     for (int i=0; i<15; i++) {
-        gotoxy(0, 7+i);  cout << "\t|"; 
-        gotoxy(20, 7+i); cout << "\t|";
-        gotoxy(50, 7+i); cout << "\t|";
+        gotoxy(8, 8+i);  cout << "|"; 
+        gotoxy(17, 8+i); cout << "|"; 
+        gotoxy(37, 8+i); cout << "|";
+        gotoxy(56, 8+i); cout << "|";
+        gotoxy(79, 8+i); cout << "|";
     }
-    cout << "\t+---------------------+--------------------+---------------------------+" << endl;
+    cout << "\n\t+--------+-------------------+------------------+----------------------+" << endl;
 }
 
 /* ----------------------------------- FILE TXT ----------------------------------- */
@@ -2390,7 +2410,7 @@ bool isNIK(char nik[]) {
 bool isTelp(string telp) {
     int length = telp.length();
 
-    if (!isSpace(telp) && isAngka(telp) && length >= 10 || length <= 12) {
+    if (!isSpace(telp) && isAngka(telp) && (length >= 10 && length <= 12)) {
         return true;
     }
 
