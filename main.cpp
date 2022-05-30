@@ -95,6 +95,7 @@ Penduduk ubahDataDiri(Penduduk penduduk);
 void logInPemerintah();                             // log in pemerintah
 void menuPemerintah();                              // menu di akun pemerintah
 void tampilkanDiagram();                            // tampilkan diagram data penduduk
+void tampilkanDataPenduduk();
 
 // diagram
 void diagramKecamatan();
@@ -108,6 +109,9 @@ void diagramStatusKawin();                          // diagram berdasarkna statu
 // tampilan opsi
 void tampilkanOpsi(string opsi);
 
+// tabel
+void tabel();
+
 // write & read txt
 void importFromTxt();                               // ambil semua data dari txt
 void appendToTxt(Penduduk penduduk);                // tambahkan data baru ke txt
@@ -117,7 +121,7 @@ void updateToTxt(Penduduk penduduk);                // ubah data tertentu di txt
 // sorting & searching
 int indexNIK(string nik);                           // cari index NIK
 void bubbleSortTanggal(const char* mode);           // sorting berdasarkan tanggal pembaruan
-int indexElemen(short int array[], int cari, int length);
+int indexElemen(short int array[], int cari, int length);   // cari index elemen
 
 // tambahan
 void color(unsigned short warna);                   // ganti warna
@@ -136,12 +140,12 @@ int banyakDataTerisi();                             // banyak data yg sudah diis
 
 // cek pengisian formulir
 bool isAngka(string str);                           // memastikan string diisi angka saja
-bool isSpace(string str);                           // memastrikan string diisi spasi saja
-bool isTanggal(int tanggal);
-bool isBulan(int bulan);
-bool isTahun(int tahun);
-bool isNIK(char nik[]);
-bool isTelp(string telp);
+bool isSpace(string str);                           // memastikan string diisi spasi saja
+bool isTanggal(int tanggal);                        // memastikan sesuai ketentuan tanggal
+bool isBulan(int bulan);                            // memastikan sesuai ketentuan bulan
+bool isTahun(int tahun);                            // memastikan sesuai ketentuan tahun
+bool isNIK(char nik[]);                             // memastikan sesuai ketentuan nik
+bool isTelp(string telp);                           // memastikan sesuai ketentuan telepon
 
 /*----------------------------------- MAIN PROGRAM -----------------------------------*/
 
@@ -170,7 +174,7 @@ int main(){
         cout << "\t\t\t PENDATAAN PENDUDUK KOTA SAMARINDA \n\n";  // judul
         cout << "\t\t\t     Jalankan program sebagai :  \n\n\n";  
         
-        color(notif); cout << "\t\t\t\t       ---     \n\n\n";              // notif peringatan
+        color(notif); cout << "\t\t\t\t       ---     \n\n\n";    // notif peringatan
         color(sign1); cout << "\t\t    "     << char(16); color(opsi1); cout << " Pemerintah" ;              // opsi 1
         color(sign2); cout << "\t\t  "       << char(16); color(opsi2); cout << " Penduduk\n\n";              // opsi 2
         color(sign3); cout << "\t\t\t\t    " << char(16); color(opsi3); cout << " Keluar  \n\n";              // opsi 3
@@ -860,7 +864,6 @@ bool cancelForm() {
 }
 
 
-// belom selese
 void tampilkanData(Penduduk penduduk) {
     system("cls");
     cout << "Gender " << GENDER[penduduk.gender] << endl; 
@@ -1332,6 +1335,7 @@ void menuPemerintah() {
 
                 // tampilkan data penduduk
                 if (opsi[0] == SELECT) {
+                    tampilkanDataPenduduk();
 
                 // tampilkan diagram data
                 } else if (opsi[1] == SELECT) {
@@ -1593,6 +1597,40 @@ void tampilkanDiagram() {
 
 }
 
+void tampilkanDataPenduduk() {
+    system("cls");
+    cout << endl << endl;
+
+    // judul halaman
+    cout << "\t"; karakter(177, 5, 9);
+    cout << "  Data Penduduk  "; karakter(177, 50, 9); 
+    cout << endl << endl;
+
+    for (int i=0; i<15; i++) {
+        gotoxy(10, 7+i); cout << dataPenduduk[i].tanggalPembaruan;
+        gotoxy(30, 7+i); cout << dataPenduduk[i].nik;
+        gotoxy(50, 7+i); cout << dataPenduduk[i].namaLengkap;
+
+    }
+    tabel();
+
+
+    char opsi, key;
+    opsi = getch();
+
+    switch (opsi) {
+        case ENTER:
+
+            break;
+
+        case -32:
+            key = getch();
+            break;
+
+    }
+
+
+}
 
 // diagram
 void diagramKecamatan() {
@@ -1960,6 +1998,20 @@ void tampilkanOpsi(string opsi) {
              << "\t     : \n";
     } else if (opsi == "Status Hidup") {
     }
+}
+
+// tabel
+void tabel() {
+    cout << "\t+---------------------+--------------------+---------------------------+" << endl;
+    cout << "\t|  Tanggal Pembaruan  |         NIK        |         Nama Lengkap      |" << endl;
+    cout << "\t+---------------------+--------------------+---------------------------+" << endl;
+
+    for (int i=0; i<15; i++) {
+        gotoxy(0, 7+i);  cout << "\t|"; 
+        gotoxy(20, 7+i); cout << "\t|";
+        gotoxy(50, 7+i); cout << "\t|";
+    }
+    cout << "\t+---------------------+--------------------+---------------------------+" << endl;
 }
 
 /* ----------------------------------- FILE TXT ----------------------------------- */
@@ -2338,7 +2390,7 @@ bool isNIK(char nik[]) {
 bool isTelp(string telp) {
     int length = telp.length();
 
-    if (!isSpace(telp) && isAngka(telp) && length == 12) {
+    if (!isSpace(telp) && isAngka(telp) && length >= 10 || length <= 12) {
         return true;
     }
 
