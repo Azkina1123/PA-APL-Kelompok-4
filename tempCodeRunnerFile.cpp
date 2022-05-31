@@ -1,1 +1,1 @@
-opsi[index] = UNSELECT;
+        // cout << indexAwal << endl << endl;
