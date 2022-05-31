@@ -86,10 +86,10 @@ void menuMasukPenduduk();                           // menu login atau signup
 void logInPenduduk();                               // log in penduduk
 void signUpPenduduk();                              // sign up penduduk
 void menuPenduduk(Penduduk penduduk);               // menu di akun penduduk
-Penduduk isiFormulirPenduduk(Penduduk penduduk);    // isi formulir penduduk
+void isiFormulirPenduduk(Penduduk penduduk);    // isi formulir penduduk
 bool cancelForm();
 void tampilkanData(Penduduk penduduk);              // tampilkan data
-Penduduk ubahDataDiri(Penduduk penduduk);
+void ubahDataDiri(Penduduk penduduk);
 
 // tampilan mode pemerintah
 void logInPemerintah();                             // log in pemerintah
@@ -119,7 +119,7 @@ void deleteFromTxt(Penduduk penduduk);                // hapus data tertentu dar
 void updateToTxt(Penduduk penduduk);                // ubah data tertentu di txt
 
 // sorting & searching  
-int indexNIK(string nik);                                   // cari index NIK
+int searchNIK(string nik);                                   // cari index NIK
 void sortNIK(string mode);                                  // sorting berdasarkan nik dengan insertion sort
 void swap(Penduduk *elemen1, Penduduk *elemen2);
 int partition(int low, int high, string mode);
@@ -398,7 +398,7 @@ void logInPenduduk() {
         color(SUCCESS); cout << "\t\t\t\t   Log in berhasil!" << endl << endl; color(RESET); 
         getch();
 
-        int index = indexNIK(nik);          // index nik
+        int index = searchNIK(nik);          // index nik
         menuPenduduk(dataPenduduk[index]);  // masuk ke akun sesuai nik
     
     // login gagal
@@ -425,7 +425,7 @@ void signUpPenduduk() {
     cout << endl << endl;
 
     // gagal sign up - nik sudah ada
-    if (indexNIK(pendudukBaru.nik) != -1) {
+    if (searchNIK(pendudukBaru.nik) != -1) {
         color(FAIL); cout << "\t\t\t       NIK telah terdaftar!        \n\n" << endl;
     
     // gagal sign up - nik salah
@@ -506,7 +506,7 @@ void menuPenduduk(Penduduk penduduk) {
 
                 // isi formulir
                 } else if (opsi2 == SELECT) {
-                    penduduk = isiFormulirPenduduk(penduduk);    // buka halaman isi formulir
+                    isiFormulirPenduduk(penduduk);    // buka halaman isi formulir
 
                 // tampilkan data diri
                 } else if (opsi3 == SELECT) {   
@@ -514,7 +514,7 @@ void menuPenduduk(Penduduk penduduk) {
 
                 // ubah data diri
                 } else if (opsi4 == SELECT) {
-                    penduduk = ubahDataDiri(penduduk);      // buka halaman ubah data diri
+                    ubahDataDiri(penduduk);      // buka halaman ubah data diri
                 }
 
                 break;
@@ -555,9 +555,11 @@ void menuPenduduk(Penduduk penduduk) {
 
 }
 
-Penduduk isiFormulirPenduduk(Penduduk penduduk) {
+void isiFormulirPenduduk(Penduduk penduduk) {
     bool openPage = true;
     short int page = 1;
+
+    Penduduk *pendPtr = &penduduk;
 
     while (openPage) {
         system("cls");
@@ -628,10 +630,10 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk) {
             }
 
             // simpan ttl
-            penduduk.ttl = tempat + ", " + to_string(jawaban[0]) + "-" 
+            (*pendPtr).ttl = tempat + ", " + to_string(jawaban[0]) + "-" 
                            + to_string(jawaban[1]) + "-" + to_string(jawaban[2]);
             // simpan usia
-            penduduk.usia = tahunIni - jawaban[2]; // usia
+            (*pendPtr).usia = tahunIni - jawaban[2]; // usia
 
             // isi nomor telepon
             string noTelp;
@@ -641,7 +643,7 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk) {
             }
 
             // simpan nomor telepon
-            penduduk.telepon = noTelp;
+            (*pendPtr).telepon = noTelp;
             color(RESET); 
                 
 
@@ -702,9 +704,9 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk) {
                 clearCin();
             }
 
-            penduduk.alamat.jalan = jalan;
-            penduduk.alamat.kecamatan = noKec - 1;
-            penduduk.alamat.kelurahan = noKel - 1;
+            (*pendPtr).alamat.jalan = jalan;
+            (*pendPtr).alamat.kecamatan = noKec - 1;
+            (*pendPtr).alamat.kelurahan = noKel - 1;
 
         // halaman 3
         } else if ( page == 3 ) {   // halaman 3
@@ -740,12 +742,12 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk) {
                 else { jarak += 4; }
             }
 
-            penduduk.gender = jawaban[0]-1;
-            penduduk.agama = jawaban[1]-1;
-            penduduk.golDar = jawaban[2]-1;
-            penduduk.statusKawin = jawaban[3]-1;
+            (*pendPtr).gender = jawaban[0]-1;
+            (*pendPtr).agama = jawaban[1]-1;
+            (*pendPtr).golDar = jawaban[2]-1;
+            (*pendPtr).statusKawin = jawaban[3]-1;
 
-            penduduk.tanggalPembaruan = hariIni();  // tgl data pembaruan diubah
+            (*pendPtr).tanggalPembaruan = hariIni();  // tgl data pembaruan diubah
             updateToTxt(penduduk);
 
             color(SUCCESS); cout << "\n\t\t       Formulir telah berhasil diisi!    \n" << endl;
@@ -791,7 +793,6 @@ Penduduk isiFormulirPenduduk(Penduduk penduduk) {
 
     }
 
-    return penduduk;
 }
 
 bool cancelForm() {
@@ -889,7 +890,7 @@ void tampilkanData(Penduduk penduduk) {
     getch();   
 }
 
-Penduduk ubahDataDiri(Penduduk penduduk) {
+void ubahDataDiri(Penduduk penduduk) {
     bool openPage = true,
          editing = false;
     short int index,
@@ -909,6 +910,8 @@ Penduduk ubahDataDiri(Penduduk penduduk) {
         "Telepon",      "Alamat", "Agama",    "Golongan Darah",        "Status Perkawinan",
         "Kembali"
     };
+
+    Penduduk *pendPtr = &penduduk;
 
     while (openPage) {
         string dataStr[] = {
@@ -1034,14 +1037,14 @@ Penduduk ubahDataDiri(Penduduk penduduk) {
                 }
 
                 // simpan ttl
-                penduduk.ttl = tempat + ", "                    // tempat
+                (*pendPtr).ttl = tempat + ", "                    // tempat
                                 + to_string(jawaban[0]) + "-"   // tanggal
                                 + to_string(jawaban[1]) + "-"   // bulan
                                 + to_string(jawaban[2]);        // tahun
 
                 // ubah usia
                 int tahunIni = timeNow()->tm_year + 1900;
-                penduduk.usia = tahunIni - jawaban[2];
+                (*pendPtr).usia = tahunIni - jawaban[2];
 
             // ganti alamat
             } else if (index == 6) {
@@ -1103,9 +1106,9 @@ Penduduk ubahDataDiri(Penduduk penduduk) {
                 }
 
                 // ubah alamat
-                penduduk.alamat.jalan = jalan;
-                penduduk.alamat.kecamatan = noKec-1;
-                penduduk.alamat.kelurahan = noKel-1;
+                (*pendPtr).alamat.jalan = jalan;
+                (*pendPtr).alamat.kecamatan = noKec-1;
+                (*pendPtr).alamat.kelurahan = noKel-1;
 
             // gender, agama, golongan darah, status perkawinan
             } else if (index == 4 || index == 7 || index == 8 || index == 9){
@@ -1142,10 +1145,10 @@ Penduduk ubahDataDiri(Penduduk penduduk) {
 
                 }
 
-                if      (index == 4) { penduduk.gender      = isiInt-1; }
-                else if (index == 7) { penduduk.agama       = isiInt-1; }
-                else if (index == 8) { penduduk.golDar      = isiInt-1; }
-                else if (index == 9) { penduduk.statusKawin = isiInt-1; }
+                if      (index == 4) { (*pendPtr).gender      = isiInt-1; }
+                else if (index == 7) { (*pendPtr).agama       = isiInt-1; }
+                else if (index == 8) { (*pendPtr).golDar      = isiInt-1; }
+                else if (index == 9) { (*pendPtr).statusKawin = isiInt-1; }
             
             // nama, password, telepon, nik
             } else {
@@ -1264,7 +1267,6 @@ Penduduk ubahDataDiri(Penduduk penduduk) {
 
     }
 
-    return penduduk;
 }
 
 
@@ -1680,12 +1682,23 @@ void tampilkanDataPenduduk() {
         color(cari1); cout << "\n\t" << char(16); 
         color(cari2); cout << " Masukkan NIK : "; 
 
+        // menunjuk ke cari nik
         if (cari1 == SIGNED) {
             color(8); cout << "[Tekan ENTER untuk mengisi]"; 
         
+        // mode cari nik
         } else if (cari1 == MARKED) {
             color(SELECT); cin.get(nik, 17); clearCin();
             cari1 = SIGNED;
+
+            // searching NIK
+            int indexNIK = searchNIK(nik);
+
+            // jika ditemukan
+            if (indexNIK != -1) {
+                tampilkanData(dataPenduduk[indexNIK]);
+            }
+
             continue;
         }
 
@@ -2280,7 +2293,7 @@ void appendToTxt(Penduduk penduduk) {
 
 void deleteFromTxt(Penduduk penduduk) {
     int length = banyakData();
-    int index = indexNIK(penduduk.nik);
+    int index = searchNIK(penduduk.nik);
 
     ofstream output;
     output.open("data.txt");
@@ -2311,13 +2324,29 @@ void updateToTxt(Penduduk penduduk) {
 
 /* ----------------------------------- SORT & SEARCH ----------------------------------- */
 
-// cari index NIK
-int indexNIK(string nik) {
-    for (int i=0; i<banyakData(); i++) {
-        if (dataPenduduk[i].nik == nik) {
-            return i;
-        }
-    }
+// cari index NIK - binary search
+int searchNIK(string nik) {
+    int beg = 0, end = banyakData()-1, mid;
+    sortNIK("ASCENDING");
+
+    while( beg <= end ){
+
+        mid = (end + beg) / 2; 
+
+        if (dataPenduduk[mid].nik == nik) { 
+            return mid;
+
+        } else {
+
+            if(nik.compare(dataPenduduk[mid].nik) > 0){ 
+                beg = mid + 1;
+
+            } else {
+                end = mid - 1;
+            
+            } // end if
+        } // end if
+    } // end while
 
     return -1;
 }
@@ -2387,6 +2416,7 @@ int partition(int low, int high, string mode) {
     return (i + 1);
 }
 
+// quick sort
 void sortNamaLengkap(int low, int high, string mode) {    // quick sort
     if (low < high) {
         int pi = partition(low, high, mode);
@@ -2395,6 +2425,7 @@ void sortNamaLengkap(int low, int high, string mode) {    // quick sort
     }
 }
 
+// sorting berdasarkan tanggal
 void sortTanggal(string mode) {
     Penduduk temp;
     int n = banyakData();
@@ -2441,6 +2472,7 @@ void sortTanggal(string mode) {
     } // end for 
 }
 
+// cari index elemen - sequential search
 int indexElemen(short int array[], int cari, int length) {
     for (int i=0; i<length; i++) {
         if (array[i] == cari) {
@@ -2613,6 +2645,7 @@ int ambilTahun(string str) {
 
     return stoi(temp);
 }
+
 
 /* ----------------------------------- CEK ISIAN ----------------------------------- */
 
