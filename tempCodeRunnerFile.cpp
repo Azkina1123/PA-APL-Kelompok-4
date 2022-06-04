@@ -1,1 +1,1 @@
-        // cout << indexAwal << endl << endl;
+color(FAIL);
